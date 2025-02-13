@@ -1,16 +1,26 @@
-import Hero from "@/components/hero";
-import ConnectSupabaseSteps from "@/components/tutorial/connect-supabase-steps";
-import SignUpUserSteps from "@/components/tutorial/sign-up-user-steps";
-import { hasEnvVars } from "@/utils/supabase/check-env-vars";
+"use client";
 
-export default async function Home() {
+import Banner from "@/components/landing/HeroBanner";
+import CardGrid from "@/components/landing/CardGrid";
+import FavoriteWorks from "@/components/landing/FavoriteWorks";
+import { useState } from "react";
+import HeroBanner from "@/components/landing/HeroBanner";
+
+export default  function Home() {
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    // Aquí puedes implementar la lógica de búsqueda
+    console.log("Buscando:", query);
+  };
   return (
     <>
-      <Hero />
-      <main className="flex-1 flex flex-col gap-6 px-4">
-        <h2 className="font-medium text-xl mb-4">Next steps</h2>
-        {hasEnvVars ? <SignUpUserSteps /> : <ConnectSupabaseSteps />}
-      </main>
+      <div className="min-h-screen w-full bg-background">
+      <HeroBanner onSearch={handleSearch} />
+        <FavoriteWorks />
+        <CardGrid searchQuery={searchQuery} />
+      </div>
     </>
   );
 }
