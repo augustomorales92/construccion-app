@@ -9,8 +9,6 @@ import Image from "next/image"
 
 export default function HeroBanner() {
 
-
-
   return (
     <div className="relative w-full h-[400px]">
       <Image
