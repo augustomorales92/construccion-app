@@ -6,6 +6,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@prisma/client": "6.3.1",
     "@radix-ui/react-checkbox": "^1.1.1",
     "@radix-ui/react-dialog": "^1.1.6",
     "@radix-ui/react-dropdown-menu": "^2.1.1",

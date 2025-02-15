@@ -113,7 +113,7 @@ function ActionSearchBar({ constructions }: { constructions: Construction[] }) {
           </div>
         </div>
       </div>
-      {inputQuery && (
+      {debouncedQuery && (
         <AnimatePresence>
           <motion.div
             className="absolute mt-1 border rounded-md shadow-sm overflow-hidden dark:border-gray-800 bg-white dark:bg-black"
