@@ -1,26 +1,20 @@
-"use client";
+'use client'
 
-import Banner from "@/components/landing/HeroBanner";
-import CardGrid from "@/components/landing/CardGrid";
-import FavoriteWorks from "@/components/landing/FavoriteWorks";
-import { useState } from "react";
-import HeroBanner from "@/components/landing/HeroBanner";
+import CardGrid from '@/components/landing/CardGrid'
+import FavoriteWorks from '@/components/landing/FavoriteWorks'
+import HeroBanner from '@/components/landing/HeroBanner'
+import { Suspense } from 'react'
 
-export default  function Home() {
-  const [searchQuery, setSearchQuery] = useState("");
-
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-    // Aquí puedes implementar la lógica de búsqueda
-    console.log("Buscando:", query);
-  };
+export default function Home() {
   return (
     <>
       <div className="min-h-screen w-full bg-background">
-      <HeroBanner onSearch={handleSearch} />
+        <HeroBanner />
         <FavoriteWorks />
-        <CardGrid searchQuery={searchQuery} />
+        <Suspense fallback={<div>Loading...</div>}>
+          <CardGrid />
+        </Suspense>
       </div>
     </>
-  );
+  )
 }
