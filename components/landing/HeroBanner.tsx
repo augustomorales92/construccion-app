@@ -1,12 +1,12 @@
-'use client'
-
+import { getConstructions } from '@/actions/constructions'
 import cleanEnergy from '@/public/images/clean-energy.jpg'
 import Image from 'next/image'
 import SearchBar from './SearchBar'
 
-export default function HeroBanner() {
+export default async function HeroBanner() {
+  const constructions = await getConstructions()
   return (
-    <div className="relative w-full h-[400px]">
+    <div className="relative w-full h-[25rem]">
       <Image
         src={cleanEnergy}
         alt="Banner image of a bridge"
@@ -19,7 +19,7 @@ export default function HeroBanner() {
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-6 text-center">
             Descubre Obras Increíbles
           </h1>
-          <SearchBar />
+          <SearchBar constructions={constructions} />
         </div>
       </div>
     </div>

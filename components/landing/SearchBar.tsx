@@ -5,76 +5,17 @@ import type React from 'react'
 import { Input } from '@/components/ui/input'
 import useDebounce from '@/hooks/use-debounce'
 import { AnimatePresence, motion } from 'framer-motion'
-import {
-  AudioLines,
-  BarChart2,
-  Globe,
-  PlaneTakeoff,
-  Search,
-  Video,
-} from 'lucide-react'
+import { Home, Search } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
-import { Button } from '../ui/button'
+import { Construction } from './types'
 
-interface Action {
-  id: string
-  label: string
-  icon: React.ReactNode
-  description?: string
-  short?: string
-  end?: string
-}
-
-const allActions = [
-  {
-    id: '1',
-    label: 'Book tickets',
-    icon: <PlaneTakeoff className="h-4 w-4 text-blue-500" />,
-    description: 'Operator',
-    short: '⌘K',
-    end: 'Agent',
-  },
-  {
-    id: '2',
-    label: 'Summarize',
-    icon: <BarChart2 className="h-4 w-4 text-orange-500" />,
-    description: 'gpt-4o',
-    short: '⌘cmd+p',
-    end: 'Command',
-  },
-  {
-    id: '3',
-    label: 'Screen Studio',
-    icon: <Video className="h-4 w-4 text-purple-500" />,
-    description: 'gpt-4o',
-    short: '',
-    end: 'Application',
-  },
-  {
-    id: '4',
-    label: 'Talk to Jarvis',
-    icon: <AudioLines className="h-4 w-4 text-green-500" />,
-    description: 'gpt-4o voice',
-    short: '',
-    end: 'Active',
-  },
-  {
-    id: '5',
-    label: 'Translate',
-    icon: <Globe className="h-4 w-4 text-blue-500" />,
-    description: 'gpt-4o',
-    short: '',
-    end: 'Command',
-  },
-]
-
-function ActionSearchBar({ actions = allActions }: { actions?: Action[] }) {
+function ActionSearchBar({ constructions }: { constructions: Construction[] }) {
   const params = useSearchParams()
   const router = useRouter()
   const [inputQuery, setInputQuery] = useState(params.get('query') || '')
   const debouncedQuery = useDebounce(inputQuery, 500)
-  const [filteredActions, setFilteredActions] = useState<Action[]>([])
+  const [filteredActions, setFilteredActions] = useState<Construction[]>([])
   const searchBarRef = useRef<HTMLDivElement>(null) // Ref para el searchbar
   const [dropdownWidth, setDropdownWidth] = useState<number>(0)
 
@@ -88,8 +29,8 @@ function ActionSearchBar({ actions = allActions }: { actions?: Action[] }) {
       return
     }
 
-    const filtered = allActions.filter((action) => {
-      const searchableText = action.label.toLowerCase()
+    const filtered = constructions.filter((construction) => {
+      const searchableText = construction.name.toLowerCase()
       return searchableText.includes(debouncedQuery.toLowerCase().trim())
     })
     setFilteredActions(filtered)
@@ -154,8 +95,6 @@ function ActionSearchBar({ actions = allActions }: { actions?: Action[] }) {
     },
   }
 
-
-
   return (
     <div className="w-full max-w-xl mx-auto">
       <div className="relative" ref={searchBarRef}>
@@ -198,21 +137,20 @@ function ActionSearchBar({ actions = allActions }: { actions?: Action[] }) {
                 >
                   <div className="flex items-center gap-2 justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="text-gray-500">{action.icon}</span>
-                      <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                        {action.label}
+                      <span className="text-gray-500">
+                        <Home />
                       </span>
-                      <span className="text-xs text-gray-400">
+                      <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                        {action.name}
+                      </span>
+                      <span className="text-xs text-gray-400 max-w-[10rem] truncate">
                         {action.description}
                       </span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-gray-400">
-                      {action.short}
-                    </span>
                     <span className="text-xs text-gray-400 text-right">
-                      {action.end}
+                      {action.number}
                     </span>
                   </div>
                 </motion.li>

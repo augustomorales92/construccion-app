@@ -22,4 +22,6 @@ export interface Construction {
   description: string
   images: string[]
   certificados: Certificates[]
+  number: string
+  
 }

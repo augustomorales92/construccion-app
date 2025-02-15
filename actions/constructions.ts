@@ -15,6 +15,7 @@ const constructions = [
     images: ["/images/placeholder.svg?height=200&width=300"],
     certificados: [],
     password: "1234",
+    number:'#234234234234'
   },
   {
     id: 2,
@@ -29,6 +30,7 @@ const constructions = [
     images: ["/images/placeholder.svg?height=200&width=300"],
     certificados: [],
     password: "3456",
+    number:'#2352543534'
   },
 ];
 
