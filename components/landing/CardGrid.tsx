@@ -1,55 +1,46 @@
 'use client'
 
+import { getConstructions } from '@/actions/constructions'
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Card from './Card'
 import PasswordModal from './PasswordModal'
-import { CardType } from './types'
-
-const initialCards: CardType[] = [
-  {
-    id: 1,
-    title: 'Card 1',
-    description: 'Descripción de la card 1',
-    image: '/placeholder.svg?height=200&width=300',
-  },
-  {
-    id: 2,
-    title: 'Card 2',
-    description: 'Descripción de la card 2',
-    image: '/placeholder.svg?height=200&width=300',
-  },
-  {
-    id: 3,
-    title: 'Card 3',
-    description: 'Descripción de la card 3',
-    image: '/placeholder.svg?height=200&width=300',
-  },
-  // Añade más cards según sea necesario
-]
+import { Construction } from './types'
 
 export default function CardGrid() {
-  const [selectedCard, setSelectedCard] = useState<CardType | null>(null)
+  const [selectedCard, setSelectedCard] = useState<Construction | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [filteredCards, setFilteredCards] = useState(initialCards)
+  const [cards, setCards] = useState<Construction[]>([])
+  const [filteredCards, setFilteredCards] = useState<Construction[]>([])
   const params = useSearchParams()
 
   const searchQuery = params.get('query') || ''
 
   useEffect(() => {
+    const fetchCards = async () => {
+      const initialCards = await getConstructions()
+      setCards(initialCards)
+      setFilteredCards(initialCards) // Initialize filteredCards with all cards
+    }
+
+    fetchCards()
+  }, [])
+
+  useEffect(() => {
     if (searchQuery) {
-      const filtered = initialCards.filter(
+      const filtered = cards.filter(
         (card) =>
-          card.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          card.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
           card.description.toLowerCase().includes(searchQuery.toLowerCase()),
       )
       setFilteredCards(filtered)
     } else {
-      setFilteredCards(initialCards)
+      // If searchQuery is empty, reset filteredCards to all cards
+      setFilteredCards(cards)
     }
-  }, [searchQuery])
+  }, [searchQuery, cards])
 
-  const handleCardClick = (card: CardType) => {
+  const handleCardClick = (card: Construction) => {
     setSelectedCard(card)
     setIsModalOpen(true)
   }
@@ -60,7 +51,7 @@ export default function CardGrid() {
         {filteredCards.map((card) => (
           <Card
             key={card.id}
-            card={card}
+            construction={card}
             onClick={() => handleCardClick(card)}
           />
         ))}
