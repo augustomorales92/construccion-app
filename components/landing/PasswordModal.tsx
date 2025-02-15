@@ -1,20 +1,32 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import type { CardType } from "./types"
-import { useRouter } from "next/navigation"
+import { verifyPassword } from '@/actions/constructions'
+import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
+import { Construction } from './types'
 
 interface PasswordModalProps {
   isOpen: boolean
   onClose: () => void
-  card: CardType
+  card: Construction
 }
 
-export default function PasswordModal({ isOpen, onClose, card }: PasswordModalProps) {
-  const [password, setPassword] = useState("")
+export default function PasswordModal({
+  isOpen,
+  onClose,
+  card,
+}: PasswordModalProps) {
+  const [password, setPassword] = useState('')
   const [attempts, setAttempts] = useState(0)
   const [isBlocked, setIsBlocked] = useState(false)
   const [blockExpiration, setBlockExpiration] = useState<number | null>(null)
@@ -22,7 +34,9 @@ export default function PasswordModal({ isOpen, onClose, card }: PasswordModalPr
 
   useEffect(() => {
     const storedAttempts = localStorage.getItem(`attempts_${card.id}`)
-    const storedBlockExpiration = localStorage.getItem(`blockExpiration_${card.id}`)
+    const storedBlockExpiration = localStorage.getItem(
+      `blockExpiration_${card.id}`,
+    )
 
     if (storedAttempts) setAttempts(Number.parseInt(storedAttempts))
     if (storedBlockExpiration) {
@@ -43,15 +57,9 @@ export default function PasswordModal({ isOpen, onClose, card }: PasswordModalPr
     if (isBlocked) return
 
     try {
-      const response = await fetch(`/api/verify-password/${card.id}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ password }),
-      })
+      const response = await verifyPassword(card.id, password)
 
-      if (response.ok) {
+      if (response) {
         onClose()
         router.push(`/card/${card.id}`)
       } else {
@@ -63,17 +71,23 @@ export default function PasswordModal({ isOpen, onClose, card }: PasswordModalPr
           const expiration = Date.now() + 24 * 60 * 60 * 1000 // 24 hours
           setIsBlocked(true)
           setBlockExpiration(expiration)
-          localStorage.setItem(`blockExpiration_${card.id}`, expiration.toString())
+          localStorage.setItem(
+            `blockExpiration_${card.id}`,
+            expiration.toString(),
+          )
         }
 
-        setPassword("")
+        setPassword('')
+        toast.error('Contraseña incorrecta. Intente nuevamente.')
       }
     } catch (error) {
-      console.error("Error al verificar la contraseña:", error)
+      console.error('Error al verificar la contraseña:', error)
     }
   }
 
-  const remainingTime = blockExpiration ? Math.max(0, blockExpiration - Date.now()) : 0
+  const remainingTime = blockExpiration
+    ? Math.max(0, blockExpiration - Date.now())
+    : 0
   const hours = Math.floor(remainingTime / (1000 * 60 * 60))
   const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60))
 
@@ -81,11 +95,12 @@ export default function PasswordModal({ isOpen, onClose, card }: PasswordModalPr
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Ingrese la contraseña para ver {card.title}</DialogTitle>
+          <DialogTitle>Ingrese la contraseña para ver {card.name}</DialogTitle>
         </DialogHeader>
         {isBlocked ? (
           <p>
-            Acceso bloqueado. Intente nuevamente en {hours} horas y {minutes} minutos.
+            Acceso bloqueado. Intente nuevamente en {hours} horas y {minutes}{' '}
+            minutos.
           </p>
         ) : (
           <form onSubmit={handleSubmit}>
@@ -96,7 +111,9 @@ export default function PasswordModal({ isOpen, onClose, card }: PasswordModalPr
               onChange={(e) => setPassword(e.target.value)}
               className="mb-4"
             />
-            <p className="text-sm text-gray-500 mb-4">Intentos restantes: {3 - attempts}</p>
+            <p className="text-sm text-gray-500 mb-4">
+              Intentos restantes: {3 - attempts}
+            </p>
             <DialogFooter>
               <Button type="submit" disabled={isBlocked}>
                 Acceder
@@ -108,4 +125,3 @@ export default function PasswordModal({ isOpen, onClose, card }: PasswordModalPr
     </Dialog>
   )
 }
-
