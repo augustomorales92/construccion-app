@@ -113,9 +113,8 @@ function ActionSearchBar({ constructions }: { constructions: Construction[] }) {
           </div>
         </div>
       </div>
-
-      <AnimatePresence>
-        {filteredActions.length > 0 && (
+      {inputQuery && (
+        <AnimatePresence>
           <motion.div
             className="absolute mt-1 border rounded-md shadow-sm overflow-hidden dark:border-gray-800 bg-white dark:bg-black"
             variants={container}
@@ -124,41 +123,56 @@ function ActionSearchBar({ constructions }: { constructions: Construction[] }) {
             exit="exit"
             style={{
               transformOrigin: 'top',
-              width: dropdownWidth, // Ancho dinámico
+              width: dropdownWidth,
             }}
           >
             <motion.ul>
-              {filteredActions.map((action) => (
-                <motion.li
-                  key={action.id}
-                  className="px-3 py-2 flex items-center justify-between hover:bg-gray-200 dark:hover:bg-zinc-900 cursor-pointer rounded-md"
-                  variants={item}
-                  layout
-                >
+              {filteredActions.length ? (
+                filteredActions?.map((action) => (
+                  <motion.li
+                    key={action.id}
+                    className="px-3 py-2 flex items-center justify-between hover:bg-gray-200 dark:hover:bg-zinc-900 cursor-pointer rounded-md"
+                    variants={item}
+                    layout
+                  >
+                    <div className="flex items-center gap-2 justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-gray-500">
+                          <Home />
+                        </span>
+                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                          {action.name}
+                        </span>
+                        <span className="text-xs text-gray-400 max-w-[10rem] truncate">
+                          {action.description}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-gray-400 text-right">
+                        {action.number}
+                      </span>
+                    </div>
+                  </motion.li>
+                ))
+              ) : (
+                <motion.li className="px-3 py-2 flex items-center justify-between cursor-pointer rounded-md">
                   <div className="flex items-center gap-2 justify-between">
                     <div className="flex items-center gap-2">
                       <span className="text-gray-500">
                         <Home />
                       </span>
                       <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                        {action.name}
-                      </span>
-                      <span className="text-xs text-gray-400 max-w-[10rem] truncate">
-                        {action.description}
+                        No hay resultados
                       </span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-gray-400 text-right">
-                      {action.number}
-                    </span>
-                  </div>
                 </motion.li>
-              ))}
+              )}
             </motion.ul>
           </motion.div>
-        )}
-      </AnimatePresence>
+        </AnimatePresence>
+      )}
     </div>
   )
 }
