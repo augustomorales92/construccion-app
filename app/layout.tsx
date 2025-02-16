@@ -3,7 +3,7 @@ import { ThemeProvider } from 'next-themes'
 import { Geist } from 'next/font/google'
 //import Layout from './(auth-pages)/layout'
 import './globals.css'
-import  { getLoggedInUser } from '@/actions/auth'
+import  getUserAuth, { getLoggedInUser } from '@/actions/auth'
 import Layout from '@/components/layout/Layout'
 
 const defaultUrl = process.env.VERCEL_URL
@@ -26,7 +26,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const user = await getLoggedInUser()
+  const user = await getUserAuth()
   return (
     <html lang="en" className={geistSans.className} suppressHydrationWarning>
       <body className="bg-background text-foreground">
