@@ -67,3 +67,7 @@
     @apply bg-background text-foreground;
   }
 }
+
+.screen-container {
+  height: calc(100vh - 8rem);
+}

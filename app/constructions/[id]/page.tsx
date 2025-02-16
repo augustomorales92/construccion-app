@@ -1,3 +1,4 @@
+import getUser from '@/actions/auth'
 import {
   getConstructionById,
   getIncidentsByConstructionId,
@@ -10,10 +11,17 @@ export default async function Details({
   params: Promise<{ id: string }>
 }) {
   const id = (await params).id
-  const [construction, incidents] = await Promise.all([
-    getConstructionById(Number.parseInt(id)),
+  const [construction, incidents, user] = await Promise.all([
+    getConstructionById(id),
     getIncidentsByConstructionId(Number.parseInt(id)),
+    getUser(),
   ])
 
-  return <CardDetails construction={construction} incidents={incidents} />
+  return (
+    <CardDetails
+      construction={construction}
+      incidents={incidents}
+      user={user}
+    />
+  )
 }

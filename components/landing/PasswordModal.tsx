@@ -61,7 +61,7 @@ export default function PasswordModal({
 
       if (response) {
         onClose()
-        router.push(`/card/${card.id}`)
+        router.push(`/constructions/${card.id}`)
       } else {
         const newAttempts = attempts + 1
         setAttempts(newAttempts)

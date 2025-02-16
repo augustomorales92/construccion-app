@@ -21,7 +21,6 @@ export function WhatsAppShareLinkPopover({ id }: { id: string }) {
   const copyToClipboard = async (type: 'client' | 'manager') => {
     const link = await generateWhatsappMessage(email[type], type, id)
     if (!link) return
-    console.log(link)
     await navigator.clipboard.writeText(link)
     setCopied({ ...copied, [type]: true })
     setTimeout(() => setCopied({ ...copied, [type]: false }), 2000)

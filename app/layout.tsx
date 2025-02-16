@@ -1,11 +1,9 @@
-import { EnvVarWarning } from '@/components/env-var-warning'
-import HeaderAuth from '@/components/header-auth'
-import { ThemeSwitcher } from '@/components/theme-switcher'
 import { Toaster } from '@/components/ui/sonner'
-import { hasEnvVars } from '@/utils/supabase/check-env-vars'
 import { ThemeProvider } from 'next-themes'
 import { Geist } from 'next/font/google'
-import Link from 'next/link'
+//import Layout from './(auth-pages)/layout'
+import getUser from '@/actions/auth'
+import Layout from '@/components/Layout'
 import './globals.css'
 
 const defaultUrl = process.env.VERCEL_URL
@@ -14,8 +12,8 @@ const defaultUrl = process.env.VERCEL_URL
 
 export const metadata = {
   metadataBase: new URL(defaultUrl),
-  title: 'Next.js and Supabase Starter Kit',
-  description: 'The fastest way to build apps with Next.js and Supabase',
+  title: 'Busca tu obra',
+  description: 'Encuentra tu obra y revisa su avance',
 }
 
 const geistSans = Geist({
@@ -23,11 +21,12 @@ const geistSans = Geist({
   subsets: ['latin'],
 })
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const user = await getUser()
   return (
     <html lang="en" className={geistSans.className} suppressHydrationWarning>
       <body className="bg-background text-foreground">
@@ -37,21 +36,27 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <nav className="w-full flex justify-center border-b border-b-foreground/10 h-16">
-            <div className="w-full max-w-5xl flex justify-between items-center p-3 px-5 text-sm">
+          {/*    <nav className="w-full flex justify-center border-b border-b-foreground/10 h-16">
+            <div className="w-full flex justify-between items-center p-3 mx-10 text-sm">
               <div className="flex gap-5 items-center font-semibold">
-                <Link href={'/'}>Obras app</Link>
+                <Link href={'/'} className='flex gap-2 items-center'>
+                  <BrickWall className="w-7 h-7" />
+                  <span className='text-lg'>
+                    Busca tu obra
+                  </span>
+                </Link>
               </div>
-              {!hasEnvVars ? <EnvVarWarning /> : <HeaderAuth />}
+               {!hasEnvVars ? <EnvVarWarning /> : <HeaderAuth />} 
             </div>
           </nav>
-          <main className="min-h-screen flex flex-col items-center">
-            <div className="w-full flex flex-col  items-center">{children}</div>
+          <main className="w-full flex flex-col min-h-custom items-center">
+            <div className="flex-grow w-full overflow-auto">{children}</div>
           </main>
-          <footer className="w-full flex items-center justify-center border-t mx-auto text-center text-xs gap-8 py-4">
+          <footer className="w-full flex items-center justify-center border-t mx-auto text-center text-xs gap-8 h-16">
             <p>© 2023 ConstructApp. Todos los derechos reservados.</p>
             <ThemeSwitcher />
-          </footer>
+          </footer> */}
+          <Layout user={user}>{children}</Layout>
           <Toaster />
         </ThemeProvider>
       </body>

@@ -12,7 +12,7 @@ export interface Incidents {
 }
 
 export interface Construction {
-  id: number
+  id: string
   name: string
   cliente: string
   avance: number

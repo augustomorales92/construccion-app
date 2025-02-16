@@ -1,6 +1,8 @@
 'use client'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { User } from '@supabase/supabase-js'
+import Cookies from 'js-cookie'
 import {
   ArrowLeft,
   ChevronLeft,
@@ -8,6 +10,7 @@ import {
   Download,
   Edit,
   FileText,
+  Heart,
   MessageSquare,
 } from 'lucide-react'
 import Image from 'next/image'
@@ -21,19 +24,19 @@ import { Certificates, Construction, Incidents } from './types'
 
 interface CardProps {
   construction: Construction | null
-  userRole?: 'ADMIN' | 'CLIENT'
   incidents: Incidents[]
+  user: User | null
 }
 
 export default function CardComponent({
   construction,
-  userRole,
   incidents,
+  user,
 }: CardProps) {
   const router = useRouter()
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0)
   const [modalOpen, setModalOpen] = useState(false)
-
+  const userRole = user?.role
   const imagesLength = construction?.images?.length || 1
 
   const nextPhoto = () => {
@@ -68,12 +71,19 @@ export default function CardComponent({
   }
 
   const onCertificateAdded = (
-    ConstructionId?: number,
+    ConstructionId?: string,
     newCertificate?: Certificates,
   ) => {
     // Add the new certificado to the Construction
     console.log('Certificado added:', ConstructionId, newCertificate)
     setModalOpen(false)
+  }
+
+  const handleAddFavorite = () => {
+    if (!userRole) {
+      Cookies.set('favorite', String(construction?.id))
+      router.push('/sign-in')
+    }
   }
 
   return (
@@ -126,6 +136,13 @@ export default function CardComponent({
               />
             ))}
           </div>
+          <Button
+            onClick={handleAddFavorite}
+            className="absolute translate-x-1/5 bottom-2 right-4 transform -translate-y-1/2"
+          >
+            <Heart className="h-4 w-4 mr-1" />
+            Añadir a Favoritos
+          </Button>
           <Button
             variant="outline"
             size="icon"

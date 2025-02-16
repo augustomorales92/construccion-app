@@ -1,12 +1,20 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Heart } from 'lucide-react'
 import Image from 'next/image'
 import { Certificates, Construction } from './types'
 
 interface CardProps {
   construction: Construction
   onClick: () => void
+  isFavorite?: boolean
+  isBlur?: boolean
 }
-export default function CardComponent({ construction, onClick }: CardProps) {
+export default function CardComponent({
+  construction,
+  onClick,
+  isFavorite,
+  isBlur,
+}: CardProps) {
   const calculateTotalAmount = (certificados: Certificates[]) => {
     return certificados?.reduce((total, cert) => total + cert.montoGastado, 0)
   }
@@ -20,8 +28,11 @@ export default function CardComponent({ construction, onClick }: CardProps) {
   }
 
   return (
-    <Card className="overflow-hidden" onClick={onClick}>
-      <CardHeader className="p-0">
+    <Card
+      className={`overflow-hidden shadow-md shadow-current ${isBlur ? 'blur-md' : ''}`}
+      onClick={onClick}
+    >
+      <CardHeader className="p-0 relative">
         <Image
           src={construction.images[0] || '/images/placeholder.svg'}
           alt={`Imagen de ${construction.name}`}
@@ -29,6 +40,11 @@ export default function CardComponent({ construction, onClick }: CardProps) {
           width={500}
           height={200}
         />
+        {isFavorite && (
+          <div className="absolute top-2 right-4">
+            <Heart className="h-6 w-6 text-red-500 fill-red-500" />
+          </div>
+        )}
       </CardHeader>
       <CardContent className="p-4">
         <CardTitle className="text-xl mb-2">{construction.name}</CardTitle>

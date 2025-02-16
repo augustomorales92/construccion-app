@@ -1,10 +1,11 @@
 "use server";
 
 import { Incidents } from "@/components/landing/types";
+import getUser from "./auth";
 
 const constructions = [
   {
-    id: 1,
+    id: '1',
     name: "Casa Moderna",
     cliente: "Juan Pérez",
     avance: 30,
@@ -15,10 +16,10 @@ const constructions = [
     images: ["/images/placeholder.svg?height=200&width=300"],
     certificados: [],
     password: "1234",
-    number:'#234234234234'
+    number: "#234234234234",
   },
   {
-    id: 2,
+    id: '2',
     name: "Oficina Comercial",
     cliente: "Empresas XYZ",
     avance: 60,
@@ -30,7 +31,22 @@ const constructions = [
     images: ["/images/placeholder.svg?height=200&width=300"],
     certificados: [],
     password: "3456",
-    number:'#2352543534'
+    number: "#2352543534",
+  },
+  {
+    id: '3',
+    name: "Edificio 3 plantas",
+    cliente: "Empresas XYZ",
+    avance: 60,
+    presupuesto: 750000,
+    materialesComprados: ["Vidrio", "Aluminio", "Cableado"],
+    tiempoEstimado: "8 meses",
+    description:
+      "Construccion de un edificio de 3 plantas en el centro de la ciudad.",
+    images: ["/images/placeholder.svg?height=200&width=300"],
+    certificados: [],
+    password: "1111",
+    number: "#5432349",
   },
 ];
 
@@ -95,13 +111,19 @@ export async function getConstructions() {
   // Aquí iría la lógica para obtener todas las obras de la base de datos
   return constructions;
 }
+export async function getFavoriteConstructions() {
+  const user = await getUser();
+  const favorites = user?.user_metadata.favorites || [];
+  // Aquí iría la lógica para obtener las obras favoritas de la base de datos
+  return constructions.filter((obra) => favorites.includes(obra.id));
+}
 
-export async function verifyPassword(constructionId: number, password: string) {
+export async function verifyPassword(constructionId: string, password: string) {
   const construction = constructions.find((c) => c.id === constructionId);
   return construction?.password === password;
 }
 
-export async function getConstructionById(id: number) {
+export async function getConstructionById(id: string) {
   // Aquí iría la lógica para obtener una obra específica de la base de datos
 
   return constructions.find((obra) => obra.id === id) || null;
@@ -111,6 +133,5 @@ export async function getIncidentsByConstructionId(
   id: number,
 ): Promise<Incidents[]> {
   // Aquí iría la lógica para obtener todas las incidencias de una obra específica
-  console.log(id);
   return sampleIncidents;
 }

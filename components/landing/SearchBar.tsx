@@ -9,6 +9,7 @@ import { Home, Search } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { Construction } from './types'
+import PasswordModal from './PasswordModal'
 
 function ActionSearchBar({ constructions }: { constructions: Construction[] }) {
   const params = useSearchParams()
@@ -18,6 +19,13 @@ function ActionSearchBar({ constructions }: { constructions: Construction[] }) {
   const [filteredActions, setFilteredActions] = useState<Construction[]>([])
   const searchBarRef = useRef<HTMLDivElement>(null) // Ref para el searchbar
   const [dropdownWidth, setDropdownWidth] = useState<number>(0)
+  const [selectedCard, setSelectedCard] = useState<Construction | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+
+  const handleCardClick = (card: Construction) => {
+    setSelectedCard(card)
+    setIsModalOpen(true)
+  }
 
   useEffect(() => {
     if (debouncedQuery.trim() === '') {
@@ -103,10 +111,10 @@ function ActionSearchBar({ constructions }: { constructions: Construction[] }) {
             <Input
               type="text"
               name="query"
-              placeholder="What's up?"
+              placeholder="tu obra?"
               value={inputQuery}
               onChange={handleInputChange}
-              className="pl-3 pr-9 py-1.5 h-9 text-sm rounded-lg focus-visible:ring-offset-0"
+              className="pl-3 pr-9 py-1.5 h-12 text-sm rounded-lg focus-visible:ring-offset-0"
             />
 
             <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -134,6 +142,7 @@ function ActionSearchBar({ constructions }: { constructions: Construction[] }) {
                     className="px-3 py-2 flex items-center justify-between hover:bg-gray-200 dark:hover:bg-zinc-900 cursor-pointer rounded-md"
                     variants={item}
                     layout
+                    onClick={() => handleCardClick(action)}
                   >
                     <div className="flex items-center gap-2 justify-between">
                       <div className="flex items-center gap-2">
@@ -172,6 +181,13 @@ function ActionSearchBar({ constructions }: { constructions: Construction[] }) {
             </motion.ul>
           </motion.div>
         </AnimatePresence>
+      )}
+      {selectedCard && (
+        <PasswordModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          card={selectedCard}
+        />
       )}
     </div>
   )

@@ -1,17 +1,32 @@
+import getUser from '@/actions/auth'
+import { getConstructions } from '@/actions/constructions'
 import CardGrid from '@/components/landing/CardGrid'
-import FavoriteWorks from '@/components/landing/FavoriteWorks'
 import HeroBanner from '@/components/landing/HeroBanner'
 import { Suspense } from 'react'
 
-export default function Home() {
+export default async function Home() {
+  const [constructions, user] = await Promise.all([
+    getConstructions(),
+    getUser(),
+  ])
+  const favorites = user?.user_metadata.favorites || []
   return (
     <>
-      <div className="min-h-screen w-full bg-background">
+      <div className="h-full w-full bg-background">
         <Suspense fallback={<div>Loading...</div>}>
           <HeroBanner />
         </Suspense>
-        {false && <FavoriteWorks />}
-        <CardGrid />
+        {!!favorites.length && (
+          <div className="py-8  mx-auto">
+            <div className="flex justify-between items-center mb-4 px-8">
+              <h2 className="text-2xl font-bold">Obras Favoritas</h2>
+            </div>
+            <CardGrid constructions={constructions} favorites={favorites} />
+          </div>
+        )}
+        <div>
+          <CardGrid constructions={constructions} isBlur />
+        </div>
       </div>
     </>
   )
