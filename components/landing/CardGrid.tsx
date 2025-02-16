@@ -1,11 +1,12 @@
-'use client'
+"use client"
 
-import Cookies from 'js-cookie'
-import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import Card from './Card'
-import PasswordModal from './PasswordModal'
-import { Construction } from './types'
+import Cookies from "js-cookie"
+import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
+import useEmblaCarousel from "embla-carousel-react"
+import Card from "./Card"
+import PasswordModal from "./PasswordModal"
+import type { Construction } from "./types"
 
 export default function CardGrid({
   toggle,
@@ -21,9 +22,15 @@ export default function CardGrid({
   const [selectedCard, setSelectedCard] = useState<Construction | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const router = useRouter()
+  const [emblaRef] = useEmblaCarousel({
+    slidesToScroll: 1,
+    align: "start",
+    containScroll: "trimSnaps",
+  })
+
   useEffect(() => {
-    if (toggle) Cookies.remove('favorite')
-  }, [])
+    if (toggle) Cookies.remove("favorite")
+  }, [toggle])
 
   const handleCardClick = (card: Construction) => {
     if (favorites?.includes(card.id)) {
@@ -35,25 +42,23 @@ export default function CardGrid({
   }
 
   return (
-    <div className=" container mx-auto py-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {constructions.map((card) => (
-          <Card
-            key={card.id}
-            construction={card}
-            onClick={() => !isBlur && handleCardClick(card)}
-            isFavorite={favorites?.includes(card.id)}
-            isBlur={isBlur}
-          />
-        ))}
+    <div className="container mx-auto py-8">
+      <div className="overflow-hidden" ref={emblaRef}>
+        <div className="flex">
+          {constructions.slice(0, 10).map((card) => (
+            <div key={card.id} className="flex-[0_0_100%] min-w-0 sm:flex-[0_0_33.33%] pl-4 first:pl-0 rounded-xl p-2">
+              <Card
+                construction={card}
+                onClick={() => !isBlur && handleCardClick(card)}
+                isFavorite={favorites?.includes(card.id)}
+                isBlur={isBlur}
+              />
+            </div>
+          ))}
+        </div>
       </div>
-      {selectedCard && (
-        <PasswordModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          card={selectedCard}
-        />
-      )}
+      {selectedCard && <PasswordModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} card={selectedCard} />}
     </div>
   )
 }
+
