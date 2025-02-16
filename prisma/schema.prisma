@@ -8,24 +8,105 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-model Work {
-  id             Int      @id @default(autoincrement())
-  title          String
-  address        String?
-  progress       Int?
-  images         String[]
-  client         String?
-  budget         String?
-  accessPassword String
-  published      Boolean  @default(false)
-  owner          User?    @relation(fields: [ownerId], references: [id])
-  ownerId        Int?
+model User {
+  id              String           @id @default(uuid())
+  email           String           @unique
+  name            String?
+  role            Role             @default(CLIENT)
+  works           Work[]
+  incidents       Incident[]
+  progressUpdates ProgressUpdate[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@map("users")
 }
 
-model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
-  role  String?
-  works Work[]
+enum Role {
+  ADMIN
+  CLIENT
+  MANAGER
+}
+
+model Work {
+  id              String           @id @default(uuid())
+  name            String
+  description     String?
+  address         String?
+  budget          Float?
+  accessCode      String           @unique @default(uuid())
+  status          Status           @default(PENDING)
+  startDate       DateTime?
+  endDate         DateTime?
+  images          String[]         @default([]) 
+  files           String[]         @default([]) 
+  certificates    String[]         @default([]) 
+  items           WorkItem[]
+  userId          String
+  user            User             @relation(fields: [userId], references: [id])
+  incidents       Incident[]
+  progressUpdates ProgressUpdate[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@map("works")
+}
+
+enum Status {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  ON_HOLD
+  CANCELLED
+}
+
+model Incident {
+  id          String   @id @default(uuid())
+  description String
+  date        DateTime @default(now())
+  workId      String
+  work        Work     @relation(fields: [workId], references: [id])
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("incidents")
+}
+
+model WorkItem {
+  id          String   @id @default(uuid())
+  section     String?
+  description String
+  unit        String?
+  quantity    Float?
+  price       Float?
+  percentage  Float    @default(0)
+  workId      String
+  work        Work     @relation(fields: [workId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("work_items")
+}
+
+model ProgressUpdate {
+  id           String               @id @default(uuid())
+  workId       String
+  work         Work                 @relation(fields: [workId], references: [id])
+  userId       String
+  user         User                 @relation(fields: [userId], references: [id])
+  date         DateTime             @default(now())
+  itemsUpdates Json? 
+  status       ProgressUpdateStatus @default(PENDING)
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+
+  @@map("progress_updates")
+}
+
+enum ProgressUpdateStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }
