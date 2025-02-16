@@ -12,6 +12,7 @@ import Link from 'next/link'
 export default async function Login(props: { searchParams: Promise<Message> }) {
   const searchParams = await props.searchParams
   return (
+<<<<<<< Updated upstream
     <div className="h-full flex justify-center items-center w-full">
       <Card className="w-96 min-h-[70vh] ">
         <CardHeader>
@@ -119,4 +120,39 @@ export default async function Login(props: { searchParams: Promise<Message> }) {
       </Card>
     </div>
   )
+=======
+    <form className="flex flex-col min-w-64 max-w-64 mx-auto">
+      <h1 className="text-2xl font-medium">Inicia sesión</h1>
+      <p className="text-sm text-foreground">
+        ¿No tienes una cuenta?{" "}
+        <Link className="text-foreground font-medium underline" href="/sign-up">
+          Regístrate aquí
+        </Link>
+      </p>
+      <div className="flex flex-col gap-2 [&>input]:mb-3 mt-8">
+        <Label htmlFor="email">Correo electrónico</Label>
+        <Input name="email" placeholder="mail@example.com" required />
+        <div className="flex justify-between items-center">
+          <Label htmlFor="password">Contraseña</Label>
+          <Link
+            className="text-xs text-foreground underline"
+            href="/forgot-password"
+          >
+            ¿Olvidó la contraseña?
+          </Link>
+        </div>
+        <Input
+          type="password"
+          name="password"
+          placeholder="******"
+          required
+        />
+        <SubmitButton pendingText="Iniciando..." formAction={signInAction}>
+          Iniciar
+        </SubmitButton>
+        <FormMessage message={searchParams} />
+      </div>
+    </form>
+  );
+>>>>>>> Stashed changes
 }
