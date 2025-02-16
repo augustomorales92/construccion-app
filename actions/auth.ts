@@ -1,63 +1,92 @@
-"use server";
-import { createAdminClient, createClient } from "@/utils/supabase/server";
-import { cookies } from "next/headers";
+'use server'
+import { createAdminClient, createClient } from '@/utils/supabase/server'
+import { cookies } from 'next/headers'
 
-export default async function getUser() {
+export default async function getUserAuth() {
   try {
-    const supabase = await createClient();
+    const supabase = await createClient()
 
     const {
       data: { user },
-    } = await supabase.auth.getUser();
+    } = await supabase.auth.getUser()
 
-    return user;
+    return user
   } catch (error) {
-    console.error("Error getting user", error);
-    return null;
+    console.error('Error getting user', error)
+    return null
+  }
+}
+
+export async function getLoggedInUser() {
+  try {
+    const supabase = await createClient()
+
+    const {
+      data: { user: authUser },
+      error: authError,
+    } = await supabase.auth.getUser()
+
+    if (authError || !authUser) {
+      console.warn('No authenticated user found:', authError?.message)
+      return null 
+    }
+
+    const { data: user, error: dbError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', authUser.id) 
+      .single() 
+
+    if (dbError) {
+      console.error('Error getting user from database:', dbError.message)
+      return null
+    }
+
+    return user 
+  } catch (error) {
+    console.error('Unexpected error getting user:', error)
+    return null
   }
 }
 
 export async function toggleFavorite() {
-  const cookieStore = await cookies();
-  const favoritesCookie = cookieStore.get("favorite");
-  const itemId = favoritesCookie?.value;
+  const cookieStore = await cookies()
+  const favoritesCookie = cookieStore.get('favorite')
+  const itemId = favoritesCookie?.value
 
-  const supabase = await createAdminClient();
+  const supabase = await createAdminClient()
 
   try {
     const {
       data: { user },
-    } = await supabase.auth.getUser();
+    } = await supabase.auth.getUser()
 
     if (!user) {
-      console.error("Error al obtener el usuario");
-      return;
+      console.error('Error al obtener el usuario')
+      return
     }
 
-    const existingFavorites: string[] = user.user_metadata.favorites || [];
-    const isFavorite = existingFavorites.includes(itemId!);
+    const existingFavorites: string[] = user.user_metadata.favorites || []
+    const isFavorite = existingFavorites.includes(itemId!)
 
     const updatedFavorites = isFavorite
       ? existingFavorites.filter((fav) => fav !== itemId)
-      : [...existingFavorites, itemId];
+      : [...existingFavorites, itemId]
 
     const { data, error: updateError } =
       await supabase.auth.admin.updateUserById(user?.id, {
         user_metadata: {
-          favorites: updatedFavorites.filter(e => e),
+          favorites: updatedFavorites.filter((e) => e),
         },
-      });
+      })
 
     if (updateError) {
-      console.error(
-        "Error al actualizar la metadata del usuario:",
-        updateError,
-      );
-      return;
+      console.error('Error al actualizar la metadata del usuario:', updateError)
+      return
     }
-    console.log("Metadata del usuario actualizada:", data);
-    return true;
+    console.log('Metadata del usuario actualizada:', data)
+    return true
   } catch (error) {
-    console.error("Error:", error);
+    console.error('Error:', error)
   }
 }
