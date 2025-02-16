@@ -10,6 +10,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import Cookies from 'js-cookie'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
@@ -18,7 +19,7 @@ import { Construction } from './types'
 interface PasswordModalProps {
   isOpen: boolean
   onClose: () => void
-  card: Construction
+  card: Construction | null
 }
 
 export default function PasswordModal({
@@ -33,9 +34,9 @@ export default function PasswordModal({
   const router = useRouter()
 
   useEffect(() => {
-    const storedAttempts = localStorage.getItem(`attempts_${card.id}`)
+    const storedAttempts = localStorage.getItem(`attempts_${card?.id}`)
     const storedBlockExpiration = localStorage.getItem(
-      `blockExpiration_${card.id}`,
+      `blockExpiration_${card?.id}`,
     )
 
     if (storedAttempts) setAttempts(Number.parseInt(storedAttempts))
@@ -45,11 +46,11 @@ export default function PasswordModal({
         setIsBlocked(true)
         setBlockExpiration(expiration)
       } else {
-        localStorage.removeItem(`blockExpiration_${card.id}`)
-        localStorage.removeItem(`attempts_${card.id}`)
+        localStorage.removeItem(`blockExpiration_${card?.id}`)
+        localStorage.removeItem(`attempts_${card?.id}`)
       }
     }
-  }, [card.id])
+  }, [card?.id])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -57,22 +58,23 @@ export default function PasswordModal({
     if (isBlocked) return
 
     try {
-      const response = await verifyPassword(card.id, password)
+      const response = await verifyPassword(card?.id, password)
 
       if (response) {
         onClose()
-        router.push(`/constructions/${card.id}`)
+        Cookies.set('password', password)
+        router.push(`/constructions/${card?.id}`)
       } else {
         const newAttempts = attempts + 1
         setAttempts(newAttempts)
-        localStorage.setItem(`attempts_${card.id}`, newAttempts.toString())
+        localStorage.setItem(`attempts_${card?.id}`, newAttempts.toString())
 
         if (newAttempts >= 3) {
           const expiration = Date.now() + 24 * 60 * 60 * 1000 // 24 hours
           setIsBlocked(true)
           setBlockExpiration(expiration)
           localStorage.setItem(
-            `blockExpiration_${card.id}`,
+            `blockExpiration_${card?.id}`,
             expiration.toString(),
           )
         }
@@ -95,7 +97,7 @@ export default function PasswordModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Ingrese la contraseña para ver {card.name}</DialogTitle>
+          <DialogTitle>Ingrese la contraseña para ver {card?.name}</DialogTitle>
         </DialogHeader>
         {isBlocked ? (
           <p>
