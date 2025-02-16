@@ -16,7 +16,8 @@ import {
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
-import { ThemeSwitcher } from './theme-switcher'
+import { ThemeSwitcher } from '../theme-switcher'
+import Frame from './navbar'
 
 const NavItem = ({
   href,
@@ -35,9 +36,7 @@ const NavItem = ({
   return (
     <Link
       href={href}
-      className={`flex items-center p-2 ${
-        isActive ? 'text-blue-600 ' : 'text-gray-700 dark:text-gray-200'
-      } hover:bg-background/20 rounded-md ${isMobile ? 'text-lg' : ''}`}
+      className={`flex ${isActive && 'bg-slate-500 dark:bg-slate-100/50 text-background'} h-9 w-max items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-gray-100/50 data-[state=open]:bg-gray-100/50 dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus:bg-gray-800 dark:focus:text-gray-50 dark:data-[active]:bg-gray-800/50 dark:data-[state=open]:bg-gray-800/50`}
       onClick={onClick}
       prefetch={true}
     >
@@ -67,7 +66,7 @@ export default function Layout({
           { href: '/perfil', label: 'Perfil', icon: UserIcon },
         ]
       : [
-          { href: '/obras', label: 'Inicio', icon: Home },
+          { href: '/', label: 'Inicio', icon: Home },
           { href: '/mensajes', label: 'Mensajes', icon: MessageSquare },
           { href: '/perfil', label: 'Perfil', icon: UserIcon },
         ]
@@ -98,17 +97,8 @@ export default function Layout({
               </div>
             ) : (
               <>
-                {navItems.map((item) => (
-                  <NavItem
-                    key={item.href}
-                    href={item.href}
-                    isMobile
-                    onClick={toggleMobileMenu}
-                  >
-                    <item.icon className="w-5 h-5 mr-2" />
-                    {item.label}
-                  </NavItem>
-                ))}
+                <Frame tabs={navItems} />
+
                 <form action={signOutAction}>
                   <Button type="submit" variant="ghost" size="sm">
                     Cerrar sesión
@@ -159,24 +149,21 @@ export default function Layout({
 
       {/* Menú móvil */}
       {isMobileMenuOpen && user && (
-        <nav className=" shadow-md md:hidden fixed top-[64px] left-0 right-0 z-50">
-          <div className="container mx-auto px-4 py-2 bg-background">
-            {navItems.map((item) => (
-              <NavItem
-                key={item.href}
-                href={item.href}
-                isMobile
-                onClick={toggleMobileMenu}
-              >
-                <item.icon className="w-5 h-5 mr-2" />
-                {item.label}
-              </NavItem>
-            ))}
-            <form action={signOutAction}>
-              <Button type="submit" variant="ghost" size="sm">
-                Cerrar sesión
-              </Button>
-            </form>
+        <nav className="shadow-md md:hidden fixed top-[64px] left-0 right-0 z-50">
+          <div className="px-1 mx-auto bg-background flex flex-col">
+            <Frame tabs={navItems} isMobile />
+            <div className="px-4 py-2">
+              <form action={signOutAction}>
+                <Button
+                  type="submit"
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-start"
+                >
+                  Cerrar sesión
+                </Button>
+              </form>
+            </div>
           </div>
         </nav>
       )}

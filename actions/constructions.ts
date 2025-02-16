@@ -118,7 +118,7 @@ export async function getFavoriteConstructions() {
   return constructions.filter((obra) => favorites.includes(obra.id));
 }
 
-export async function verifyPassword(constructionId: string, password: string) {
+export async function verifyPassword(constructionId: string | undefined, password: string) {
   const construction = constructions.find((c) => c.id === constructionId);
   return construction?.password === password;
 }

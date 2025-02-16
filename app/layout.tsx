@@ -3,7 +3,7 @@ import { ThemeProvider } from 'next-themes'
 import { Geist } from 'next/font/google'
 //import Layout from './(auth-pages)/layout'
 import getUser from '@/actions/auth'
-import Layout from '@/components/Layout'
+import Layout from '@/components/layout/Layout'
 import './globals.css'
 
 const defaultUrl = process.env.VERCEL_URL
