@@ -1,4 +1,4 @@
-import { Message } from '@/components/form-message'
+import getUser from '@/actions/auth'
 import {
   Card,
   CardContent,
@@ -6,23 +6,27 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import ResetForm from './reset-form'
+import { redirect } from 'next/navigation'
+import { ProfileForm } from './profile-form'
 
-export default async function ResetPassword(props: {
-  searchParams: Promise<Message>
-}) {
-  const searchParams = await props.searchParams
+export default async function ProfilePage() {
+  const user = await getUser()
+
+  if (!user) {
+    redirect('/')
+  }
+
   return (
     <div className="container max-w-2xl py-10 h-custom flex justify-center items-center">
       <Card>
         <CardHeader>
-          <CardTitle>Reset password</CardTitle>
+          <CardTitle>Perfil</CardTitle>
           <CardDescription>
-          Please enter your new password below.
+            Gestiona tu información personal y actualiza tu contraseña.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <ResetForm searchParams={searchParams} />
+          <ProfileForm user={user} />
         </CardContent>
       </Card>
     </div>

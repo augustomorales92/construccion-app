@@ -14,36 +14,9 @@ import {
   X,
 } from 'lucide-react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { ThemeSwitcher } from '../theme-switcher'
 import Frame from './navbar'
-
-const NavItem = ({
-  href,
-  children,
-  isMobile = false,
-  onClick = () => {},
-}: {
-  href: string
-  children: React.ReactNode
-  isMobile?: boolean
-  onClick?: () => void
-}) => {
-  const pathname = usePathname()
-  const isActive = pathname === href
-
-  return (
-    <Link
-      href={href}
-      className={`flex ${isActive && 'bg-slate-500 dark:bg-slate-100/50 text-background'} h-9 w-max items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-gray-100/50 data-[state=open]:bg-gray-100/50 dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus:bg-gray-800 dark:focus:text-gray-50 dark:data-[active]:bg-gray-800/50 dark:data-[state=open]:bg-gray-800/50`}
-      onClick={onClick}
-      prefetch={true}
-    >
-      {children}
-    </Link>
-  )
-}
 
 export default function Layout({
   children,
@@ -68,7 +41,7 @@ export default function Layout({
       : [
           { href: '/', label: 'Inicio', icon: Home },
           { href: '/mensajes', label: 'Mensajes', icon: MessageSquare },
-          { href: '/perfil', label: 'Perfil', icon: UserIcon },
+          { href: '/protected/profile', label: 'Perfil', icon: UserIcon },
         ]
     : []
 
@@ -76,7 +49,7 @@ export default function Layout({
     <div className="min-h-screen flex flex-col">
       {/* Header para desktop */}
       <header className="border-b border-b-foreground/10 shadow-md hidden md:block">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+        <div className="container mx-auto px-4 h-16 flex justify-between items-center">
           <Link href="/" className="flex gap-2 items-center" prefetch={true}>
             <BrickWall className="w-7 h-7" />
             <span className="text-lg">Busca tu obra</span>
@@ -112,7 +85,7 @@ export default function Layout({
 
       {/* Header para móvil */}
       <header className="border-b border-b-foreground/10 shadow-md md:hidden">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+        <div className="container mx-auto px-4 h-16 flex justify-between items-center">
           <Link href="/" className="flex gap-2 items-center" prefetch={true}>
             <BrickWall className="w-7 h-7" />
             <span className="text-lg">Busca tu obra</span>

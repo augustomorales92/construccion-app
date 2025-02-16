@@ -45,7 +45,7 @@ export default function CardGrid({
     <div className="container mx-auto py-8">
       <div className="overflow-hidden" ref={emblaRef}>
         <div className="flex rounded-xl">
-          {constructions.slice(0, 10).map((card) => (
+          {constructions.map((card) => (
             <div key={card.id} className="flex-[0_0_100%] min-w-0 sm:flex-[0_0_33.33%] pl-4 first:pl-0 rounded-xl p-2">
               <Card
                 construction={card}
