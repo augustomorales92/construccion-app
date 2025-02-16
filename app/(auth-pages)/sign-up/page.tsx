@@ -23,7 +23,6 @@ export default async function Signup(props: {
   }
 
   return (
-<<<<<<< Updated upstream
     <div className="h-full flex justify-center items-center w-full">
       <Card className='w-96 min-h-[70vh]"'>
       <CardHeader>
@@ -124,35 +123,5 @@ export default async function Signup(props: {
       </Card>
     </div>
   )
-=======
-    <>
-      <form className="flex flex-col min-w-64 max-w-64 mx-auto">
-        <h1 className="text-2xl font-medium">Crea tu cuenta</h1>
-        <p className="text-sm text text-foreground">
-          ¿Ya tienes una cuenta?{" "}
-          <Link className="text-primary font-medium underline" href="/sign-in">
-            Inicia sesión
-          </Link>
-        </p>
-        <div className="flex flex-col gap-2 [&>input]:mb-3 mt-8">
-          <Label htmlFor="email">Correo electrónico</Label>
-          <Input name="email" placeholder="mail@example.com" required />
-          <Label htmlFor="password">Contraseña</Label>
-          <Input
-            type="password"
-            name="password"
-            placeholder="******"
-            minLength={6}
-            required
-          />
-          <SubmitButton formAction={signUpAction} pendingText="Creando cuenta...">
-            Registrarse
-          </SubmitButton>
-          <FormMessage message={searchParams} />
-        </div>
-      </form>
-    </>
-  );
->>>>>>> Stashed changes
 }
 

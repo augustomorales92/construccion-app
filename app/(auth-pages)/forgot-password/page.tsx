@@ -5,13 +5,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { SmtpMessage } from "../smtp-message";
+import { Card } from "@/components/ui/card";
 
 export default async function ForgotPassword(props: {
   searchParams: Promise<Message>;
 }) {
   const searchParams = await props.searchParams;
   return (
-    <>
+    <Card>
       <form className="flex-1 flex flex-col w-full gap-2 text-foreground [&>input]:mb-6 min-w-64 max-w-64 mx-auto">
         <div>
           <h1 className="text-2xl font-medium">Recupera tu contraseña</h1>
@@ -32,6 +33,6 @@ export default async function ForgotPassword(props: {
         </div>
       </form>
       <SmtpMessage />
-    </>
+    </Card>
   );
 }
