@@ -15,7 +15,8 @@ import {
   X,
 } from 'lucide-react'
 import Link from 'next/link'
-import { useState } from 'react'
+import { usePathname } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import { ThemeSwitcher } from '../theme-switcher'
 import Frame from './navbar'
 
@@ -27,8 +28,13 @@ export default function Layout({
   user: User | null
 }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const pathname = usePathname()
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen)
+
+  useEffect(() => {
+    setIsMobileMenuOpen(false)
+  }, [pathname])
 
   const navItems = user
     ? user.user_metadata.role === 'ADMIN'
@@ -107,13 +113,13 @@ export default function Layout({
             </Button>
           ) : (
             <div className="flex gap-1">
-              <Button asChild size="sm" variant={'default'} className='h-8'>
-                <Link href="/sign-in" prefetch={true} className='px-1'>
+              <Button asChild size="sm" variant={'default'} className="h-8">
+                <Link href="/sign-in" prefetch={true} className="px-1">
                   <span className="text-xs">Iniciar sesión</span>
                 </Link>
               </Button>
-              <Button asChild size="sm" variant={'default'} className='h-8'>
-                <Link href="/sign-up" prefetch={true} className='px-1 h-6'>
+              <Button asChild size="sm" variant={'default'} className="h-8">
+                <Link href="/sign-up" prefetch={true} className="px-1 h-6">
                   <span className="text-xs">Registrate</span>
                 </Link>
               </Button>
