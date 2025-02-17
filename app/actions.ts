@@ -1,11 +1,11 @@
 "use server";
 
-import { encodedRedirect } from "@/utils/utils";
 import { createClient } from "@/utils/supabase/server";
+import { encodedRedirect } from "@/utils/utils";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
-export const signUpAction = async (formData: FormData) => {
+export const signUpAction = async (role: string | null, formData: FormData) => {
   const email = formData.get("email")?.toString();
   const password = formData.get("password")?.toString();
   const supabase = await createClient();
@@ -22,7 +22,9 @@ export const signUpAction = async (formData: FormData) => {
   const { error } = await supabase.auth.signUp({
     email,
     password,
+
     options: {
+      data: { role },
       emailRedirectTo: `${origin}/auth/callback`,
     },
   });

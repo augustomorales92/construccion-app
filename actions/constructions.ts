@@ -111,6 +111,11 @@ export async function getConstructions() {
   // Aquí iría la lógica para obtener todas las obras de la base de datos
   return constructions;
 }
+
+export async function getMyConstructions() {
+  // Aquí iría la lógica para obtener todas las obras de la base de datos
+  return constructions;
+}
 export async function getFavoriteConstructions() {
   const user = await getUser();
   const favorites = user?.user_metadata.favorites || [];

@@ -6,6 +6,7 @@ import { User } from '@supabase/supabase-js'
 import {
   BrickWall,
   Briefcase,
+  HardHat,
   Home,
   Menu,
   MessageSquare,
@@ -30,13 +31,14 @@ export default function Layout({
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen)
 
   const navItems = user
-    ? user.role === 'ADMIN'
+    ? user.user_metadata.role === 'ADMIN'
       ? [
-          { href: '/home', label: 'Inicio', icon: Home },
-          { href: '/obras', label: 'Obras', icon: Briefcase },
+          { href: '/', label: 'Inicio', icon: Home },
+          { href: '/protected/constructions', label: 'Obras', icon: Briefcase },
           { href: '/mensajes', label: 'Mensajes', icon: MessageSquare },
-          { href: '/clientes', label: 'Clientes', icon: Users },
-          { href: '/perfil', label: 'Perfil', icon: UserIcon },
+          { href: '/protected/clients', label: 'Clientes', icon: Users },
+          { href: '/protected/managers', label: 'Encargados', icon: HardHat },
+          { href: '/protected/profile', label: 'Perfil', icon: UserIcon },
         ]
       : [
           { href: '/', label: 'Inicio', icon: Home },
@@ -87,8 +89,8 @@ export default function Layout({
       <header className="border-b border-b-foreground/10 shadow-md md:hidden">
         <div className="container mx-auto px-4 h-16 flex justify-between items-center">
           <Link href="/" className="flex gap-2 items-center" prefetch={true}>
-            <BrickWall className="w-7 h-7" />
-            <span className="text-lg">Busca tu obra</span>
+            <BrickWall className="w-4 h-4" />
+            <span className="text-sm">Busca tu obra</span>
           </Link>
           {user ? (
             <Button
@@ -104,15 +106,15 @@ export default function Layout({
               )}
             </Button>
           ) : (
-            <div className="flex gap-2">
-              <Button asChild size="sm" variant={'default'}>
-                <Link href="/sign-in" prefetch={true}>
-                  Iniciar sesión
+            <div className="flex gap-1">
+              <Button asChild size="sm" variant={'default'} className='h-8'>
+                <Link href="/sign-in" prefetch={true} className='px-1'>
+                  <span className="text-xs">Iniciar sesión</span>
                 </Link>
               </Button>
-              <Button asChild size="sm" variant={'default'}>
-                <Link href="/sign-up" prefetch={true}>
-                  Registrate
+              <Button asChild size="sm" variant={'default'} className='h-8'>
+                <Link href="/sign-up" prefetch={true} className='px-1 h-6'>
+                  <span className="text-xs">Registrate</span>
                 </Link>
               </Button>
             </div>
