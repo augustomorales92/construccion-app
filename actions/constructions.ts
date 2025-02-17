@@ -1,7 +1,10 @@
-"use server";
+'use server'
 
-import { Incidents } from "@/lib/types";
-import getUser from "./auth";
+
+import { Incidents } from '@/components/landing/types'
+import prisma from '@/lib/db'
+import { revalidatePath } from 'next/cache'
+import getUser from './auth'
 
 const clientsSample = [
   {
@@ -84,79 +87,79 @@ const constructions = [
     manager: managerSample[0],
     status: "En progreso",
   },
-];
+]
 
 const sampleIncidents: Incidents[] = [
   {
-    id: "1",
-    date: "2023-05-15",
-    content: "Inicio de la excavación para los cimientos.",
+    id: '1',
+    date: '2023-05-15',
+    content: 'Inicio de la excavación para los cimientos.',
   },
   {
-    id: "2",
-    date: "2023-05-20",
+    id: '2',
+    date: '2023-05-20',
     content:
-      "Retraso debido a lluvias intensas. Trabajo suspendido por 2 días.",
+      'Retraso debido a lluvias intensas. Trabajo suspendido por 2 días.',
   },
   {
-    id: "3",
-    date: "2023-06-01",
-    content: "Finalización de la colocación de cimientos.",
+    id: '3',
+    date: '2023-06-01',
+    content: 'Finalización de la colocación de cimientos.',
   },
   {
-    id: "4",
-    date: "2023-06-15",
-    content: "Inicio de la construcción de la estructura principal.",
+    id: '4',
+    date: '2023-06-15',
+    content: 'Inicio de la construcción de la estructura principal.',
   },
   {
-    id: "5",
-    date: "2023-07-01",
+    id: '5',
+    date: '2023-07-01',
     content:
-      "Problema con el suministro de materiales. Retraso estimado de 1 semana.",
+      'Problema con el suministro de materiales. Retraso estimado de 1 semana.',
   },
   {
-    id: "6",
-    date: "2023-07-15",
-    content: "Finalización de la estructura principal.",
+    id: '6',
+    date: '2023-07-15',
+    content: 'Finalización de la estructura principal.',
   },
   {
-    id: "7",
-    date: "2023-08-01",
-    content: "Inicio de trabajos de instalación eléctrica y fontanería.",
+    id: '7',
+    date: '2023-08-01',
+    content: 'Inicio de trabajos de instalación eléctrica y fontanería.',
   },
   {
-    id: "8",
-    date: "2023-08-20",
+    id: '8',
+    date: '2023-08-20',
     content:
-      "Inspección de seguridad realizada. Todos los estándares cumplidos.",
+      'Inspección de seguridad realizada. Todos los estándares cumplidos.',
   },
   {
-    id: "9",
-    date: "2023-09-01",
-    content: "Inicio de trabajos de acabado interior.",
+    id: '9',
+    date: '2023-09-01',
+    content: 'Inicio de trabajos de acabado interior.',
   },
   {
-    id: "10",
-    date: "2023-09-15",
+    id: '10',
+    date: '2023-09-15',
     content:
-      "Retraso en la entrega de materiales para acabados. Impacto estimado de 3 días.",
+      'Retraso en la entrega de materiales para acabados. Impacto estimado de 3 días.',
   },
-];
+]
 
 export async function getConstructions() {
   // Aquí iría la lógica para obtener todas las obras de la base de datos
-  return constructions;
+  return constructions
 }
 
 export async function getMyConstructions() {
   // Aquí iría la lógica para obtener todas las obras de la base de datos
-  return constructions;
+  return constructions
 }
 export async function getFavoriteConstructions() {
-  const user = await getUser();
-  const favorites = user?.user_metadata.favorites || [];
+  const user = await getUser()
+  const favorites = user?.user_metadata.favorites || []
   // Aquí iría la lógica para obtener las obras favoritas de la base de datos
-  return constructions.filter((obra) => favorites.includes(obra.id));
+  return constructions.filter((obra) => favorites.includes(obra.id))
 }
 
 export async function verifyPassword(
@@ -170,14 +173,147 @@ export async function verifyPassword(
 export async function getConstructionById(id: string) {
   // Aquí iría la lógica para obtener una obra específica de la base de datos
 
-  return constructions.find((obra) => obra.id === id) || null;
+  return constructions.find((obra) => obra.id === id) || null
 }
 
 export async function getIncidentsByConstructionId(
   id: number,
 ): Promise<Incidents[]> {
   // Aquí iría la lógica para obtener todas las incidencias de una obra específica
-  return sampleIncidents;
+  return sampleIncidents
+}
+
+interface FormDataValues {
+  name: string
+  description?: string
+  address?: string
+  budget?: number
+  phoneManager?: string
+}
+
+export async function createWork(
+  formData: FormDataValues,
+): Promise<{ success: boolean; error?: string }> {
+  const userAuth = await getUser()
+
+  if (!userAuth) {
+    return { success: false, error: 'Unauthorized' }
+  }
+
+  const { email, id: userId } = userAuth
+  const { name, description, address, budget, phoneManager } = formData
+
+  try {
+    await prisma.$transaction(async (tx) => {
+      // 1. Buscar el usuario por email
+      const existingUser = await tx.user.findUnique({
+        where: { email: email! },
+      })
+
+      let user
+      if (!existingUser) {
+        // 2. Si el usuario no existe, créalo
+        user = await tx.user.create({
+          data: {
+            id: userId,
+            email: email!,
+            role: userAuth.user_metadata?.role || null,
+          },
+        })
+      } else {
+        // 3. Si el usuario existe, usa el usuario existente
+        user = existingUser
+      }
+
+      // 4. Crear la obra
+      const work = await tx.work.create({
+        data: {
+          name,
+          description: description || null,
+          address: address || null,
+          budget,
+          phoneManager: phoneManager || null,
+        },
+      })
+
+      // 5. Crear la relación UserWork
+      await tx.userWork.create({
+        data: {
+          userId: user.id,
+          workId: work.id,
+        },
+      })
+    })
+
+    revalidatePath('/')
+    return { success: true }
+  } catch (error: any) {
+    console.error('Error creating work and user:', error)
+    return { success: false, error: 'Failed to create work and user' }
+  }
+}
+
+export async function getWorksByUser() {
+  const userAuth = await getUser()
+
+  if (!userAuth) {
+    return { success: false, error: 'Unauthorized' }
+  }
+
+  const { id: userId } = userAuth
+  try {
+    const userWithWorks = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      include: {
+        works: {
+          include: {
+            work: true,
+          },
+        },
+      },
+    })
+
+    if (!userWithWorks) {
+      return null
+    }
+
+    const works = userWithWorks.works.map((userWork) => userWork.work)
+
+    return works
+  } catch (error) {
+    console.error('Error getting works by user:', error)
+    throw new Error('Failed to get works by user')
+  }
+}
+
+export async function getUsersByWork(workId: string) {
+  try {
+    const workWithUsers = await prisma.work.findUnique({
+      where: {
+        id: workId,
+      },
+      include: {
+        users: {
+          include: {
+            user: true,
+          },
+        },
+      },
+    })
+
+    if (!workWithUsers) {
+      return null
+    }
+
+    const users = workWithUsers.users.map((userWork) => userWork.user)
+
+    return users
+  } catch (error) {
+    console.error('Error getting users by work:', error)
+    throw new Error('Failed to get users by work')
+  }
 }
 
 export async function getClients() {

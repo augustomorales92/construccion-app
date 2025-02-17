@@ -19,6 +19,7 @@ export default function SignupForm({
 }) {
   const [role, setRole] = useState<string | null>(null)
   const sigUnWithRole = signUpAction.bind(null, role)
+  // const sigUnWithRole = signUp.bind(null, role)
 
   if (!role) {
     return <RoleSelection role={role} setRole={setRole} />

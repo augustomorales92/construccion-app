@@ -3,18 +3,18 @@ import { createAdminClient, createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 
-export default async function getUserAuth() {
+export default async function getUser() {
   try {
     const supabase = await createClient()
 
     const {
       data: { user },
-    } = await supabase.auth.getUser()
+    } = await supabase.auth.getUser();
 
-    return user
+    return user;
   } catch (error) {
-    console.error('Error getting user', error)
-    return null
+    console.error("Error getting user", error);
+    return null;
   }
 }
 

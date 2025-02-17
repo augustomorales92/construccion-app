@@ -8,17 +8,11 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-enum Role {
-  ADMIN
-  CLIENT
-  MANAGER
-}
-
 model User {
   id               String           @id @default(uuid())
   email            String           @unique
   name             String?
-  role             Role             @default(CLIENT)
+  role             String?
   works            UserWork[]
   incidents        Incident[]
   progressUpdates  ProgressUpdate[]
@@ -40,29 +34,30 @@ enum Status {
 }
 
 model Work {
-  id              String           @id @default(uuid())
-  name            String
-  description     String?
-  address         String?
-  budget          Float?
-  accessCode      String           @unique @default(uuid())
-  phoneManager    String?
-  status          Status           @default(PENDING)
-  startDate       DateTime?
-  endDate         DateTime?
-  images          String[]         @default([])
-  files           String[]         @default([])
-  certificates    String[]         @default([])
-  items           WorkItem[]
-  users           UserWork[]
-  incidents       Incident[]
-  progressUpdates ProgressUpdate[]
-  customerId      String?
-  customer        Customer?        @relation(fields: [customerId], references: [id])
-  notifications   Notification[]
-  messages        Message[]
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  id                 String           @id @default(uuid())
+  name               String
+  description        String?
+  address            String?
+  budget             Float?
+  progressPercent    Float?
+  accessCode         Int              @unique @default(autoincrement())
+  phoneManager       String?
+  status             Status           @default(PENDING)
+  estimatedTime      String?
+  materialsPurchased String[]         @default([])
+  images             String[]         @default([])
+  files              String[]         @default([])
+  certificates       String[]         @default([])
+  items              WorkItem[]
+  users              UserWork[]
+  incidents          Incident[]
+  progressUpdates    ProgressUpdate[]
+  customerId         String?
+  customer           Customer?        @relation(fields: [customerId], references: [id])
+  notifications      Notification[]
+  messages           Message[]
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
 
   @@map("works")
 }
