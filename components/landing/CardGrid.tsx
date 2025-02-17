@@ -6,7 +6,8 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Card from './Card'
 import PasswordModal from './PasswordModal'
-import type { Construction } from './types'
+import { Construction } from './types'
+
 
 export default function CardGrid({
   toggle,

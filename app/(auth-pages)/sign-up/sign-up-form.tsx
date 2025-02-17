@@ -1,5 +1,5 @@
 'use client'
-import { signUpAction } from '@/app/actions'
+import { signUpAction} from '@/app/actions'
 import { FormMessage, type Message } from '@/components/form-message'
 import { SubmitButton } from '@/components/submit-button'
 import { Button } from '@/components/ui/button'
@@ -19,6 +19,7 @@ export default function SignupForm({
 }) {
   const [role, setRole] = useState<string | null>(null)
   const sigUnWithRole = signUpAction.bind(null, role)
+  // const sigUnWithRole = signUp.bind(null, role)
 
   if (!role) {
     return <RoleSelection role={role} setRole={setRole} />
