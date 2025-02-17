@@ -1,4 +1,5 @@
-import { signInAction } from '@/app/actions'
+'use client'
+import { signUpAction } from '@/app/actions'
 import { FormMessage, type Message } from '@/components/form-message'
 import { SubmitButton } from '@/components/submit-button'
 import { Button } from '@/components/ui/button'
@@ -8,24 +9,36 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Mail } from 'lucide-react'
 import Link from 'next/link'
+import { useState } from 'react'
+import RoleSelection from './role-page'
 
-export default async function Login(props: { searchParams: Promise<Message> }) {
-  const searchParams = await props.searchParams
+export default function SignupForm({
+  searchParams,
+}: {
+  searchParams: Message
+}) {
+  const [role, setRole] = useState<string | null>(null)
+  const sigUnWithRole = signUpAction.bind(null, role)
+
+  if (!role) {
+    return <RoleSelection role={role} setRole={setRole} />
+  }
+
   return (
     <div className="h-full flex justify-center items-center w-full">
-      <Card className="w-96 min-h-[70vh]">
+      <Card className='w-96 min-h-[70vh]"'>
         <CardHeader>
           <div className="text-center">
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              Sign in
+              Sign up
             </h1>
             <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-              Don't have an account?{' '}
+              Already have an account?{' '}
               <Link
                 className="font-medium text-primary hover:underline"
-                href="/sign-up"
+                href="/sign-in"
               >
-                Sign up
+                Sign in
               </Link>
             </p>
           </div>
@@ -50,46 +63,59 @@ export default async function Login(props: { searchParams: Promise<Message> }) {
                 />
               </div>
               <div>
-                <div className="flex items-center justify-between">
-                  <Label
-                    htmlFor="password"
-                    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                  >
-                    Password
-                  </Label>
-                  <Link
-                    className="text-xs text-primary hover:underline"
-                    href="/forgot-password"
-                  >
-                    Forgot Password?
-                  </Link>
-                </div>
+                <Label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
+                  Password
+                </Label>
                 <Input
                   id="password"
                   type="password"
                   name="password"
                   placeholder="Your password"
+                  minLength={6}
+                  required
+                  className="mt-1 block w-full"
+                />
+              </div>
+              <div>
+                <Label
+                  htmlFor="confirm-password"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
+                  Confirm Password
+                </Label>
+                <Input
+                  id="confirm-password"
+                  type="password"
+                  name="confirm-password"
+                  placeholder="Confirm your password"
+                  minLength={6}
                   required
                   className="mt-1 block w-full"
                 />
               </div>
               <div className="flex items-center">
-                <Checkbox id="remember" name="remember" />
+                <Checkbox id="terms" name="terms" required />
                 <Label
-                  htmlFor="remember"
+                  htmlFor="terms"
                   className="ml-2 block text-sm text-gray-900 dark:text-gray-300"
                 >
-                  Remember me
+                  I agree to the{' '}
+                  <Link href="/terms" className="text-primary hover:underline">
+                    Terms and Conditions
+                  </Link>
                 </Label>
               </div>
             </div>
 
             <SubmitButton
-              pendingText="Signing In..."
-              formAction={signInAction}
+              pendingText="Signing up..."
+              formAction={sigUnWithRole}
               className="w-full"
             >
-              Sign in
+              Sign up
             </SubmitButton>
 
             <FormMessage message={searchParams} />
@@ -102,8 +128,8 @@ export default async function Login(props: { searchParams: Promise<Message> }) {
                 <div className="w-full border-t border-gray-300"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-background text-gray-500">
-                  Or Continue with
+                <span className="px-2 bg-background  text-gray-500">
+                  Or sign up with
                 </span>
               </div>
             </div>

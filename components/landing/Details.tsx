@@ -42,7 +42,7 @@ export default function CardComponent({
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0)
   const [modalOpen, setModalOpen] = useState(false)
   const [PasswordModalOpen, setPasswordModalOpen] = useState(false)
-  const userRole = user?.role
+  const userRole = user?.user_metadata.role
   const imagesLength = construction?.images?.length || 1
 
   const nextPhoto = () => {

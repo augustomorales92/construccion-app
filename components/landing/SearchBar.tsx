@@ -8,8 +8,8 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { Home, Search } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
-import { Construction } from './types'
 import PasswordModal from './PasswordModal'
+import { Construction } from './types'
 
 function ActionSearchBar({ constructions }: { constructions: Construction[] }) {
   const params = useSearchParams()
@@ -114,7 +114,7 @@ function ActionSearchBar({ constructions }: { constructions: Construction[] }) {
               placeholder="tu obra?"
               value={inputQuery}
               onChange={handleInputChange}
-              className="pl-3 pr-9 py-1.5 h-12 text-sm rounded-lg focus-visible:ring-offset-0"
+              className="pl-3 pr-9 py-1.5 h-12  rounded-lg focus-visible:ring-offset-0"
             />
 
             <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />

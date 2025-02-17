@@ -1,15 +1,13 @@
 'use server'
 
-import { encodedRedirect } from '@/utils/utils'
 import { createClient } from '@/utils/supabase/server'
+import { encodedRedirect } from '@/utils/utils'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
-import prisma from '@/lib/db'
 
-export const signUpAction = async (formData: FormData) => {
+export const signUpAction = async (role: string | null, formData: FormData) => {
   const email = formData.get('email')?.toString()
   const password = formData.get('password')?.toString()
-  const name = formData.get('name')?.toString() // Obtén el nombre del formulario
   const supabase = await createClient()
   const origin = (await headers()).get('origin')
 
@@ -21,92 +19,27 @@ export const signUpAction = async (formData: FormData) => {
     )
   }
 
-  try {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${origin}/auth/callback`,
-      },
-    })
+  const { error } = await supabase.auth.signUp({
+    email,
+    password,
 
-    if (error) {
-      console.error(error.code + ' ' + error.message)
-      return encodedRedirect('error', '/sign-up', error.message)
-    }
+    options: {
+      data: { role },
+      emailRedirectTo: `${origin}/auth/callback`,
+    },
+  })
 
-    if (data.user) {
-      try {
-        await prisma.user.create({
-          data: {
-            id: data.user.id, 
-            email: email,
-            name: name || null, 
-          },
-        })
-      } catch (prismaError: any) {
-        
-        console.error('Prisma error:', prismaError)
-        
-        await supabase.auth.admin.deleteUser(data.user.id)
-        return encodedRedirect(
-          'error',
-          '/sign-up',
-          'Error creating user in database. Please try again.',
-        )
-      }
-    }
-
+  if (error) {
+    console.error(error.code + ' ' + error.message)
+    return encodedRedirect('error', '/sign-up', error.message)
+  } else {
     return encodedRedirect(
       'success',
       '/sign-up',
       'Thanks for signing up! Please check your email for a verification link.',
     )
-  } catch (error: any) {
-    console.error('Unexpected error:', error)
-    return encodedRedirect(
-      'error',
-      '/sign-up',
-      'An unexpected error occurred. Please try again.',
-    )
-  } finally {
-    await prisma.$disconnect()
   }
 }
-
-// export const signUpAction = async (formData: FormData) => {
-//   const email = formData.get("email")?.toString();
-//   const password = formData.get("password")?.toString();
-//   const supabase = await createClient();
-//   const origin = (await headers()).get("origin");
-
-//   if (!email || !password) {
-//     return encodedRedirect(
-//       "error",
-//       "/sign-up",
-//       "Email and password are required",
-//     );
-//   }
-
-//   const { error } = await supabase.auth.signUp({
-//     email,
-//     password,
-//     options: {
-//       emailRedirectTo: `${origin}/auth/callback`,
-//     },
-//   });
-
-//   if (error) {
-//     console.error(error.code + " " + error.message);
-//     return encodedRedirect("error", "/sign-up", error.message);
-//   } else {
-//     return encodedRedirect(
-//       "success",
-//       "/sign-up",
-//       "Thanks for signing up! Please check your email for a verification link.",
-//     );
-//   }
-// };
 
 export const signInAction = async (formData: FormData) => {
   const email = formData.get('email') as string

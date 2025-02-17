@@ -6,6 +6,7 @@ import { User } from '@supabase/supabase-js'
 import {
   BrickWall,
   Briefcase,
+  HardHat,
   Home,
   Menu,
   MessageSquare,
@@ -15,35 +16,9 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ThemeSwitcher } from '../theme-switcher'
 import Frame from './navbar'
-
-const NavItem = ({
-  href,
-  children,
-  isMobile = false,
-  onClick = () => {},
-}: {
-  href: string
-  children: React.ReactNode
-  isMobile?: boolean
-  onClick?: () => void
-}) => {
-  const pathname = usePathname()
-  const isActive = pathname === href
-
-  return (
-    <Link
-      href={href}
-      className={`flex ${isActive && 'bg-slate-500 dark:bg-slate-100/50 text-background'} h-9 w-max items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-gray-100/50 data-[state=open]:bg-gray-100/50 dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus:bg-gray-800 dark:focus:text-gray-50 dark:data-[active]:bg-gray-800/50 dark:data-[state=open]:bg-gray-800/50`}
-      onClick={onClick}
-      prefetch={true}
-    >
-      {children}
-    </Link>
-  )
-}
 
 export default function Layout({
   children,
@@ -53,22 +28,28 @@ export default function Layout({
   user: User | null
 }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const pathname = usePathname()
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen)
 
+  useEffect(() => {
+    setIsMobileMenuOpen(false)
+  }, [pathname])
+
   const navItems = user
-    ? user.role === 'ADMIN'
+    ? user.user_metadata.role === 'ADMIN'
       ? [
-          { href: '/home', label: 'Inicio', icon: Home },
-          { href: '/obras', label: 'Obras', icon: Briefcase },
+          { href: '/', label: 'Inicio', icon: Home },
+          { href: '/protected/constructions', label: 'Obras', icon: Briefcase },
           { href: '/mensajes', label: 'Mensajes', icon: MessageSquare },
-          { href: '/clientes', label: 'Clientes', icon: Users },
-          { href: '/perfil', label: 'Perfil', icon: UserIcon },
+          { href: '/protected/clients', label: 'Clientes', icon: Users },
+          { href: '/protected/managers', label: 'Encargados', icon: HardHat },
+          { href: '/protected/profile', label: 'Perfil', icon: UserIcon },
         ]
       : [
           { href: '/', label: 'Inicio', icon: Home },
           { href: '/mensajes', label: 'Mensajes', icon: MessageSquare },
-          { href: '/perfil', label: 'Perfil', icon: UserIcon },
+          { href: '/protected/profile', label: 'Perfil', icon: UserIcon },
         ]
     : []
 
@@ -76,7 +57,7 @@ export default function Layout({
     <div className="min-h-screen flex flex-col">
       {/* Header para desktop */}
       <header className="border-b border-b-foreground/10 shadow-md hidden md:block">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+        <div className="container mx-auto px-4 h-16 flex justify-between items-center">
           <Link href="/" className="flex gap-2 items-center" prefetch={true}>
             <BrickWall className="w-7 h-7" />
             <span className="text-lg">Busca tu obra</span>
@@ -112,10 +93,10 @@ export default function Layout({
 
       {/* Header para móvil */}
       <header className="border-b border-b-foreground/10 shadow-md md:hidden">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+        <div className="container mx-auto px-4 h-16 flex justify-between items-center">
           <Link href="/" className="flex gap-2 items-center" prefetch={true}>
-            <BrickWall className="w-7 h-7" />
-            <span className="text-lg">Busca tu obra</span>
+            <BrickWall className="w-4 h-4" />
+            <span className="text-sm">Busca tu obra</span>
           </Link>
           {user ? (
             <Button
@@ -131,15 +112,15 @@ export default function Layout({
               )}
             </Button>
           ) : (
-            <div className="flex gap-2">
-              <Button asChild size="sm" variant={'default'}>
-                <Link href="/sign-in" prefetch={true}>
-                  Iniciar sesión
+            <div className="flex gap-1">
+              <Button asChild size="sm" variant={'default'} className="h-8">
+                <Link href="/sign-in" prefetch={true} className="px-1">
+                  <span className="text-xs">Iniciar sesión</span>
                 </Link>
               </Button>
-              <Button asChild size="sm" variant={'default'}>
-                <Link href="/sign-up" prefetch={true}>
-                  Registrate
+              <Button asChild size="sm" variant={'default'} className="h-8">
+                <Link href="/sign-up" prefetch={true} className="px-1 h-6">
+                  <span className="text-xs">Registrate</span>
                 </Link>
               </Button>
             </div>
