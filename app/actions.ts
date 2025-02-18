@@ -1,9 +1,24 @@
 'use server'
 
-import {  createClient } from '@/utils/supabase/server'
+import prisma from '@/lib/db'
+import { createClient } from '@/utils/supabase/server'
 import { encodedRedirect } from '@/utils/utils'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
+
+export async function createUserInPrisma(email: string, role?: string) {
+  try {
+    await prisma.user.create({
+      data: {
+        email: email,
+        role: role,
+      },
+    })
+    console.log(`User created in Prisma with email: ${email}`)
+  } catch (error) {
+    console.error('Error creating user in Prisma:', error)
+  }
+}
 
 export const signUpAction = async (role: string | null, formData: FormData) => {
   const email = formData.get('email')?.toString()
@@ -25,7 +40,7 @@ export const signUpAction = async (role: string | null, formData: FormData) => {
 
     options: {
       data: { role },
-      emailRedirectTo: `${origin}/auth/callback`,
+      emailRedirectTo: `${origin}/auth/callback?email=${email}&role=${role}`,
     },
   })
 

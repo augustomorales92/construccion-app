@@ -1,5 +1,3 @@
-import { Status } from "@prisma/client"
-
 export interface Certificates {
   id: number
   avance: number
@@ -16,14 +14,14 @@ export interface Incidents {
 export interface Construction {
   id: string
   name: string
-  customer: string
+  customer?: string
   progressPercent: number
   budget: number
   materialsPurchased: string[]
   estimatedTime: string
   description: string
   images: string[]
-  certcertificatesificados: Certificates[]
+  certificates: Certificates[]
   phoneManager: string
-  status:string
+  status?:string
 }

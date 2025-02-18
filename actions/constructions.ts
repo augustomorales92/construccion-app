@@ -4,6 +4,9 @@ import { Incidents } from '@/components/landing/types'
 import getUser from './auth'
 import { revalidatePath } from 'next/cache'
 import prisma from '@/lib/db'
+import { projectSchema } from '@/schemas'
+import { z } from 'zod'
+import { v4 as uuidv4 } from 'uuid'
 
 const constructions = [
   {
@@ -146,15 +149,9 @@ export async function getIncidentsByConstructionId(
   return sampleIncidents
 }
 
-interface FormDataValues {
-  name: string
-  description?: string
-  address?: string
-  budget?: number
-  phoneManager?: string
-}
+type FormDataValues = z.infer<typeof projectSchema>
 
-export async function createWork(
+export async function createProject(
   formData: FormDataValues,
 ): Promise<{ success: boolean; error?: string }> {
   const userAuth = await getUser()
@@ -163,47 +160,40 @@ export async function createWork(
     return { success: false, error: 'Unauthorized' }
   }
 
-  const { email, id: userId } = userAuth
-  const { name, description, address, budget, phoneManager } = formData
+  const validatedData = projectSchema.safeParse(formData)
 
+  if (!validatedData.success) {
+    console.log(validatedData.error.flatten().fieldErrors)
+    return {
+      success: false,
+      error: 'Invalid form data',
+    }
+  }
+
+  const { name, description, address, budget, projectNumber } = formData
+
+  const accessCode = uuidv4()
   try {
     await prisma.$transaction(async (tx) => {
-      // 1. Buscar el usuario por email
-      const existingUser = await tx.user.findUnique({
-        where: { email: email! },
-      })
-
-      let user
-      if (!existingUser) {
-        // 2. Si el usuario no existe, créalo
-        user = await tx.user.create({
-          data: {
-            id: userId,
-            email: email!,
-            role: userAuth.user_metadata?.role || null,
-          },
-        })
-      } else {
-        // 3. Si el usuario existe, usa el usuario existente
-        user = existingUser
-      }
-
-      // 4. Crear la obra
-      const work = await tx.work.create({
+      const project = await tx.project.create({
         data: {
           name,
           description: description || null,
           address: address || null,
           budget,
-          phoneManager: phoneManager || null,
-        },
-      })
-
-      // 5. Crear la relación UserWork
-      await tx.userWork.create({
-        data: {
-          userId: user.id,
-          workId: work.id,
+          accessCode,
+          projectNumber,
+          users: {
+            create: [
+              {
+                user: {
+                  connect: {
+                    id: userAuth.id,
+                  },
+                },
+              },
+            ],
+          },
         },
       })
     })
@@ -216,7 +206,7 @@ export async function createWork(
   }
 }
 
-export async function getWorksByUser() {
+export async function getProjectsByUser() {
   const userAuth = await getUser()
 
   if (!userAuth) {
@@ -225,56 +215,30 @@ export async function getWorksByUser() {
 
   const { id: userId } = userAuth
   try {
-    const userWithWorks = await prisma.user.findUnique({
+    const userWithProjects = await prisma.user.findUnique({
       where: {
         id: userId,
       },
       include: {
-        works: {
+        projects: {
           include: {
-            work: true,
+            project: true,
           },
         },
       },
     })
 
-    if (!userWithWorks) {
+    if (!userWithProjects) {
       return null
     }
 
-    const works = userWithWorks.works.map((userWork) => userWork.work)
+    const projects = userWithProjects.projects.map(
+      (userProject) => userProject.project,
+    )
 
-    return works
+    return projects
   } catch (error) {
     console.error('Error getting works by user:', error)
     throw new Error('Failed to get works by user')
-  }
-}
-
-export async function getUsersByWork(workId: string) {
-  try {
-    const workWithUsers = await prisma.work.findUnique({
-      where: {
-        id: workId,
-      },
-      include: {
-        users: {
-          include: {
-            user: true,
-          },
-        },
-      },
-    })
-
-    if (!workWithUsers) {
-      return null
-    }
-
-    const users = workWithUsers.users.map((userWork) => userWork.user)
-
-    return users
-  } catch (error) {
-    console.error('Error getting users by work:', error)
-    throw new Error('Failed to get users by work')
   }
 }

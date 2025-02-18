@@ -18,38 +18,6 @@ export default async function getUser() {
   }
 }
 
-export async function getLoggedInUser() {
-  try {
-    const supabase = await createClient()
-
-    const {
-      data: { user: authUser },
-      error: authError,
-    } = await supabase.auth.getUser()
-
-    if (authError || !authUser) {
-      console.warn('No authenticated user found:', authError?.message)
-      return null 
-    }
-
-    const { data: user, error: dbError } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', authUser.id) 
-      .single() 
-
-    if (dbError) {
-      console.error('Error getting user from database:', dbError.message)
-      return null
-    }
-
-    return user 
-  } catch (error) {
-    console.error('Unexpected error getting user:', error)
-    return null
-  }
-}
-
 export async function toggleFavorite() {
   const cookieStore = await cookies()
   const favoritesCookie = cookieStore.get('favorite')

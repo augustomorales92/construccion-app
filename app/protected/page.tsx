@@ -1,5 +1,5 @@
 import getUser, { toggleFavorite } from '@/actions/auth'
-import { getFavoriteConstructions, getWorksByUser } from '@/actions/constructions'
+import { getFavoriteConstructions } from '@/actions/constructions'
 import CardGrid from '@/components/landing/CardGrid'
 import { Button } from '@/components/ui/button'
 import { InfoIcon } from 'lucide-react'
@@ -10,7 +10,7 @@ export default async function ProtectedPage() {
   const [user, toggle, constructions] = await Promise.all([
     getUser(),
     toggleFavorite(),
-    getWorksByUser(),
+    getFavoriteConstructions(),
   ])
 
   if (!user) {
@@ -35,10 +35,8 @@ export default async function ProtectedPage() {
           {JSON.stringify(user, null, 2)}
         </pre>
         {isAdmin && (
-          <Link href="/protected/create-work">
-            <Button variant={'default'}>
-              Crear Obra
-            </Button>
+          <Link href="/protected/create-project">
+            <Button variant={'default'}>Crear Obra</Button>
           </Link>
         )}
       </div>

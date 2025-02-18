@@ -2,16 +2,12 @@
 
 import { useTransition } from 'react'
 import { useForm } from 'react-hook-form'
-import { createWork } from '@/actions/constructions'
+import { createProject } from '@/actions/constructions'
 import { Button } from '@/components/ui/button'
+import { projectSchema } from '@/schemas'
+import { z } from 'zod'
 
-interface FormValues {
-  name: string
-  description?: string
-  address?: string
-  budget?: number
-  phoneManager?: string
-}
+type projectFormData = z.infer<typeof projectSchema>
 
 export default function CreateWorkPage() {
   const [isPending, startTransition] = useTransition()
@@ -20,11 +16,11 @@ export default function CreateWorkPage() {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<FormValues>()
+  } = useForm<projectFormData>()
 
-  const onSubmit = async (data: FormValues) => {
+  const onSubmit = async (data: projectFormData) => {
     startTransition(async () => {
-      await createWork(data)
+      await createProject(data)
     })
   }
 
@@ -33,7 +29,10 @@ export default function CreateWorkPage() {
       <h1 className="text-2xl font-bold mb-4">Crear Nueva Obra</h1>
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <div>
-          <label htmlFor="name" className="block text-gray-700 text-sm font-bold mb-2">
+          <label
+            htmlFor="name"
+            className="block text-gray-700 text-sm font-bold mb-2"
+          >
             Nombre de la Obra:
           </label>
           <input
@@ -47,7 +46,10 @@ export default function CreateWorkPage() {
           )}
         </div>
         <div>
-          <label htmlFor="description" className="block text-gray-700 text-sm font-bold mb-2">
+          <label
+            htmlFor="description"
+            className="block text-gray-700 text-sm font-bold mb-2"
+          >
             Descripción:
           </label>
           <textarea
@@ -57,7 +59,10 @@ export default function CreateWorkPage() {
           />
         </div>
         <div>
-          <label htmlFor="address" className="block text-gray-700 text-sm font-bold mb-2">
+          <label
+            htmlFor="address"
+            className="block text-gray-700 text-sm font-bold mb-2"
+          >
             Dirección:
           </label>
           <input
@@ -68,7 +73,10 @@ export default function CreateWorkPage() {
           />
         </div>
         <div>
-          <label htmlFor="budget" className="block text-gray-700 text-sm font-bold mb-2">
+          <label
+            htmlFor="budget"
+            className="block text-gray-700 text-sm font-bold mb-2"
+          >
             Presupuesto:
           </label>
           <input
@@ -79,21 +87,20 @@ export default function CreateWorkPage() {
           />
         </div>
         <div>
-          <label htmlFor="phoneManager" className="block text-gray-700 text-sm font-bold mb-2">
-            Teléfono del Encargado:
+          <label
+            htmlFor="projectNumber"
+            className="block text-gray-700 text-sm font-bold mb-2"
+          >
+            Matricula del proyecto:
           </label>
           <input
             type="text"
-            id="phoneManager"
+            id="projectNumber"
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            {...register('phoneManager')}
+            {...register('projectNumber')}
           />
         </div>
-        <Button
-          type="submit"
-          variant={'default'}
-          disabled={isPending}
-        >
+        <Button type="submit" variant={'default'} disabled={isPending}>
           Crear Obra
         </Button>
       </form>
