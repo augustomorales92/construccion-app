@@ -133,6 +133,7 @@ export default function Frame({ tabs = [], isMobile }: FrameProps) {
                     }`}
                     onMouseEnter={() => setHoveredIndex(index)}
                     onMouseLeave={() => setHoveredIndex(null)}
+                    prefetch={true}
                   >
                     <div className="text-sm leading-5 flex items-center gap-3">
                       <Icon className="w-5 h-5" />
