@@ -14,13 +14,19 @@ import Cookies from 'js-cookie'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
-import { Construction } from './types'
+import { Construction } from '../../lib/types'
 
 interface PasswordModalProps {
   isOpen: boolean
   onClose: () => void
   card: Construction | null
 }
+
+const MAX_ATTEMPTS = 3
+const BLOCK_DURATION_MS = 24 * 60 * 60 * 1000 // 24 hours
+
+// Function to get the current date in YYYY-MM-DD format
+const getToday = (): string => new Date().toISOString().split('T')[0]
 
 export default function PasswordModal({
   isOpen,
@@ -34,28 +40,36 @@ export default function PasswordModal({
   const router = useRouter()
 
   useEffect(() => {
-    const storedAttempts = localStorage.getItem(`attempts_${card?.id}`)
-    const storedBlockExpiration = localStorage.getItem(
-      `blockExpiration_${card?.id}`,
-    )
+    const today = getToday()
+    const attemptsKey = `attempts_${today}`
+    const blockExpirationKey = `blockExpiration_${today}`
 
-    if (storedAttempts) setAttempts(Number.parseInt(storedAttempts))
+    const storedAttempts = localStorage.getItem(attemptsKey)
+    const storedBlockExpiration = localStorage.getItem(blockExpirationKey)
+
+    if (storedAttempts) {
+      setAttempts(Number.parseInt(storedAttempts))
+    }
     if (storedBlockExpiration) {
       const expiration = Number.parseInt(storedBlockExpiration)
       if (Date.now() < expiration) {
         setIsBlocked(true)
         setBlockExpiration(expiration)
       } else {
-        localStorage.removeItem(`blockExpiration_${card?.id}`)
-        localStorage.removeItem(`attempts_${card?.id}`)
+        localStorage.removeItem(blockExpirationKey)
+        localStorage.removeItem(attemptsKey)
       }
     }
-  }, [card?.id])
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
     if (isBlocked) return
+
+    const today = getToday() // Get today's date only when needed
+    const attemptsKey = `attempts_${today}`
+    const blockExpirationKey = `blockExpiration_${today}`
 
     try {
       const response = await verifyPassword(card?.id, password)
@@ -67,16 +81,13 @@ export default function PasswordModal({
       } else {
         const newAttempts = attempts + 1
         setAttempts(newAttempts)
-        localStorage.setItem(`attempts_${card?.id}`, newAttempts.toString())
+        localStorage.setItem(attemptsKey, newAttempts.toString())
 
-        if (newAttempts >= 3) {
-          const expiration = Date.now() + 24 * 60 * 60 * 1000 // 24 hours
+        if (newAttempts >= MAX_ATTEMPTS) {
+          const expiration = Date.now() + BLOCK_DURATION_MS
           setIsBlocked(true)
           setBlockExpiration(expiration)
-          localStorage.setItem(
-            `blockExpiration_${card?.id}`,
-            expiration.toString(),
-          )
+          localStorage.setItem(blockExpirationKey, expiration.toString())
         }
 
         setPassword('')
@@ -114,7 +125,7 @@ export default function PasswordModal({
               className="mb-4"
             />
             <p className="text-sm text-gray-500 mb-4">
-              Intentos restantes: {3 - attempts}
+              Intentos restantes: {MAX_ATTEMPTS - attempts}
             </p>
             <DialogFooter>
               <Button type="submit" disabled={isBlocked}>

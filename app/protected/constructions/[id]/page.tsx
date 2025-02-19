@@ -4,36 +4,39 @@ import {
   getIncidentsByConstructionId,
 } from '@/actions/constructions'
 import CardDetails from '@/components/landing/Details'
-import { cookies } from 'next/headers'
-import { redirect } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 
 export default async function Details({
   params,
 }: {
   params: Promise<{ id: string }>
 }) {
-  const id = (await params).id
-  const [construction, incidents, user, cookieStore] = await Promise.all([
-    getConstructionById(id),
-    getIncidentsByConstructionId(Number.parseInt(id)),
-    getUser(),
-    cookies(),
-  ])
+  const [user, param] = await Promise.all([getUser(), params])
+  const id = param.id
 
-  const password = cookieStore.get('password')?.value
-  const isFavorite = user?.user_metadata.favorites?.includes(id)
-  if (user && !isFavorite) {
-    return redirect('/')
+  let construction = null
+  let incidents = null
+
+  if (id !== 'new') {
+    ;[construction, incidents] = await Promise.all([
+      getConstructionById(id),
+      getIncidentsByConstructionId(Number.parseInt(id)),
+    ])
+    if (!construction) {
+      notFound()
+    }
   }
 
-  const isIncorrectPassword = !user && password !== construction?.password
+  const isFavorite = user?.user_metadata.favorites?.includes(id)
+  if (user && user.user_metadata.role !== 'ADMIN' && !isFavorite) {
+    return redirect('/')
+  }
 
   return (
     <CardDetails
       construction={construction}
       incidents={incidents}
       user={user}
-      isIncorrectPassword={isIncorrectPassword}
       isFavorite={isFavorite}
     />
   )

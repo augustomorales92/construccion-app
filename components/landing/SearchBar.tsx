@@ -8,8 +8,8 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { Home, Search } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
+import { Construction } from '../../lib/types'
 import PasswordModal from './PasswordModal'
-import { Construction } from './types'
 
 function ActionSearchBar({ constructions }: { constructions: Construction[] }) {
   const params = useSearchParams()
@@ -159,7 +159,7 @@ function ActionSearchBar({ constructions }: { constructions: Construction[] }) {
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-gray-400 text-right">
-                        {action.number}
+                        {action.ref}
                       </span>
                     </div>
                   </motion.li>

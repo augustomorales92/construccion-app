@@ -15,34 +15,36 @@ import {
 } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { Certificates, Construction, Incidents } from '../../lib/types'
 import CertificateModal from './CertificateModal'
 import { ConstructionIncidentsTimeline } from './IncidentsTimeline'
 import PasswordModal from './PasswordModal'
 import { WhatsAppShareLinkPopover } from './ShareComponent'
-import { Certificates, Construction, Incidents } from './types'
 
 interface CardProps {
   construction: Construction | null
-  incidents: Incidents[]
+  incidents: Incidents[] | null
   user: User | null
-  isIncorrectPassword?: boolean
   isFavorite?: boolean
+  isIncorrectPassword?: boolean
 }
 
 export default function CardComponent({
   construction,
   incidents,
   user,
-  isIncorrectPassword,
   isFavorite,
+  isIncorrectPassword
 }: CardProps) {
   const router = useRouter()
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0)
   const [modalOpen, setModalOpen] = useState(false)
   const [PasswordModalOpen, setPasswordModalOpen] = useState(false)
+  const pathname = usePathname()
   const userRole = user?.user_metadata.role
+  const isAdmin = userRole === 'ADMIN' && pathname.includes('/protected')
   const imagesLength = construction?.images?.length || 1
 
   const nextPhoto = () => {
@@ -56,19 +58,19 @@ export default function CardComponent({
   }
 
   const calcularTotalGastado = () => {
-    return construction?.certificados?.reduce(
+    return construction?.certificates?.reduce(
       (total, cert) => total + cert.montoGastado,
       0,
     )
   }
 
   const calcularAvancePromedio = () => {
-    if (!construction?.certificados?.length) return 0
+    if (!construction?.certificates?.length) return 0
     return (
-      construction?.certificados?.reduce(
+      construction?.certificates?.reduce(
         (total, cert) => total + cert.avance,
         0,
-      ) / construction?.certificados.length
+      ) / construction?.certificates.length
     )
   }
 
@@ -93,11 +95,11 @@ export default function CardComponent({
   }
 
   useEffect(() => {
-    if (isIncorrectPassword) {
+    if (isIncorrectPassword && !isAdmin) {
       setPasswordModalOpen(true)
     }
     Cookies.remove('password')
-  }, [isIncorrectPassword])
+  }, [construction])
 
   return (
     <div className="container mx-auto py-4">
@@ -108,30 +110,42 @@ export default function CardComponent({
           <span className="flex w-full ">
             <Button
               variant="ghost"
-              onClick={() => router.back()}
+              onClick={() => router.push('/protected/constructions')}
               className="flex items-center justify-center"
             >
               <ArrowLeft className="h-4 w-4" />
             </Button>
           </span>
-          {userRole === 'ADMIN' && (
-            <span className="flex items-center gap-4 w-full justify-between sm:justify-end">
-              <Link href={`/Constructions/${construction?.id}/editar`}>
-                <Button variant="outline" className="flex items-center">
-                  <Edit className="mr-1 h-4 w-4" /> Editar Construction
-                </Button>
-              </Link>
-              <Link
-                href={`/mensajes?Construction=${construction?.id}&role=${userRole}`}
-              >
-                <Button variant="outline" className="flex items-center">
-                  <MessageSquare className="mr-1 h-4 w-4" /> Enviar Mensaje
-                </Button>
-              </Link>
-              <WhatsAppShareLinkPopover id={String(construction?.id)} />
-            </span>
-          )}
-          <ConstructionIncidentsTimeline incidents={incidents} />
+
+          <span className="grid grid-cols-2 md:flex items-center gap-4 w-full justify-between sm:justify-end">
+            {isAdmin && (
+              <>
+                <Link href={`/protected/constructions/${construction?.id}/edit`}>
+                  <Button
+                    variant="outline"
+                    className="flex items-center w-full"
+                  >
+                    <Edit className="mr-1 h-4 w-4" /> Editar
+                  </Button>
+                </Link>
+                <Link
+                  href={`/mensajes?Construction=${construction?.id}&role=${userRole}`}
+                >
+                  <Button
+                    variant="outline"
+                    className="flex items-center w-full"
+                  >
+                    <span>
+                      <MessageSquare className="mr-1 h-4 w-4" />
+                    </span>
+                    <span>Enviar Mensaje</span>
+                  </Button>
+                </Link>
+                <WhatsAppShareLinkPopover id={String(construction?.id)} />
+              </>
+            )}
+            <ConstructionIncidentsTimeline incidents={incidents || []} />
+          </span>
         </div>
 
         <h1 className="text-3xl font-bold mb-6">{construction?.name}</h1>
@@ -188,18 +202,18 @@ export default function CardComponent({
                 Detalles de la Construction
               </h2>
               <p>
-                <strong>Cliente:</strong> {construction?.cliente}
+                <strong>Cliente:</strong> {construction?.customer.name}
               </p>
               <p>
                 <strong>Presupuesto:</strong> $
-                {construction?.presupuesto.toLocaleString()}
+                {construction?.budget.toLocaleString()}
               </p>
               <p>
                 <strong>Total gastado:</strong> $
                 {calcularTotalGastado()?.toLocaleString()}
               </p>
               <p>
-                <strong>Tiempo estimado:</strong> {construction?.tiempoEstimado}
+                <strong>Tiempo estimado:</strong> {construction?.estimatedTime}
               </p>
               <div className="mt-4">
                 <p className="font-bold">Avance:</p>
@@ -231,7 +245,7 @@ export default function CardComponent({
                 Materiales Comprados
               </h2>
               <ul className="list-disc list-inside">
-                {construction?.materialesComprados.map((material, index) => (
+                {construction?.materialsPurchased.map((material, index) => (
                   <li key={index}>{material}</li>
                 ))}
               </ul>
@@ -242,7 +256,7 @@ export default function CardComponent({
             <CardContent className="p-6">
               <div className="flex justify-between items-center mb-4">
                 <span className="flex items-center">
-                  <h2 className="text-xl font-semibold">Certificados</h2>
+                  <h2 className="text-xl font-semibold">certificates</h2>
                 </span>
                 {userRole === 'ADMIN' && (
                   <Button
@@ -255,9 +269,9 @@ export default function CardComponent({
                   </Button>
                 )}
               </div>
-              {construction?.certificados?.length ? (
+              {construction?.certificates?.length ? (
                 <ul className="space-y-2">
-                  {construction?.certificados.map((certificado) => (
+                  {construction?.certificates.map((certificado) => (
                     <li
                       key={certificado.id}
                       className="flex justify-between items-center"
@@ -277,7 +291,7 @@ export default function CardComponent({
                   ))}
                 </ul>
               ) : (
-                <p>No hay certificados disponibles.</p>
+                <p>No hay certificates disponibles.</p>
               )}
             </CardContent>
           </Card>

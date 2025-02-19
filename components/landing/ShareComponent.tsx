@@ -29,8 +29,8 @@ export function WhatsAppShareLinkPopover({ id }: { id: string }) {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" className="flex items-center">
-          <Share2 className="h-4 w-4" />
+        <Button variant="outline" className="flex items-center w-full">
+          <Share2 className="h-4 w-4 mr-2" />
           <span>Compartir</span>
         </Button>
       </PopoverTrigger>

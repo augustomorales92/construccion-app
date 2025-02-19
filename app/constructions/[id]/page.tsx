@@ -21,20 +21,23 @@ export default async function Details({
   ])
 
   const password = cookieStore.get('password')?.value
+  const isIncorrectPassword = !user && password !== construction?.password
   const isFavorite = user?.user_metadata.favorites?.includes(id)
-  if (user && !isFavorite) {
+
+  if (
+    isIncorrectPassword ||
+    (user && user.user_metadata.role !== 'ADMIN' && !isFavorite)
+  ) {
     return redirect('/')
   }
-
-  const isIncorrectPassword = !user && password !== construction?.password
 
   return (
     <CardDetails
       construction={construction}
       incidents={incidents}
       user={user}
-      isIncorrectPassword={isIncorrectPassword}
       isFavorite={isFavorite}
+      isIncorrectPassword={isIncorrectPassword}
     />
   )
 }

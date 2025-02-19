@@ -13,8 +13,9 @@ export interface Incidents {
 
 export interface Construction {
   id: string
+  ref: string
   name: string
-  customer?: string
+  customer: Customer
   progressPercent: number
   budget: number
   materialsPurchased: string[]
@@ -22,6 +23,17 @@ export interface Construction {
   description: string
   images: string[]
   certificates: Certificates[]
-  phoneManager: string
-  status?:string
+  manager: Manager
+  status: string
+  password: string
 }
+
+
+export interface Customer {
+  id: number
+  name: string
+  email: string
+  phone: string
+}
+
+export interface Manager extends Customer {}

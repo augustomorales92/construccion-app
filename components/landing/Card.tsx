@@ -1,7 +1,8 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Heart } from 'lucide-react'
 import Image from 'next/image'
-import { Certificates, Construction } from './types'
+import { Certificates, Construction } from '../../lib/types'
 
 interface CardProps {
   construction: Construction
@@ -29,7 +30,7 @@ export default function CardComponent({
 
   return (
     <Card
-      className={`overflow-hidden shadow-md shadow-current ${isBlur ? 'blur-md' : ''}`}
+      className={`overflow-hidden shadow-md shadow-current ${isBlur ? 'blur-sm' : ''}`}
       onClick={onClick}
     >
       <CardHeader className="p-0 relative">
@@ -49,35 +50,35 @@ export default function CardComponent({
       <CardContent className="p-4">
         <CardTitle className="text-xl mb-2">{construction.name}</CardTitle>
         <p>
-          <strong>Cliente:</strong> {construction.customer}
+          <strong>Cliente:</strong> {construction.customer.name}
         </p>
         <div className="mt-2">
           <p className="font-bold">Avance:</p>
-          {/* <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+          <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
             <div
               className="bg-blue-600 h-2.5 rounded-full"
               style={{
                 width: `${calculateProgress(construction.certificates)}%`,
               }}
               role="progressbar"
-              aria-valuenow={calculateProgress(construction.certificados)}
+              aria-valuenow={calculateProgress(construction.certificates)}
               aria-valuemin={0}
               aria-valuemax={100}
             ></div>
-          </div> */}
-          {/* <p>
-            {calculateProgress(construction.certificados).toFixed(2)}%
+          </div>
+          <p>
+            {calculateProgress(construction.certificates).toFixed(2)}%
             completado
-          </p> */}
+          </p>
         </div>
         <p>
           <strong>Presupuesto:</strong> $
           {construction.budget?.toLocaleString()}
         </p>
-        {/* <p>
+        <p>
           <strong>Total gastado:</strong> $
-          {calculateTotalAmount(construction.certificados)?.toLocaleString()}
-        </p> */}
+          {calculateTotalAmount(construction.certificates)?.toLocaleString()}
+        </p>
         <p>
           <strong>Tiempo estimado:</strong> {construction.estimatedTime}
         </p>

@@ -1,13 +1,13 @@
+
 'use client'
 
 import useEmblaCarousel from 'embla-carousel-react'
 import Cookies from 'js-cookie'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import type { Construction } from '../../lib/types'
 import Card from './Card'
 import PasswordModal from './PasswordModal'
-import { Construction } from './types'
-
 
 export default function CardGrid({
   toggle,
@@ -37,7 +37,9 @@ export default function CardGrid({
   }, [toggle])
 
   const handleCardClick = (card: Construction) => {
-    if (favorites?.includes(card.id) || isAdmin) {
+    if (isAdmin) {
+      router.push(`/protected/constructions/${card.id}`)
+    } else if (favorites?.includes(card.id)) {
       router.push(`/constructions/${card.id}`)
     } else {
       setSelectedCard(card)
@@ -46,9 +48,9 @@ export default function CardGrid({
   }
 
   return (
-    <div className="container mx-auto py-8">
-      <div className="overflow-hidden" ref={emblaRef}>
-        <div className="flex rounded-xl">
+    <div className=" py-8">
+      <div className="overflow-hidden rounded-xl p-1" ref={emblaRef}>
+        <div className="flex ">
           {constructions.map((card) => (
             <div
               key={card.id}
