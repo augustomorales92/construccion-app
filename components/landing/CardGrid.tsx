@@ -48,8 +48,8 @@ export default function CardGrid({
 
   return (
     <div className=" py-8">
-      <div className="overflow-hidden" ref={emblaRef}>
-        <div className="flex rounded-xl">
+      <div className="overflow-hidden rounded-xl p-1" ref={emblaRef}>
+        <div className="flex ">
           {constructions.map((card) => (
             <div
               key={card.id}
