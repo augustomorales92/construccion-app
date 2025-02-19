@@ -34,7 +34,6 @@ export async function updateProjectProgress(
   certificateId: string,
   updatedItems: { itemId: string; progress: number }[],
   totalItems: number,
-  progressTotal: number,
   tx: Prisma.TransactionClient,
 ) {
   if (totalItems === 0) {
@@ -46,7 +45,7 @@ export async function updateProjectProgress(
     (sum, item) => sum + item.progress,
     0,
   )
-  const progressPercent = (totalProgress / totalItems) * 100
+  const progressPercent = totalProgress / totalItems
 
   // Actualizar el certificado con el progreso calculado
   await tx.certificate.update({
@@ -54,7 +53,15 @@ export async function updateProjectProgress(
     data: { progressPercent },
   })
 
-  // TODO: Calcular el progreso total ponderado basado en el presupuesto
+  // TODO Calcular el progreso total ponderado basado en el presupuesto
+  const allCertificates = await prisma.certificate.findMany({
+    where: { projectId },
+    select: { progressPercent: true },
+  })
+  const progressTotal = allCertificates.reduce(
+    (sum, cert) => sum + (cert.progressPercent || 0),
+    0,
+  )
 
   await tx.project.update({
     where: { id: projectId },

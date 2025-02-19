@@ -47,17 +47,9 @@ export async function POST(req: Request) {
       }
 
       const totalItems = await prisma.item.count()
-      const allCertificates = await prisma.certificate.findMany({
-        where: { projectId },
-        select: { progressPercent: true },
-      })
 
       const bodyDate = new Date(date)
       const certificateDate = new Date(latestCertificate.issuedAt)
-      const progressTotal = allCertificates.reduce(
-        (sum, cert) => sum + (cert.progressPercent || 0),
-        0,
-      )
 
       const isSameDay = isSameDayFn(bodyDate, certificateDate)
 
@@ -81,7 +73,6 @@ export async function POST(req: Request) {
           latestCertificate.id,
           updatedItems,
           totalItems,
-          progressTotal,
           tx,
         )
 
@@ -117,7 +108,6 @@ export async function POST(req: Request) {
         newCertificate.id,
         updatedItems,
         totalItems,
-        progressTotal,
         tx,
       )
       return { project, newCertificate, progressUpdate }
