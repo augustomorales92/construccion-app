@@ -74,46 +74,45 @@ model Incident {
 }
 
 model Certificate {
-  id              String            @id @default(uuid())
-  title           String
-  version         Int?
-  items           CertificateItem[]
-  progressPercent Float             @default(0)
-  issuedAt        DateTime          @default(now())
-  Project         Project           @relation(fields: [projectId], references: [id])
-  projectId       String
+  id               String                    @id @default(uuid())
+  version          Int?
+  certificateItems CertificateItemProgress[]
+  status           ProgressUpdateStatus      @default(PENDING)
+  progressPercent  Float                     @default(0)
+  issuedAt         DateTime                  @default(now())
+  Project          Project                   @relation(fields: [projectId], references: [id])
+  projectId        String
 
   @@map("certificates")
 }
 
 model Item {
-  id               String            @id @default(uuid())
+  id               String                    @id @default(uuid())
   section          String?
   description      String?
   unit             String?
   quantity         Float?
   price            Float?
   weight           Float?
-  certificateItems CertificateItem[]
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
+  certificateItems CertificateItemProgress[]
+  createdAt        DateTime                  @default(now())
+  updatedAt        DateTime                  @updatedAt
 
   @@map("items")
 }
 
-model CertificateItem {
-  id            String               @id @default(uuid())
-  certificate   Certificate          @relation(fields: [certificateId], references: [id])
+model CertificateItemProgress {
+  id            String      @id @default(uuid())
+  certificate   Certificate @relation(fields: [certificateId], references: [id])
   certificateId String
-  item          Item                 @relation(fields: [itemId], references: [id])
+  item          Item        @relation(fields: [itemId], references: [id])
   itemId        String
-  progress      Float                @default(0)
-  status        ProgressUpdateStatus @default(PENDING)
-  date          DateTime             @default(now())
+  progress      Float       @default(0)
+  date          DateTime    @default(now())
   notes         String?
-  photos        String[]             @default([])
-  createdAt     DateTime             @default(now())
-  updatedAt     DateTime             @updatedAt
+  photos        String[]    @default([])
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 
   @@map("certificate_items")
 }
