@@ -2,6 +2,8 @@ import getUser from '@/actions/auth'
 import { getMyConstructions } from '@/actions/constructions'
 import CardGrid from '@/components/landing/CardGrid'
 import SearchBar from '@/components/landing/SearchBar'
+import { Button } from '@/components/ui/button'
+import Link from 'next/link'
 import { Suspense } from 'react'
 
 export default async function Constructions() {
@@ -17,6 +19,11 @@ export default async function Constructions() {
         <Suspense fallback={<div>Loading...</div>}>
           <SearchBar constructions={constructions} />
         </Suspense>
+        {isAdmin && (
+          <Link href="/protected/constructions/new/edit">
+            <Button > Nueva Obra</Button>
+          </Link>
+        )}
       </div>
       <CardGrid constructions={constructions} isAdmin={isAdmin} />
     </div>

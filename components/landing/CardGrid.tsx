@@ -4,9 +4,9 @@ import useEmblaCarousel from 'embla-carousel-react'
 import Cookies from 'js-cookie'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import type { Construction } from '../../lib/types'
 import Card from './Card'
 import PasswordModal from './PasswordModal'
-import type { Construction } from './types'
 
 export default function CardGrid({
   toggle,
@@ -36,7 +36,9 @@ export default function CardGrid({
   }, [toggle])
 
   const handleCardClick = (card: Construction) => {
-    if (favorites?.includes(card.id) || isAdmin) {
+    if (isAdmin) {
+      router.push(`/protected/constructions/${card.id}`)
+    } else if (favorites?.includes(card.id)) {
       router.push(`/constructions/${card.id}`)
     } else {
       setSelectedCard(card)

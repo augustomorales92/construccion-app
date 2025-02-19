@@ -1,52 +1,88 @@
 "use server";
 
-import { Incidents } from "@/components/landing/types";
+import { Incidents } from "@/lib/types";
 import getUser from "./auth";
+
+const clientsSample = [
+  {
+    id: 1,
+    name: "Juan Pérez",
+    email: "juan@example.com",
+    phone: "123-456-7890",
+  },
+  {
+    id: 2,
+    name: "María García",
+    email: "maria@example.com",
+    phone: "098-765-4321",
+  },
+];
+
+const managerSample = [
+  {
+    id: 1,
+    name: "Pedro",
+    email: "",
+    phone: "",
+  },
+  {
+    id: 2,
+    name: "Luis",
+    email: "",
+    phone: "",
+  },
+];
 
 const constructions = [
   {
-    id: '1',
+    id: "1",
     name: "Casa Moderna",
-    cliente: "Juan Pérez",
-    avance: 30,
-    presupuesto: 500000,
-    materialesComprados: ["Cemento", "Ladrillos", "Acero"],
-    tiempoEstimado: "6 meses",
+    customer: clientsSample[0],
+    progressPercent: 30,
+    budget: 500000,
+    materialsPurchased: ["Cemento", "Ladrillos", "Acero"],
+    estimatedTime: "6 meses",
     description: "Construcción de una casa moderna de dos pisos.",
     images: ["/images/placeholder.svg?height=200&width=300"],
-    certificados: [],
+    certificates: [],
     password: "1234",
-    number: "#234234234234",
+    ref: "#234234234234",
+    manager: managerSample[0],
+    status: "En progreso",
   },
   {
-    id: '2',
+    id: "2",
     name: "Oficina Comercial",
-    cliente: "Empresas XYZ",
-    avance: 60,
-    presupuesto: 750000,
-    materialesComprados: ["Vidrio", "Aluminio", "Cableado"],
-    tiempoEstimado: "4 meses",
+    customer: clientsSample[1],
+    progressPercent: 60,
+    budget: 750000,
+    materialsPurchased: ["Vidrio", "Aluminio", "Cableado"],
+    estimatedTime: "4 meses",
     description:
       "Remodelación de oficinas comerciales en el centro de la ciudad.",
     images: ["/images/placeholder.svg?height=200&width=300"],
-    certificados: [],
+    certificates: [],
     password: "3456",
-    number: "#2352543534",
+    ref: "#2352543534",
+    manager: managerSample[1],
+    status: "En progreso",
   },
   {
-    id: '3',
+    id: "3",
     name: "Edificio 3 plantas",
-    cliente: "Empresas XYZ",
-    avance: 60,
-    presupuesto: 750000,
-    materialesComprados: ["Vidrio", "Aluminio", "Cableado"],
-    tiempoEstimado: "8 meses",
+    customer: clientsSample[1],
+    progressPercent: 60,
+    budget: 750000,
+    materialsPurchased: ["Vidrio", "Aluminio", "Cableado"],
+    estimatedTime: "8 meses",
     description:
-      "Construccion de un edificio de 3 plantas en el centro de la ciudad.",
+      "Construcción de un edificio de 3 plantas en el centro de la ciudad.",
     images: ["/images/placeholder.svg?height=200&width=300"],
-    certificados: [],
+    certificates: [],
     password: "1111",
-    number: "#5432349",
+    ref: "#5432349",
+    manager: managerSample[0],
+    status: "En progreso",
   },
 ];
 
@@ -123,7 +159,10 @@ export async function getFavoriteConstructions() {
   return constructions.filter((obra) => favorites.includes(obra.id));
 }
 
-export async function verifyPassword(constructionId: string | undefined, password: string) {
+export async function verifyPassword(
+  constructionId: string | undefined,
+  password: string,
+) {
   const construction = constructions.find((c) => c.id === constructionId);
   return construction?.password === password;
 }
@@ -139,4 +178,23 @@ export async function getIncidentsByConstructionId(
 ): Promise<Incidents[]> {
   // Aquí iría la lógica para obtener todas las incidencias de una obra específica
   return sampleIncidents;
+}
+
+export async function getClients() {
+  // Aquí iría la lógica para obtener todos los clientes de la base de datos
+  return clientsSample;
+}
+
+export async function getManagers() {
+  return managerSample;
+}
+
+export async function createProject(formData: FormData) {
+  // Aquí iría la lógica para crear una nueva obra en la base de datos
+  console.log("Creando nueva obra:", Object.fromEntries(formData));
+}
+
+export async function updateProject(formData: FormData) {
+  // Aquí iría la lógica para actualizar una obra existente en la base de datos
+  console.log("Actualizando obra:", Object.fromEntries(formData));
 }

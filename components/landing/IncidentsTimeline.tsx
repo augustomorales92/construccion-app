@@ -12,8 +12,7 @@ import {
 } from '@/components/ui/sheet'
 import { AlertCircle, Calendar } from 'lucide-react'
 import { useState } from 'react'
-import { Incidents } from './types'
-
+import { Incidents } from '../../lib/types'
 
 interface ConstructionIncidentsTimelineProps {
   incidents: Incidents[]
@@ -32,9 +31,9 @@ export function ConstructionIncidentsTimeline({
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="outline">
+        <Button variant="outline" className="w-full max-w-xs">
           <AlertCircle className="mr-2 h-4 w-4" />
-          Ver Incidencias
+          Incidencias
         </Button>
       </SheetTrigger>
       <SheetContent side="right" className="w-[400px] sm:w-[540px]">

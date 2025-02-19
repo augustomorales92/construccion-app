@@ -29,15 +29,11 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { Customer } from '@/lib/types'
 import { Edit, Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
-interface Customer {
-  id: number
-  nombre: string
-  email: string
-  telefono: string
-}
+
 
 export default function Customers() {
   const [customers, setCustomers] = useState<Customer[]>([])
@@ -53,15 +49,15 @@ export default function Customers() {
     setCustomers([
       {
         id: 1,
-        nombre: 'Juan Pérez',
+        name: 'Juan Pérez',
         email: 'juan@example.com',
-        telefono: '123-456-7890',
+        phone: '123-456-7890',
       },
       {
         id: 2,
-        nombre: 'María García',
+        name: 'María García',
         email: 'maria@example.com',
-        telefono: '098-765-4321',
+        phone: '098-765-4321',
       },
     ])
   }, [])
@@ -106,7 +102,7 @@ export default function Customers() {
   }
 
   const startCreation = () => {
-    setCustomerInEdition({ id: 0, nombre: '', email: '', telefono: '' })
+    setCustomerInEdition({ id: 0, name: '', email: '', phone: '' })
     setIsDialogOpen(true)
   }
 
@@ -148,7 +144,7 @@ export default function Customers() {
                 <Input
                   id="nombre"
                   name="nombre"
-                  value={customerInEdition?.nombre || ''}
+                  value={customerInEdition?.name || ''}
                   onChange={handleInputChange}
                   className="col-span-3"
                 />
@@ -173,7 +169,7 @@ export default function Customers() {
                 <Input
                   id="telefono"
                   name="telefono"
-                  value={customerInEdition?.telefono || ''}
+                  value={customerInEdition?.phone || ''}
                   onChange={handleInputChange}
                   className="col-span-3"
                 />
@@ -227,9 +223,9 @@ export default function Customers() {
               <TableBody>
                 {customers.map((customer) => (
                   <TableRow key={customer.id}>
-                    <TableCell>{customer.nombre}</TableCell>
+                    <TableCell>{customer.name}</TableCell>
                     <TableCell>{customer.email}</TableCell>
-                    <TableCell>{customer.telefono}</TableCell>
+                    <TableCell>{customer.phone}</TableCell>
                     <TableCell>
                       <Button
                         variant="outline"
@@ -259,14 +255,14 @@ export default function Customers() {
         {customers.map((customer) => (
           <Card key={customer.id}>
             <CardHeader>
-              <CardTitle>{customer.nombre}</CardTitle>
+              <CardTitle>{customer.name}</CardTitle>
             </CardHeader>
             <CardContent>
               <p>
                 <strong>Email:</strong> {customer.email}
               </p>
               <p>
-                <strong>Teléfono:</strong> {customer.telefono}
+                <strong>Teléfono:</strong> {customer.phone}
               </p>
               <div className="mt-4 flex justify-end space-x-2">
                 <Button
