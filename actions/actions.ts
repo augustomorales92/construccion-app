@@ -1,5 +1,6 @@
 'use server'
 
+import getUser from '@/actions/auth'
 import prisma from '@/lib/db'
 import { createClient } from '@/utils/supabase/server'
 import { encodedRedirect } from '@/utils/utils'
@@ -7,9 +8,15 @@ import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 
 export async function createUserInPrisma(email: string, role?: string) {
+  const userAuth = await getUser()
+
+  if (!userAuth) {
+    return { success: false, error: 'Unauthorized' }
+  }
   try {
     await prisma.user.create({
       data: {
+        id: userAuth.id,
         email: email,
         role: role,
       },
