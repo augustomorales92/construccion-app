@@ -47,7 +47,7 @@ export default function CardGrid({
   }
 
   return (
-    <div className="container mx-auto py-8">
+    <div className=" py-8">
       <div className="overflow-hidden" ref={emblaRef}>
         <div className="flex rounded-xl">
           {constructions.map((card) => (

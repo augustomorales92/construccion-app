@@ -8,13 +8,12 @@ import HeroBanner from '@/components/landing/HeroBanner'
 import { Suspense } from 'react'
 
 export default async function Home() {
-
   const [constructions, user, favoritesConstructions] = await Promise.all([
     getConstructions(),
     getUser(),
     getFavoriteConstructions(),
   ])
-  
+
   const favorites = user?.user_metadata.favorites || []
   return (
     <>
@@ -23,7 +22,7 @@ export default async function Home() {
           <HeroBanner />
         </Suspense>
         {!!favorites.length && (
-          <div className="py-8  mx-auto">
+          <div className="py-8  mx-auto container">
             <div className="flex justify-between items-center mb-4 px-8">
               <h2 className="text-2xl font-bold">Obras Favoritas</h2>
             </div>
@@ -33,7 +32,7 @@ export default async function Home() {
             />
           </div>
         )}
-        <div>
+        <div className="py-8 mx-auto container">
           <CardGrid constructions={constructions} isBlur />
         </div>
       </div>

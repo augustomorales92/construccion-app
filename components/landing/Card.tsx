@@ -29,7 +29,7 @@ export default function CardComponent({
 
   return (
     <Card
-      className={`overflow-hidden shadow-md shadow-current ${isBlur ? 'blur-md' : ''}`}
+      className={`overflow-hidden shadow-md shadow-current ${isBlur ? 'blur-sm' : ''}`}
       onClick={onClick}
     >
       <CardHeader className="p-0 relative">
@@ -49,7 +49,7 @@ export default function CardComponent({
       <CardContent className="p-4">
         <CardTitle className="text-xl mb-2">{construction.name}</CardTitle>
         <p>
-          <strong>Cliente:</strong> {construction.cliente}
+          <strong>Cliente:</strong> {construction.customer.name}
         </p>
         <div className="mt-2">
           <p className="font-bold">Avance:</p>
@@ -57,29 +57,29 @@ export default function CardComponent({
             <div
               className="bg-blue-600 h-2.5 rounded-full"
               style={{
-                width: `${calculateProgress(construction.certificados)}%`,
+                width: `${calculateProgress(construction.certificates)}%`,
               }}
               role="progressbar"
-              aria-valuenow={calculateProgress(construction.certificados)}
+              aria-valuenow={calculateProgress(construction.certificates)}
               aria-valuemin={0}
               aria-valuemax={100}
             ></div>
           </div>
           <p>
-            {calculateProgress(construction.certificados).toFixed(2)}%
+            {calculateProgress(construction.certificates).toFixed(2)}%
             completado
           </p>
         </div>
         <p>
           <strong>Presupuesto:</strong> $
-          {construction.presupuesto?.toLocaleString()}
+          {construction.budget?.toLocaleString()}
         </p>
         <p>
           <strong>Total gastado:</strong> $
-          {calculateTotalAmount(construction.certificados)?.toLocaleString()}
+          {calculateTotalAmount(construction.certificates)?.toLocaleString()}
         </p>
         <p>
-          <strong>Tiempo estimado:</strong> {construction.tiempoEstimado}
+          <strong>Tiempo estimado:</strong> {construction.estimatedTime}
         </p>
       </CardContent>
     </Card>
