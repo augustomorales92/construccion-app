@@ -12,14 +12,12 @@ export async function GET() {
     const projects = await prisma.project.findMany({
       include: {
         certificates: {
+          orderBy: { version: 'desc' },
           include: {
-            certificateItems: {
-              include: {
-                item: true,
-              },
-            },
+            certificateItems: true,
           },
         },
+        items: true,
       },
     })
     return NextResponse.json(projects)

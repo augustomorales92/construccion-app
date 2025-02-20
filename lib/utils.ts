@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { format, isSameDay } from 'date-fns'
+import { Prisma } from "@prisma/client";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -33,3 +34,22 @@ export const formatDate = (date: Date | string): string => {
   const newDate = new Date(date);
   return format(newDate, 'yyyy-MM-dd');
 };
+
+function getRandomLetter(): string {
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  return alphabet[Math.floor(Math.random() * alphabet.length)];
+}
+
+export const getProjectNumber = (name: string ) => {
+  const words = name.trim().split(/\s+/)
+
+  let prefix = words.map((word) => word.charAt(0).toUpperCase()).join("")
+
+  prefix = prefix.slice(0, 3)
+
+  const currentYear = new Date().getFullYear()
+
+  const randomLetters = getRandomLetter() + getRandomLetter()
+
+  return `${prefix}-${currentYear}-${randomLetters}`
+}
