@@ -1,6 +1,6 @@
 import getUser from '@/actions/auth'
 import prisma from '@/lib/db'
-import { IssueSchema } from '@/schemas'
+import { IncidentSchema } from '@/schemas'
 import { NextRequest, NextResponse } from 'next/server'
 
 // GET: Obtener todas las incidencias de un proyecto
@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json()
-  const parsedData = IssueSchema.safeParse(body)
+  const parsedData = IncidentSchema.safeParse(body)
 
   if (!parsedData.success) {
     return NextResponse.json(
@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  const { description, projectId } = parsedData.data
+  const { description, projectId, incidenceDate } = parsedData.data
 
   if (!projectId) {
     return NextResponse.json(
@@ -75,6 +75,7 @@ export async function POST(req: NextRequest) {
         description: description,
         projectId: projectId,
         userId: userAuth.id,
+        date: incidenceDate,
       },
     })
     return NextResponse.json(newIncident, { status: 201 })

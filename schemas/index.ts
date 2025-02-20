@@ -1,8 +1,9 @@
 import * as z from 'zod'
 
-export const IssueSchema = z.object({
+export const IncidentSchema = z.object({
   description: z.string(),
   projectId: z.string(),
+  incidenceDate: z.date(),
 })
 
 export const projectSchema = z.object({
@@ -14,31 +15,51 @@ export const projectSchema = z.object({
   accessCode: z.string(),
 })
 
-export const itemSchema = z.object({
+const itemSchema = z.object({
   id: z.string().optional(),
-  section: z.string().optional(),
-  description: z.string().optional(),
-  unit: z.string().optional(),
-  quantity: z.number().positive().optional(),
-  price: z.number().positive().optional(),
-  weight: z.number().positive().optional(),
+  section: z.string().min(1, 'La sección es obligatoria'),
+  description: z.string().min(1, 'La descripción es obligatoria'),
+  unit: z.string().min(1, 'La unidad es obligatoria'),
+  quantity: z.number().positive('La cantidad debe ser mayor a 0'),
+  price: z.number().positive('El precio debe ser mayor a 0'),
+  weight: z.number().optional(),
 })
 
 export const editProjectSchema = z.object({
-  projectId: z.string(),
-  items: z.array(itemSchema),
-});
+  projectData: z.object({
+    id: z.string(),
+    name: z.string().min(1, 'El nombre del proyecto es obligatorio').optional(),
+    budget: z.number().positive('El presupuesto debe ser mayor a 0').optional(),
+    description: z.string().optional(),
+    address: z.string().optional(),
+  }),
 
-export const calculateProgressSchema = z.object({
-  projectId: z.string(),
-});
+  newItems: z.array(itemSchema).optional(),
+
+  itemsToUpdate: z
+    .array(
+      z.object({
+        id: z.string(),
+        section: z.string().min(1).optional(),
+        description: z.string().min(1).optional(),
+        unit: z.string().min(1).optional(),
+        quantity: z.number().positive().optional(),
+        price: z.number().positive().optional(),
+        weight: z.number().optional(),
+      }),
+    )
+    .optional(),
+
+  itemsToDelete: z.array(z.string()).optional(),
+  isTable: z.boolean(),
+})
 
 const updatedItemSchema = z.object({
   itemId: z.string(),
   progress: z.number().min(0).max(100),
   notes: z.string().optional(),
   photos: z.array(z.string()).optional(),
-});
+})
 
 export const updateProgressSchema = z.object({
   projectId: z.string(),
@@ -51,23 +72,21 @@ export const createFirstProjectSchema = z.object({
   description: z.string().optional(),
   address: z.string().optional(),
   budget: z.number(),
-  projectNumber: z.string(),
-  items: z.array(
-    z.object({
-      section: z.string(),
-      description: z.string(),
-      unit: z.string(),
-      quantity: z.number(),
-      price: z.number(),
-      weight: z.number(),
-    })
-  ).optional(),
-});
-
-export const itemsSchema = z.union([itemSchema, z.array(itemSchema)])
+  items: z
+    .array(
+      z.object({
+        section: z.string(),
+        description: z.string(),
+        unit: z.string(),
+        quantity: z.number(),
+        price: z.number(),
+        weight: z.number(),
+      }),
+    )
+    .optional(),
+})
 
 export const updateCertificateStatusSchema = z.object({
   certificateId: z.string(),
   status: z.enum(['PENDING', 'APPROVED', 'REJECTED']),
-});
-
+})

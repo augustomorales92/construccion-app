@@ -34,7 +34,8 @@ model Project {
   projectNumber String?
   images        String[]       @default([])
   files         String[]       @default([])
-  certificates  Certificate[]
+  certificates  Certificate[] 
+  items          Item[]
   users         UserProject[]
   incidents     Incident[]
   customerId    String?
@@ -64,7 +65,7 @@ model Incident {
   description String
   date        DateTime @default(now())
   projectId   String
-  project     Project  @relation(fields: [projectId], references: [id])
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   userId      String
   user        User     @relation(fields: [userId], references: [id])
   createdAt   DateTime @default(now())
@@ -80,7 +81,7 @@ model Certificate {
   status           ProgressUpdateStatus      @default(PENDING)
   progressPercent  Float                     @default(0)
   issuedAt         DateTime                  @default(now())
-  Project          Project                   @relation(fields: [projectId], references: [id])
+  Project          Project                   @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId        String
 
   @@map("certificates")
@@ -95,6 +96,8 @@ model Item {
   price            Float?
   weight           Float?
   certificateItems CertificateItemProgress[]
+  projectId        String
+  Project          Project                   @relation(fields: [projectId], references: [id], onDelete: Cascade)
   createdAt        DateTime                  @default(now())
   updatedAt        DateTime                  @updatedAt
 
@@ -103,9 +106,9 @@ model Item {
 
 model CertificateItemProgress {
   id            String      @id @default(uuid())
-  certificate   Certificate @relation(fields: [certificateId], references: [id])
+  certificate   Certificate @relation(fields: [certificateId], references: [id], onDelete: Cascade)
   certificateId String
-  item          Item        @relation(fields: [itemId], references: [id])
+  item          Item        @relation(fields: [itemId], references: [id], onDelete: Cascade)
   itemId        String
   progress      Float       @default(0)
   date          DateTime    @default(now())
@@ -128,7 +131,7 @@ model Notification {
   userId    String?
   user      User?    @relation(fields: [userId], references: [id])
   projectId String?
-  project   Project? @relation(fields: [projectId], references: [id])
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
   message   String
   read      Boolean  @default(false)
   createdAt DateTime @default(now())
@@ -172,7 +175,7 @@ model Message {
   user      User        @relation(fields: [userId], references: [id])
   type      MessageType
   projectId String?
-  project   Project?    @relation(fields: [projectId], references: [id])
+  project   Project?    @relation(fields: [projectId], references: [id], onDelete: Cascade)
   content   String
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt

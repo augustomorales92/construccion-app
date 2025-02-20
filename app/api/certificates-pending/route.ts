@@ -1,10 +1,16 @@
 import prisma from '@/lib/db'
 import { updateCertificateStatusSchema } from '@/schemas'
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 
 // Estos endpoints estan pensados para el admin que vea lo pendiente y apruebe o desapruebe
-export async function GET() {
+// entra a la seccion certificados pendientes y en el params recupere el id del project
+export async function GET(req:NextRequest) {
   try {
+    const url = new URL(req.url)
+    const projectId = url.searchParams.get('id')
+    if (!projectId) {
+      return NextResponse.json({ error: 'ID no encontrado' }, { status: 400 })
+    }
     const certificates = await prisma.certificate.findMany({
       where: {
         status: 'PENDING',
@@ -22,7 +28,7 @@ export async function GET() {
   }
 }
 
-export async function PUT(req: Request) {
+export async function PUT(req: NextRequest) {
   try {
     const body = await req.json()
     const parsedData = updateCertificateStatusSchema.safeParse(body)
@@ -35,19 +41,6 @@ export async function PUT(req: Request) {
     }
 
     const { certificateId, status } = parsedData.data
-    
-    const existingCertificate = await prisma.certificate.findUnique({
-      where: {
-        id: certificateId,
-      },
-    })
-
-    if (!existingCertificate) {
-      return NextResponse.json(
-        { error: 'Certificado no encontrado' },
-        { status: 404 },
-      )
-    }
 
     const updatedCertificate = await prisma.certificate.update({
       where: {

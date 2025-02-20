@@ -1,5 +1,4 @@
 import getUser from '@/actions/auth'
-import { updateProjectProgress } from '@/actions/certificates'
 import prisma from '@/lib/db'
 import { isSameDayFn } from '@/lib/utils'
 import { updateProgressSchema } from '@/schemas'
@@ -41,78 +40,104 @@ export async function POST(req: Request) {
         throw new Error('Proyecto no encontrado')
       }
 
+      console.log('Projecto encontrado:', project)
+      // extraigo el ultimo
       const latestCertificate = project.certificates[0]
       if (!latestCertificate) {
         throw new Error('No se encontraron certificados para este proyecto')
       }
 
-      const totalItems = await prisma.item.count()
-
       const bodyDate = new Date(date)
       const certificateDate = new Date(latestCertificate.issuedAt)
-
       const isSameDay = isSameDayFn(bodyDate, certificateDate)
 
+      let certificateId
+
       if (isSameDay) {
-        // actualizo certificado que ya existe
-        for (const updatedItem of updatedItems) {
-          await tx.certificateItemProgress.updateMany({
-            where: {
-              certificateId: latestCertificate.id,
-              itemId: updatedItem.itemId,
-            },
+        console.log('mismo dia certific existent', latestCertificate.id)
+        certificateId = latestCertificate.id
+      } else {
+        console.log('dia distinto creo version')
+        const newVersion = (latestCertificate.version || 0) + 1
+        const newCertificate = await tx.certificate.create({
+          data: {
+            version: newVersion,
+            status: 'PENDING',
+            projectId,
+            issuedAt: bodyDate,
+          },
+        })
+
+        certificateId = newCertificate.id
+      }
+
+      console.log('id certificado', certificateId)
+      for (const updatedItem of updatedItems) {
+        console.log('items para actualizar:', updatedItem.itemId)
+
+        const existingProgress = await tx.certificateItemProgress.findFirst({
+          where: {
+            certificateId,
+            itemId: updatedItem.itemId,
+          },
+        })
+
+        if (existingProgress) {
+          await tx.certificateItemProgress.update({
+            where: { id: existingProgress.id },
             data: {
               progress: updatedItem.progress,
               notes: updatedItem.notes,
               photos: updatedItem.photos || [],
             },
           })
+        } else {
+          await tx.certificateItemProgress.create({
+            data: {
+              certificateId,
+              itemId: updatedItem.itemId,
+              progress: updatedItem.progress,
+              notes: updatedItem.notes,
+              photos: updatedItem.photos || [],
+            },
+          })
         }
-        const progressUpdate = await updateProjectProgress(
-          projectId,
-          latestCertificate.id,
-          updatedItems,
-          totalItems,
-          tx,
-        )
-
-        return { project, latestCertificate, progressUpdate }
       }
 
-      const newVersion = (latestCertificate.version || 0) + 1
-
-      // Crear el nuevo certificado nueva version
-      const newCertificate = await tx.certificate.create({
-        data: {
-          version: newVersion,
-          status: 'PENDING',
-          projectId: projectId,
-          issuedAt: bodyDate,
-        },
+      const certificateItems = await tx.certificateItemProgress.findMany({
+        where: { certificateId },
+      })
+      console.log('certificate items', certificateItems)
+      const totalItems = certificateItems.length
+      const progressSum = certificateItems.reduce(
+        (acc, item) => acc + item.progress,
+        0,
+      )
+      console.log('items totales', totalItems)
+      console.log('suma progres', progressSum)
+      const progressPercent = totalItems > 0 ? progressSum / totalItems : 0
+      console.log('progreco certificado:', progressPercent)
+      await tx.certificate.update({
+        where: { id: certificateId },
+        data: { progressPercent },
       })
 
-      // creo relaciones CertificateItemProgress para el nuevo certificado
-      for (const updatedItem of updatedItems) {
-        await tx.certificateItemProgress.create({
-          data: {
-            certificateId: newCertificate.id,
-            itemId: updatedItem.itemId,
-            progress: updatedItem.progress,
-            notes: updatedItem.notes,
-            photos: updatedItem.photos || [],
-          },
-        })
-      }
-      const progressUpdate = await updateProjectProgress(
-        projectId,
-        newCertificate.id,
-        updatedItems,
-        totalItems,
-        tx,
-      )
-      return { project, newCertificate, progressUpdate }
-    })
+      const allCertificates = await tx.certificate.findMany({
+        where: { projectId },
+        select: { progressPercent: true },
+      })
 
+      const projectProgress =
+        allCertificates.reduce((acc, cert) => acc + cert.progressPercent, 0) /
+        allCertificates.length
+      console.log('progreco proyecto:', projectProgress)
+      await tx.project.update({
+        where: { id: projectId },
+        data: { progressTotal: projectProgress },
+      })
+
+      return { project, certificateId, progressPercent, projectProgress }
+    })
     return NextResponse.json(updatedProject, { status: 200 })
   } catch (error) {
     console.error('Error actualizando el progreso del proyecto:', error)

@@ -1,37 +1,33 @@
 import getUser from '@/actions/auth'
 import prisma from '@/lib/db'
-import { generateAccessCode } from '@/lib/utils'
+import { generateAccessCode, getProjectNumber } from '@/lib/utils'
 import { createFirstProjectSchema, editProjectSchema } from '@/schemas'
 import { NextResponse } from 'next/server'
 
 export async function GET(req: Request) {
-  const url = new URL(req.url)
-  const projectId = url.searchParams.get('id')
-  if (!projectId) {
-    return NextResponse.json({ error: 'ID no encontrado' }, { status: 400 })
-  }
   try {
+    const url = new URL(req.url)
+    const projectId = url.searchParams.get('id')
+    if (!projectId) {
+      return NextResponse.json({ error: 'ID no encontrado' }, { status: 400 })
+    }
     const userAuth = await getUser()
     if (!userAuth) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const project = await prisma.project.findUnique({
+    const project = await prisma.project.findMany({
       where: {
         id: projectId,
       },
       include: {
         certificates: {
           orderBy: { version: 'desc' },
-          take: 1,
           include: {
-            certificateItems: {
-              include: {
-                item: true,
-              },
-            },
+            certificateItems: true,
           },
         },
+        items: true,
       },
     })
 
@@ -68,15 +64,9 @@ export async function POST(req: Request) {
       )
     }
 
-    const {
-      name,
-      description,
-      address,
-      budget,
-      projectNumber,
-      items = [],
-    } = parsedData.data
+    const { name, description, address, budget, items = [] } = parsedData.data
     const accessCode = generateAccessCode(8)
+    const projectNumber = getProjectNumber(name)
 
     const newProject = await prisma.$transaction(async (tx) => {
       const project = await tx.project.create({
@@ -104,32 +94,24 @@ export async function POST(req: Request) {
         },
       })
 
-      let createdItems = []
-      if (items.length > 0) {
-        await tx.item.createMany({
-          data: items.map((item) => ({
-            section: item.section,
-            description: item.description,
-            unit: item.unit,
-            quantity: item.quantity,
-            price: item.price,
-            weight: item.weight,
-          })),
-        })
+      const createdItems = await tx.item.createManyAndReturn({
+        data: items.map((item) => ({
+          section: item.section,
+          description: item.description,
+          unit: item.unit,
+          quantity: item.quantity,
+          price: item.price,
+          weight: item.weight,
+          projectId: project.id,
+        })),
+      })
 
-        createdItems = await tx.item.findMany({
-          where: {
-            description: { in: items.map((item) => item.description) },
-          },
-        })
-
-        await tx.certificateItemProgress.createMany({
-          data: createdItems.map((item) => ({
-            certificateId: newCertificate.id,
-            itemId: item.id,
-          })),
-        })
-      }
+      await tx.certificateItemProgress.createMany({
+        data: createdItems.map((item) => ({
+          certificateId: newCertificate.id,
+          itemId: item.id,
+        })),
+      })
 
       return { project, certificate: newCertificate, items }
     })
@@ -161,11 +143,11 @@ export async function PUT(req: Request) {
       )
     }
 
-    const { projectId, items } = parsedData.data
+    const { newItems, itemsToUpdate, itemsToDelete, projectData, isTable } = parsedData.data
 
     const updatedProject = await prisma.$transaction(async (tx) => {
       const project = await tx.project.findUnique({
-        where: { id: projectId },
+        where: { id: projectData.id },
         include: {
           certificates: {
             where: { version: 1 },
@@ -173,6 +155,7 @@ export async function PUT(req: Request) {
               certificateItems: true,
             },
           },
+          items: true,
         },
       })
 
@@ -185,53 +168,95 @@ export async function PUT(req: Request) {
         throw new Error('Certificado versión 1 no encontrado')
       }
 
-      const validItemIds = new Set(
-        certificate.certificateItems.map((item) => item.itemId),
-      )
-
-      // filtro los que pertenecen a la version 1, los unicos editables o borrables
-      const itemsToUpdate = items.filter(
-        (item) => item.id && validItemIds.has(item.id),
-      )
-      const itemsToCreate = items.filter((item) => !item.id)
-
-      //   creo relaciones por cada item creado , verificar esto en db
-      for (const itemData of itemsToCreate) {
-        const newItem = await tx.item.create({
-          data: {
-            section: itemData.section,
-            description: itemData.description,
-            unit: itemData.unit,
-            quantity: itemData.quantity,
-            price: itemData.price,
-            weight: itemData.weight,
-          },
-        })
-
-        await tx.certificateItemProgress.create({
-          data: {
-            certificateId: certificate.id,
-            itemId: newItem.id,
-          },
+      if (Object.keys(projectData).length > 1) {
+        await tx.project.update({
+          where: { id: projectData.id },
+          data: { ...projectData },
         })
       }
 
-      // actualizo cada item
-      for (const itemData of itemsToUpdate) {
-        await tx.item.update({
-          where: { id: itemData.id },
-          data: {
-            section: itemData.section,
-            description: itemData.description,
-            unit: itemData.unit,
-            quantity: itemData.quantity,
-            price: itemData.price,
-            weight: itemData.weight,
-          },
-        })
-      }
+      if (isTable) {
+        const itemIdsToDelete = project.items.map((item) => item.id)
 
-      return project
+        await tx.certificateItemProgress.deleteMany({
+          where: { itemId: { in: itemIdsToDelete } },
+        })
+
+        await tx.item.deleteMany({
+          where: { projectId: projectData.id },
+        })
+
+        for (const itemData of newItems || []) {
+          const newItem = await tx.item.create({
+            data: {
+              projectId: projectData.id,
+              section: itemData.section,
+              description: itemData.description,
+              unit: itemData.unit,
+              quantity: itemData.quantity,
+              price: itemData.price,
+              weight: itemData.weight,
+            },
+          })
+
+          await tx.certificateItemProgress.create({
+            data: {
+              certificateId: certificate.id,
+              itemId: newItem.id,
+            },
+          })
+        }
+      } else {
+        // Si es una edit desde el front usamos los array
+        for (const itemData of newItems || []) {
+          const newItem = await tx.item.create({
+            data: {
+              projectId: projectData.id,
+              section: itemData.section,
+              description: itemData.description,
+              unit: itemData.unit,
+              quantity: itemData.quantity,
+              price: itemData.price,
+              weight: itemData.weight,
+            },
+          })
+
+          await tx.certificateItemProgress.create({
+            data: {
+              certificateId: certificate.id,
+              itemId: newItem.id,
+            },
+          })
+        }
+
+        for (const itemData of itemsToUpdate || []) {
+          await tx.item.update({
+            where: { id: itemData.id },
+            data: {
+              section: itemData.section,
+              description: itemData.description,
+              unit: itemData.unit,
+              quantity: itemData.quantity,
+              price: itemData.price,
+              weight: itemData.weight,
+            },
+          })
+        }
+
+        if (itemsToDelete && itemsToDelete.length > 0) {
+          await tx.certificateItemProgress.deleteMany({
+            where: { itemId: { in: itemsToDelete } },
+          })
+
+          await tx.item.deleteMany({
+            where: { id: { in: itemsToDelete } },
+          })
+        }
+      }
+      return tx.project.findUnique({
+        where: { id: projectData.id },
+        include: { items: true },
+      })
     })
 
     return NextResponse.json(updatedProject, { status: 200 })
@@ -250,69 +275,41 @@ export async function DELETE(req: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
   try {
-    const { itemId, projectId } = await req.json()
+    const { projectId } = await req.json()
 
-    if (!itemId || !projectId) {
+    if (!projectId) {
       return NextResponse.json(
-        { error: 'Faltan datos: itemId y projectId son obligatorios' },
+        { error: 'projectId es obligatorio' },
         { status: 400 },
       )
     }
 
-    await prisma.$transaction(async (tx) => {
-      const certificate = await tx.certificate.findFirst({
-        where: {
-          projectId,
-          version: 1,
-        },
-        include: {
-          certificateItems: true,
-        },
-      })
+    const userProject = await prisma.userProject.findFirst({
+      where: {
+        projectId,
+        userId: userAuth.id,
+      },
+    })
 
-      if (!certificate) {
-        throw new Error('Certificado versión 1 no encontrado')
-      }
-
-      const isItemLinked = certificate.certificateItems.some(
-        (item) => item.itemId === itemId,
+    if (!userProject) {
+      return NextResponse.json(
+        { error: 'No tienes acceso a este proyecto' },
+        { status: 403 },
       )
+    }
 
-      if (!isItemLinked) {
-        return NextResponse.json(
-          {
-            error:
-              'Este item no pertenece a la versión 1 y no puede eliminarse',
-          },
-          { status: 403 },
-        )
-      }
-
-      await tx.certificateItemProgress.deleteMany({
-        where: {
-          certificateId: certificate.id,
-          itemId,
-        },
-      })
-
-      // Si el item no está en otros certificados, eliminarlo
-      const itemStillExists = await tx.certificateItemProgress.count({
-        where: { itemId },
-      })
-
-      if (itemStillExists === 0) {
-        await tx.item.delete({ where: { id: itemId } })
-      }
+    await prisma.project.delete({
+      where: { id: projectId },
     })
 
     return NextResponse.json(
-      { message: 'Item eliminado correctamente' },
+      { message: 'Projecto eliminado correctamente' },
       { status: 200 },
     )
   } catch (error) {
-    console.error('Error eliminando item:', error)
+    console.error('Error eliminando projecto:', error)
     return NextResponse.json(
-      { error: 'Error eliminando item' },
+      { error: 'Error eliminando projecto' },
       { status: 500 },
     )
   }
