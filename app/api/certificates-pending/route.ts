@@ -9,7 +9,7 @@ export async function GET(req:NextRequest) {
     const url = new URL(req.url)
     const projectId = url.searchParams.get('id')
     if (!projectId) {
-      return NextResponse.json({ error: 'ID no encontrado' }, { status: 400 })
+      return NextResponse.json({ error: 'Project ID no encontrado' }, { status: 400 })
     }
     const certificates = await prisma.certificate.findMany({
       where: {

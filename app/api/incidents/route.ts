@@ -1,9 +1,8 @@
 import getUser from '@/actions/auth'
 import prisma from '@/lib/db'
-import { IncidentSchema } from '@/schemas'
+import { incidentSchema } from '@/schemas'
 import { NextRequest, NextResponse } from 'next/server'
 
-// GET: Obtener todas las incidencias de un proyecto
 export async function GET(req: NextRequest) {
   const url = new URL(req.url)
   const projectId = url.searchParams.get('id')
@@ -44,7 +43,7 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json()
-  const parsedData = IncidentSchema.safeParse(body)
+  const parsedData = incidentSchema.safeParse(body)
 
   if (!parsedData.success) {
     return NextResponse.json(
@@ -53,7 +52,8 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  const { description, projectId, incidenceDate } = parsedData.data
+  const { description, projectId, date } = parsedData.data
+  console.log('datos que llegan,',date)
 
   if (!projectId) {
     return NextResponse.json(
@@ -75,7 +75,7 @@ export async function POST(req: NextRequest) {
         description: description,
         projectId: projectId,
         userId: userAuth.id,
-        date: incidenceDate,
+        date,
       },
     })
     return NextResponse.json(newIncident, { status: 201 })
@@ -151,7 +151,7 @@ export async function DELETE(req: NextRequest) {
         id: incidentId,
       },
     })
-    return new NextResponse(null, { status: 204 }) // 204 No Content para indicar éxito en la eliminación
+    return new NextResponse('Eliminada con exito', { status: 204 }) 
   } catch (error) {
     console.error('Error eliminando incidencia:', error)
     return NextResponse.json(
