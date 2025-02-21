@@ -2,6 +2,7 @@ import getUser, { toggleFavorite } from '@/actions/auth'
 import { getFavoriteConstructions } from '@/actions/constructions'
 import CardGrid from '@/components/landing/CardGrid'
 import { InfoIcon } from 'lucide-react'
+
 import { redirect } from 'next/navigation'
 
 export default async function ProtectedPage() {
@@ -26,14 +27,18 @@ export default async function ProtectedPage() {
           user
         </div>
       </div>
-      <div className="flex flex-col gap-2 items-start">
+      <div className=" container flex flex-col gap-2 items-start">
         <h2 className="font-bold text-2xl mb-4">Your user details</h2>
         <pre className="text-xs font-mono p-3 rounded border max-h-32 overflow-auto">
           {JSON.stringify(user, null, 2)}
         </pre>
       </div>
 
-      <CardGrid toggle={toggle} constructions={constructions} favorites={favorites}/>
+      <CardGrid
+        toggle={toggle}
+        constructions={constructions}
+        favorites={favorites}
+      />
     </div>
   )
 }

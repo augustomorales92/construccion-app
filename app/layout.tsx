@@ -2,9 +2,9 @@ import { Toaster } from '@/components/ui/sonner'
 import { ThemeProvider } from 'next-themes'
 import { Geist } from 'next/font/google'
 //import Layout from './(auth-pages)/layout'
-import getUser from '@/actions/auth'
-import Layout from '@/components/layout/Layout'
 import './globals.css'
+import Layout from '@/components/layout/Layout'
+import getUser from '@/actions/auth'
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -27,6 +27,7 @@ export default async function RootLayout({
   children: React.ReactNode
 }>) {
   const user = await getUser()
+
   return (
     <html lang="en" className={geistSans.className} suppressHydrationWarning>
       <body className="bg-background text-foreground">
