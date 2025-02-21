@@ -31,7 +31,6 @@ export async function POST(req: Request) {
         include: {
           certificates: {
             orderBy: { version: 'desc' },
-            take: 1,
           },
         },
       })
@@ -40,9 +39,9 @@ export async function POST(req: Request) {
         throw new Error('Proyecto no encontrado')
       }
 
-      console.log('Projecto encontrado:', project)
+      const allCertificates = project.certificates
       // extraigo el ultimo
-      const latestCertificate = project.certificates[0]
+      const latestCertificate = allCertificates[0]
       if (!latestCertificate) {
         throw new Error('No se encontraron certificados para este proyecto')
       }
@@ -71,10 +70,7 @@ export async function POST(req: Request) {
         certificateId = newCertificate.id
       }
 
-      console.log('id certificado', certificateId)
       for (const updatedItem of updatedItems) {
-        console.log('items para actualizar:', updatedItem.itemId)
-
         const existingProgress = await tx.certificateItemProgress.findFirst({
           where: {
             certificateId,
@@ -104,32 +100,30 @@ export async function POST(req: Request) {
         }
       }
 
-      const certificateItems = await tx.certificateItemProgress.findMany({
-        where: { certificateId },
+      const progressSum = await tx.certificateItemProgress.aggregate({
+        _sum: {
+          progress: true,
+        },
+        where: {
+          certificateId,
+        },
       })
-      console.log('certificate items', certificateItems)
-      const totalItems = certificateItems.length
-      const progressSum = certificateItems.reduce(
-        (acc, item) => acc + item.progress,
-        0,
-      )
-      console.log('items totales', totalItems)
-      console.log('suma progres', progressSum)
-      const progressPercent = totalItems > 0 ? progressSum / totalItems : 0
+      console.log('items totales', progressSum)
+      const totalProgressCert = progressSum._sum.progress ?? 0
+      const totalItems = progressSum._sum.progress ? 1 : 0
+      console.log('suma progres', totalProgressCert)
+      const progressPercent = totalProgressCert / totalItems
+
       console.log('progreco certificado:', progressPercent)
       await tx.certificate.update({
         where: { id: certificateId },
         data: { progressPercent },
       })
 
-      const allCertificates = await tx.certificate.findMany({
-        where: { projectId },
-        select: { progressPercent: true },
-      })
-
       const projectProgress =
         allCertificates.reduce((acc, cert) => acc + cert.progressPercent, 0) /
         allCertificates.length
+        
       console.log('progreco proyecto:', projectProgress)
       await tx.project.update({
         where: { id: projectId },
