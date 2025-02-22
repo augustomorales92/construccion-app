@@ -1,6 +1,6 @@
 'use client'
 
-import { signOutAction } from '@/app/actions'
+import { signOutAction } from '@/actions/actions'
 import { Button } from '@/components/ui/button'
 import { User } from '@supabase/supabase-js'
 import {
@@ -39,7 +39,11 @@ export default function Layout({
   const navItems = user
     ? user.user_metadata.role === 'ADMIN'
       ? [
-          { href: '/', label: 'Inicio', icon: Home },
+          {
+            href: '/',
+            label: 'Inicio',
+            icon: Home,
+          },
           { href: '/protected/constructions', label: 'Obras', icon: Briefcase },
           { href: '/mensajes', label: 'Mensajes', icon: MessageSquare },
           { href: '/protected/clients', label: 'Clientes', icon: Users },
@@ -47,7 +51,12 @@ export default function Layout({
           { href: '/protected/profile', label: 'Perfil', icon: UserIcon },
         ]
       : [
-          { href: '/', label: 'Inicio', icon: Home },
+          {
+            href: '/',
+            label: 'Inicio',
+            icon: Home,
+            targetHrefs: ['^/constructions/\\d+$'],
+          },
           { href: '/mensajes', label: 'Mensajes', icon: MessageSquare },
           { href: '/protected/profile', label: 'Perfil', icon: UserIcon },
         ]

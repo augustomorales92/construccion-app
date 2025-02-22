@@ -11,7 +11,13 @@ import { useEffect, useRef, useState } from 'react'
 import { Construction } from '../../lib/types'
 import PasswordModal from './PasswordModal'
 
-function ActionSearchBar({ constructions }: { constructions: Construction[] }) {
+function ActionSearchBar({
+  constructions,
+  favorites,
+}: {
+  constructions: Construction[]
+  favorites?: string[]
+}) {
   const params = useSearchParams()
   const router = useRouter()
   const [inputQuery, setInputQuery] = useState(params.get('query') || '')
@@ -23,8 +29,12 @@ function ActionSearchBar({ constructions }: { constructions: Construction[] }) {
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const handleCardClick = (card: Construction) => {
-    setSelectedCard(card)
-    setIsModalOpen(true)
+    if (favorites?.includes(card.id)) {
+      router.push(`/constructions/${card.id}`)
+    } else {
+      setSelectedCard(card)
+      setIsModalOpen(true)
+    }
   }
 
   useEffect(() => {

@@ -10,6 +10,7 @@ interface Tab {
   label: string
   href: string
   icon: LucideIcon
+  targetHrefs?: string[]
 }
 
 interface FrameProps {
@@ -30,7 +31,12 @@ export default function Frame({ tabs = [], isMobile }: FrameProps) {
   const tabRefs = useRef<(HTMLAnchorElement | null)[]>([])
   const pathname = usePathname()
 
-  const activeIndex = tabs.findIndex((tab) => tab.href === pathname)
+  const activeIndex = tabs.findIndex((tab) => {
+    const matches = tab.targetHrefs?.some((regex) =>
+      new RegExp(regex).test(pathname),
+    )
+    return tab.href === pathname || matches
+  })
 
   useEffect(() => {
     if (tabs.length === 0) return

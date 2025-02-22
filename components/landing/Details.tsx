@@ -1,4 +1,5 @@
 'use client'
+import { toggleUserFavorite } from '@/actions/auth'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { User } from '@supabase/supabase-js'
@@ -29,6 +30,7 @@ interface CardProps {
   user: User | null
   isFavorite?: boolean
   isIncorrectPassword?: boolean
+  backUrl?: string
 }
 
 export default function CardComponent({
@@ -36,7 +38,8 @@ export default function CardComponent({
   incidents,
   user,
   isFavorite,
-  isIncorrectPassword
+  isIncorrectPassword,
+  backUrl
 }: CardProps) {
   const router = useRouter()
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0)
@@ -87,8 +90,10 @@ export default function CardComponent({
     setModalOpen(false)
   }
 
-  const handleAddFavorite = () => {
-    if (!userRole) {
+  const toggleFavorite = async () => {
+    if (userRole) {
+      await toggleUserFavorite(String(construction?.id))
+    } else {
       Cookies.set('favorite', String(construction?.id))
       router.push('/sign-in')
     }
@@ -98,6 +103,7 @@ export default function CardComponent({
     if (isIncorrectPassword && !isAdmin) {
       setPasswordModalOpen(true)
     }
+
     Cookies.remove('password')
   }, [construction])
 
@@ -110,7 +116,7 @@ export default function CardComponent({
           <span className="flex w-full ">
             <Button
               variant="ghost"
-              onClick={() => router.push('/protected/constructions')}
+              onClick={() => router.push(backUrl ?? '/protected/constructions')}
               className="flex items-center justify-center"
             >
               <ArrowLeft className="h-4 w-4" />
@@ -120,7 +126,9 @@ export default function CardComponent({
           <span className="grid grid-cols-2 md:flex items-center gap-4 w-full justify-between sm:justify-end">
             {isAdmin && (
               <>
-                <Link href={`/protected/constructions/${construction?.id}/edit`}>
+                <Link
+                  href={`/protected/constructions/${construction?.id}/edit`}
+                >
                   <Button
                     variant="outline"
                     className="flex items-center w-full"
@@ -164,18 +172,16 @@ export default function CardComponent({
                 />
               ))}
             </div>
-            {isFavorite ? (
-              <span className="absolute translate-x-1/5 top-6 right-6 transform -translate-y-1/2">
-                <Heart className="h-6 w-6 text-red-500 fill-red-500" />
-              </span>
-            ) : (
-              <span
-                className="absolute translate-x-1/5 top-6 right-6 transform -translate-y-1/2"
-                onClick={handleAddFavorite}
-              >
-                <Heart className="h-4 w-4 mr-1" />
-              </span>
-            )}
+
+            <span
+              className="absolute translate-x-1/5 top-6 right-6 transform -translate-y-1/2"
+              onClick={toggleFavorite}
+            >
+              <Heart
+                className={`h-6 w-6 ${isFavorite ? 'text-red-500 fill-red-500' : 'text-black'}`}
+              />
+            </span>
+
             <Button
               variant="outline"
               size="icon"

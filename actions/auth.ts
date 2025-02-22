@@ -18,10 +18,10 @@ export default async function getUser() {
   }
 }
 
-export async function toggleFavorite() {
+export async function toggleUserFavorite(id?: string) {
   const cookieStore = await cookies();
   const favoritesCookie = cookieStore.get("favorite");
-  const itemId = favoritesCookie?.value;
+  const itemId = id ?? favoritesCookie?.value;
 
   const supabase = await createAdminClient();
 
@@ -54,9 +54,14 @@ export async function toggleFavorite() {
         "Error al actualizar la metadata del usuario:",
         updateError,
       );
-      return;
+      return true;
     }
-    console.log("Metadata del usuario actualizada:", data);
+    console.log(
+      "Metadata del usuario actualizada:",
+      data.user.user_metadata?.favorites,
+    );
+    revalidatePath("/protected/constructions/[id]");
+    revalidatePath("/constructions/[id]");
     return true;
   } catch (error) {
     console.error("Error:", error);
@@ -96,5 +101,28 @@ export async function updateProfileAction(
     return { success: "Perfil actualizado" };
   } catch (error) {
     console.error("Error actualizando el perfil:", error);
+  }
+}
+
+export async function updateRole(role: string) {
+  const supabase = await createAdminClient();
+
+  try {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      console.error("Error al obtener el usuario");
+      return;
+    }
+
+    const { data, error } = await supabase.auth.admin.updateUserById(user.id, {
+      user_metadata: {
+        role: role,
+      },
+    });
+  } catch (error) {
+    console.error("Error actualizando el rol:", error);
   }
 }

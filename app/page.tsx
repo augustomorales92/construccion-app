@@ -29,6 +29,7 @@ export default async function Home() {
             <CardGrid
               constructions={favoritesConstructions}
               favorites={favorites}
+              userLogged={!!user}
             />
           </div>
         )}

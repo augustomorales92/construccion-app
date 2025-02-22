@@ -1,21 +1,18 @@
-import getUser, { toggleFavorite } from '@/actions/auth'
+import getUser, { toggleUserFavorite } from '@/actions/auth'
 import { getFavoriteConstructions } from '@/actions/constructions'
-import CardGrid from '@/components/landing/CardGrid'
 import { InfoIcon } from 'lucide-react'
 import { redirect } from 'next/navigation'
 
 export default async function ProtectedPage() {
   const [user, toggle, constructions] = await Promise.all([
     getUser(),
-    toggleFavorite(),
+    toggleUserFavorite(),
     getFavoriteConstructions(),
   ])
 
   if (!user) {
     return redirect('/sign-in')
   }
-
-  const favorites = user.user_metadata.favorites || []
 
   return (
     <div className="flex-1 w-full flex flex-col gap-12">
@@ -32,8 +29,6 @@ export default async function ProtectedPage() {
           {JSON.stringify(user, null, 2)}
         </pre>
       </div>
-
-      <CardGrid toggle={toggle} constructions={constructions} favorites={favorites}/>
     </div>
   )
 }
