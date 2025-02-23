@@ -37,7 +37,7 @@ const itemSchema = z.object({
   unit: z.string().min(1, 'La unidad es obligatoria'),
   quantity: z.number().positive('La cantidad debe ser mayor a 0'),
   price: z.number().positive('El precio debe ser mayor a 0'),
-  weight: z.number().optional(),
+  weight: z.number().positive('El peso ponderado debe ser mayor a 0'),
 })
 
 export const editProjectSchema = z.object({

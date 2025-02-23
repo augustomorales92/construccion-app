@@ -34,8 +34,8 @@ model Project {
   projectNumber String?
   images        String[]       @default([])
   files         String[]       @default([])
-  certificates  Certificate[] 
-  items          Item[]
+  certificates  Certificate[]
+  items         Item[]
   users         UserProject[]
   incidents     Incident[]
   customerId    String?

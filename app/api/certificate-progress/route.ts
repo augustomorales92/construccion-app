@@ -31,7 +31,11 @@ export async function POST(req: Request) {
         include: {
           certificates: {
             orderBy: { version: 'desc' },
+            include: {
+              certificateItems: true,
+            },
           },
+          items: true,
         },
       })
 
@@ -45,6 +49,8 @@ export async function POST(req: Request) {
       if (!latestCertificate) {
         throw new Error('No se encontraron certificados para este proyecto')
       }
+      console.log('last certi', latestCertificate)
+      console.log('all certi', { allCertificates })
 
       const bodyDate = new Date(date)
       const certificateDate = new Date(latestCertificate.issuedAt)
@@ -99,6 +105,23 @@ export async function POST(req: Request) {
           })
         }
       }
+      // CALCULO EL PROGRESO DE CADA CERTIFICADO 
+
+      console.log('id del certificado', certificateId)
+      const itemProgressMap = new Map<string, number>()
+      console.log('progreso acumulado de item', itemProgressMap)
+      // Recorremos cada certificado y sus avances
+      for (const cert of project.certificates) {
+        for (const itemProgress of cert.certificateItems) {
+          const currentProgress = itemProgressMap.get(itemProgress.itemId) || 0
+          console.log('progreso actual', currentProgress)
+          const newProgress = Math.min(
+            currentProgress + itemProgress.progress,
+            100,
+          ) 
+          itemProgressMap.set(itemProgress.itemId, newProgress)
+        }
+      }
 
       const progressSum = await tx.certificateItemProgress.aggregate({
         _sum: {
@@ -108,23 +131,29 @@ export async function POST(req: Request) {
           certificateId,
         },
       })
-      console.log('items totales', progressSum)
-      const totalProgressCert = progressSum._sum.progress ?? 0
-      const totalItems = progressSum._sum.progress ? 1 : 0
-      console.log('suma progres', totalProgressCert)
-      const progressPercent = totalProgressCert / totalItems
-
-      console.log('progreco certificado:', progressPercent)
+      console.log('suma progreso', progressSum)
+      const totalItemsProject = project.items.length
+      console.log('total items', totalItemsProject)
+      const progressPercent = totalItemsProject
+        ? (progressSum._sum.progress ?? 0) / totalItemsProject
+        : 0
+      console.log('progreso certificado:', progressPercent)
       await tx.certificate.update({
         where: { id: certificateId },
         data: { progressPercent },
       })
 
-      const projectProgress =
-        allCertificates.reduce((acc, cert) => acc + cert.progressPercent, 0) /
-        allCertificates.length
-        
-      console.log('progreco proyecto:', projectProgress)
+      // CALCULO EL PROGRESO DEL PROYECTO (ESTO QUEIRO DARLE UNA VUELTA MAS )
+
+      const totalProgress = allCertificates.reduce(
+        (acc, cert) => acc + cert.progressPercent,
+        0,
+      )
+      const projectProgress = totalItemsProject
+        ? totalProgress / totalItemsProject
+        : 0
+
+      console.log('progreso proyecto:', projectProgress)
       await tx.project.update({
         where: { id: projectId },
         data: { progressTotal: projectProgress },
