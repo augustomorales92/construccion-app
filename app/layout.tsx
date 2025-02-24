@@ -1,9 +1,7 @@
+import Layout from '@/components/layout'
 import { Toaster } from '@/components/ui/sonner'
 import { ThemeProvider } from 'next-themes'
 import { Geist } from 'next/font/google'
-//import Layout from './(auth-pages)/layout'
-import getUser from '@/actions/auth'
-import Layout from '@/components/layout/Layout'
 import './globals.css'
 
 const defaultUrl = process.env.VERCEL_URL
@@ -21,12 +19,11 @@ const geistSans = Geist({
   subsets: ['latin'],
 })
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const user = await getUser()
   return (
     <html lang="en" className={geistSans.className} suppressHydrationWarning>
       <body className="bg-background text-foreground">
@@ -36,27 +33,7 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {/*    <nav className="w-full flex justify-center border-b border-b-foreground/10 h-16">
-            <div className="w-full flex justify-between items-center p-3 mx-10 text-sm">
-              <div className="flex gap-5 items-center font-semibold">
-                <Link href={'/'} className='flex gap-2 items-center'>
-                  <BrickWall className="w-7 h-7" />
-                  <span className='text-lg'>
-                    Busca tu obra
-                  </span>
-                </Link>
-              </div>
-               {!hasEnvVars ? <EnvVarWarning /> : <HeaderAuth />} 
-            </div>
-          </nav>
-          <main className="w-full flex flex-col min-h-custom items-center">
-            <div className="flex-grow w-full overflow-auto">{children}</div>
-          </main>
-          <footer className="w-full flex items-center justify-center border-t mx-auto text-center text-xs gap-8 h-16">
-            <p>© 2023 ConstructApp. Todos los derechos reservados.</p>
-            <ThemeSwitcher />
-          </footer> */}
-          <Layout user={user}>{children}</Layout>
+          <Layout>{children}</Layout>
           <Toaster />
         </ThemeProvider>
       </body>

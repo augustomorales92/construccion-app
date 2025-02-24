@@ -1,21 +1,16 @@
-import getUser, { toggleUserFavorite } from '@/actions/auth'
-import { getFavoriteConstructions } from '@/actions/constructions'
+import getUser from '@/actions/auth'
 import { InfoIcon } from 'lucide-react'
 import { redirect } from 'next/navigation'
 
 export default async function ProtectedPage() {
-  const [user, toggle, constructions] = await Promise.all([
-    getUser(),
-    toggleUserFavorite(),
-    getFavoriteConstructions(),
-  ])
+  const [user] = await Promise.all([getUser()])
 
   if (!user) {
     return redirect('/sign-in')
   }
 
   return (
-    <div className="flex-1 w-full flex flex-col gap-12">
+    <div className="flex-1 w-full flex flex-col gap-12 min-h-custom md:h-custom h-full">
       <div className="w-full">
         <div className="bg-accent text-sm p-3 px-5 rounded-md text-foreground flex gap-3 items-center">
           <InfoIcon size="16" strokeWidth={2} />

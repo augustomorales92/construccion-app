@@ -48,7 +48,7 @@ export default function EditProjectForm({
   const [images, setImage] = useState<File[]>([])
   const [excelFile, setExcelFile] = useState<File | null>(null)
   const router = useRouter()
-
+  const isNewProject = id === 'new'
   const handleInputChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -95,7 +95,11 @@ export default function EditProjectForm({
             <Button
               variant="ghost"
               onClick={() =>
-                router.push(id === 'new' ? '/protected/constructions' : `/protected/constructions/${id}`)
+                router.push(
+                  isNewProject
+                    ? '/protected/constructions'
+                    : `/protected/constructions/${id}`,
+                )
               }
               className="flex items-center"
               size="icon"
@@ -104,7 +108,7 @@ export default function EditProjectForm({
             </Button>
 
             <h1 className="text-3xl font-bold">
-              {projectData.id ? 'Editar Obra' : 'Agregar Nueva Obra'}
+              {isNewProject ? 'Agregar Nueva Obra' : 'Editar Obra'}
             </h1>
           </CardTitle>
         </CardHeader>
@@ -199,14 +203,20 @@ export default function EditProjectForm({
                     onChange={handleInputChange}
                   />
                 </div>
-                {id !== 'new' && (
+                {!isNewProject && (
                   <ImageUpload images={images} setImages={setImage} />
                 )}
-                <FileUpload excelFile={excelFile} setExcelFile={setExcelFile} />
+                <FileUpload excelFile={excelFile} setExcelFile={setExcelFile} isNewProject={isNewProject}/>
               </>
             </div>
             <div className="flex justify-end items-center gap-4">
-              <Link href={id === 'new' ? '/obras' : `/obras/${id}`}>
+              <Link
+                href={
+                  isNewProject
+                    ? '/protected/constructions'
+                    : `/protected/constructions/${id}`
+                }
+              >
                 <Button
                   variant="destructive"
                   className="flex items-center gap-2"
@@ -216,7 +226,7 @@ export default function EditProjectForm({
               </Link>
 
               <Button type="button" onClick={handleSubmit}>
-                {projectData.id ? 'Guardar Cambios' : 'Agregar Obra'}
+                {isNewProject ? 'Agregar Obra' : 'Guardar Cambios'}
               </Button>
             </div>
           </form>

@@ -40,7 +40,7 @@ export default function Layout({
     ? user.user_metadata.role === 'ADMIN'
       ? [
           {
-            href: '/',
+            href: '/protected',
             label: 'Inicio',
             icon: Home,
           },

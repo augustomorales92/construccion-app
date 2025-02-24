@@ -1,4 +1,5 @@
 'use client'
+import SpreadsheetDialog from '@/components/Spreadsheet'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { FileSpreadsheet } from 'lucide-react'
@@ -6,9 +7,14 @@ import { FileSpreadsheet } from 'lucide-react'
 type Props = {
   excelFile: File | null
   setExcelFile: (file: File | null) => void
+  isNewProject?: boolean
 }
 
-export default function UploadFile({ excelFile, setExcelFile }: Props) {
+export default function UploadFile({
+  excelFile,
+  setExcelFile,
+  isNewProject,
+}: Props) {
   const handleExcelUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setExcelFile(e.target.files[0])
@@ -16,8 +22,11 @@ export default function UploadFile({ excelFile, setExcelFile }: Props) {
   }
 
   return (
-    <div>
-      <Label htmlFor="excel">Desglose de Materiales (Excel)</Label>
+    <div className="py-2 flex flex-col gap-2 mt-2">
+      <span className="w-full flex items-center justify-between">
+        <Label htmlFor="excel">Desglose de Materiales (Excel)</Label>
+        <SpreadsheetDialog title={isNewProject ? "Añadir materiales manualmente" : "Editar Materiales" }/>
+      </span>
       <div className="mt-2">
         <Input
           id="excel"

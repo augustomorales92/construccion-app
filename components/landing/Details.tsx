@@ -12,13 +12,13 @@ import {
   Edit,
   FileText,
   Heart,
-  MessageSquare,
 } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { Certificates, Construction, Incidents } from '../../lib/types'
+import SpreadsheetDialog from '../Spreadsheet'
 import CertificateModal from './CertificateModal'
 import { ConstructionIncidentsTimeline } from './IncidentsTimeline'
 import PasswordModal from './PasswordModal'
@@ -39,7 +39,7 @@ export default function CardComponent({
   user,
   isFavorite,
   isIncorrectPassword,
-  backUrl
+  backUrl,
 }: CardProps) {
   const router = useRouter()
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0)
@@ -128,25 +128,13 @@ export default function CardComponent({
               <>
                 <Link
                   href={`/protected/constructions/${construction?.id}/edit`}
+                  className="flex items-center w-full"
                 >
                   <Button
                     variant="outline"
                     className="flex items-center w-full"
                   >
                     <Edit className="mr-1 h-4 w-4" /> Editar
-                  </Button>
-                </Link>
-                <Link
-                  href={`/mensajes?Construction=${construction?.id}&role=${userRole}`}
-                >
-                  <Button
-                    variant="outline"
-                    className="flex items-center w-full"
-                  >
-                    <span>
-                      <MessageSquare className="mr-1 h-4 w-4" />
-                    </span>
-                    <span>Enviar Mensaje</span>
                   </Button>
                 </Link>
                 <WhatsAppShareLinkPopover id={String(construction?.id)} />
@@ -246,15 +234,10 @@ export default function CardComponent({
           </Card>
 
           <Card>
-            <CardContent className="p-6">
-              <h2 className="text-xl font-semibold mb-4">
-                Materiales Comprados
-              </h2>
-              <ul className="list-disc list-inside">
-                {construction?.materialsPurchased.map((material, index) => (
-                  <li key={index}>{material}</li>
-                ))}
-              </ul>
+            <CardContent className="p-6 flex justify-between items-center">
+              <h2 className="text-xl font-semibold ">Materiales Comprados</h2>
+
+              <SpreadsheetDialog />
             </CardContent>
           </Card>
 
