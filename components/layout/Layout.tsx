@@ -6,6 +6,7 @@ import { User } from '@supabase/supabase-js'
 import {
   BrickWall,
   Briefcase,
+  ClipboardList,
   HardHat,
   Home,
   Menu,
@@ -45,7 +46,11 @@ export default function Layout({
             icon: Home,
           },
           { href: '/protected/constructions', label: 'Obras', icon: Briefcase },
-          { href: '/mensajes', label: 'Mensajes', icon: MessageSquare },
+          {
+            href: '/protected/history',
+            label: 'Historial',
+            icon: ClipboardList,
+          },
           { href: '/protected/clients', label: 'Clientes', icon: Users },
           { href: '/protected/managers', label: 'Encargados', icon: HardHat },
           { href: '/protected/profile', label: 'Perfil', icon: UserIcon },

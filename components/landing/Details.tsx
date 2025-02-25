@@ -47,7 +47,8 @@ export default function CardComponent({
   const [PasswordModalOpen, setPasswordModalOpen] = useState(false)
   const pathname = usePathname()
   const userRole = user?.user_metadata.role
-  const isAdmin = userRole === 'ADMIN' && pathname.includes('/protected')
+  const isProtected = pathname.includes('/protected')
+  const isAdmin = userRole === 'ADMIN' && isProtected
   const imagesLength = construction?.images?.length || 1
 
   const nextPhoto = () => {
@@ -160,15 +161,16 @@ export default function CardComponent({
                 />
               ))}
             </div>
-
-            <span
-              className="absolute translate-x-1/5 top-6 right-6 transform -translate-y-1/2"
-              onClick={toggleFavorite}
-            >
-              <Heart
-                className={`h-6 w-6 ${isFavorite ? 'text-red-500 fill-red-500' : 'text-black'}`}
-              />
-            </span>
+            {!isProtected && (
+              <span
+                className="absolute translate-x-1/5 top-6 right-6 transform -translate-y-1/2"
+                onClick={toggleFavorite}
+              >
+                <Heart
+                  className={`h-6 w-6 ${isFavorite ? 'text-red-500 fill-red-500' : 'text-black'}`}
+                />
+              </span>
+            )}
 
             <Button
               variant="outline"
