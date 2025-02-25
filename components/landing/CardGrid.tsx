@@ -10,17 +10,15 @@ import Card from './Card'
 import PasswordModal from './PasswordModal'
 
 export default function CardGrid({
-  toggle,
   constructions,
   favorites,
   isBlur,
-  isAdmin,
+  userLogged,
 }: {
-  toggle?: boolean
   constructions: Construction[]
   favorites?: string[]
   isBlur?: boolean
-  isAdmin?: boolean
+  userLogged?: boolean
 }) {
   const [selectedCard, setSelectedCard] = useState<Construction | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -33,13 +31,11 @@ export default function CardGrid({
   })
 
   useEffect(() => {
-    if (toggle) Cookies.remove('favorite')
-  }, [toggle])
+    if (userLogged) Cookies.remove('favorite')
+  }, [])
 
   const handleCardClick = (card: Construction) => {
-    if (isAdmin) {
-      router.push(`/protected/constructions/${card.id}`)
-    } else if (favorites?.includes(card.id)) {
+    if (favorites?.includes(card.id)) {
       router.push(`/constructions/${card.id}`)
     } else {
       setSelectedCard(card)

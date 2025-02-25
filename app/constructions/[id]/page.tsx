@@ -24,11 +24,17 @@ export default async function Details({
   const isIncorrectPassword = !user && password !== construction?.password
   const isFavorite = user?.user_metadata.favorites?.includes(id)
 
-  if (
-    isIncorrectPassword ||
-    (user && user.user_metadata.role !== 'ADMIN' && !isFavorite)
-  ) {
-    return redirect('/')
+  const backUrl =`/`
+
+  if (user) {
+    const isAdmin = user.user_metadata.role === 'ADMIN'
+    if (isAdmin && (!isFavorite || isIncorrectPassword)) {
+      return redirect('/')
+    }
+  } else {
+    if (isIncorrectPassword) {
+      return redirect('/')
+    }
   }
 
   return (
@@ -38,6 +44,7 @@ export default async function Details({
       user={user}
       isFavorite={isFavorite}
       isIncorrectPassword={isIncorrectPassword}
+      backUrl={backUrl}
     />
   )
 }

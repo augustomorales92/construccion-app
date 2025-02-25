@@ -48,7 +48,7 @@ export default function ImageUpload({ images, setImages }: Props) {
   }
 
   return (
-    <div>
+    <div className='py-2 flex flex-col gap-2 mt-2'>
       <Label htmlFor="imagenes">Imágenes</Label>
       <div className="mt-2">
         <Input
