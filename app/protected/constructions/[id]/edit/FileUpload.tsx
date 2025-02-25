@@ -8,12 +8,14 @@ type Props = {
   excelFile: File | null
   setExcelFile: (file: File | null) => void
   isNewProject?: boolean
+  isAdmin?: boolean
 }
 
 export default function UploadFile({
   excelFile,
   setExcelFile,
   isNewProject,
+  isAdmin,
 }: Props) {
   const handleExcelUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -25,7 +27,13 @@ export default function UploadFile({
     <div className="py-2 flex flex-col gap-2 mt-2">
       <span className="w-full flex items-center justify-between">
         <Label htmlFor="excel">Desglose de Materiales (Excel)</Label>
-        <SpreadsheetDialog title={isNewProject ? "Añadir materiales manualmente" : "Editar Materiales" }/>
+        <SpreadsheetDialog
+          title={
+            isNewProject ? 'Añadir materiales manualmente' : 'Editar Materiales'
+          }
+          isCreation={isNewProject}
+          isAdmin={isAdmin}
+        />
       </span>
       <div className="mt-2">
         <Input

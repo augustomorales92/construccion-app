@@ -1,6 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   Dialog,
   DialogContent,
@@ -8,7 +9,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import { Shovel } from 'lucide-react'
+import { Pencil, Shovel } from 'lucide-react'
 import { useState } from 'react'
 import Cell from './Cell'
 
@@ -20,15 +21,29 @@ interface CellPosition {
   col: number
 }
 
-export default function SpreadsheetDialog({ title }: { title?: string }) {
+export default function SpreadsheetDialog({
+  title,
+  isAdmin,
+  isCreation,
+}: {
+  title?: string
+  isAdmin?: boolean
+  isCreation?: boolean
+}) {
   const initialData = Array(MIN_ROWS)
     .fill(null)
     .map(() => Array(COLS).fill(''))
   const [data, setData] = useState<string[][]>(initialData)
   const [activeCell, setActiveCell] = useState<CellPosition | null>(null)
   const [numRows, setNumRows] = useState(MIN_ROWS)
+  const [columnVisibility, setColumnVisibility] = useState(
+    Array(COLS).fill(true),
+  )
+  const [isEditing, setIsEditing] = useState(isCreation ?? false)
 
   const updateCell = (row: number, col: number, value: string) => {
+    if (!isEditing) return
+
     const newData = [...data]
     while (row >= newData.length) {
       newData.push(Array(COLS).fill(''))
@@ -40,6 +55,12 @@ export default function SpreadsheetDialog({ title }: { title?: string }) {
 
   const getColumnLabel = (index: number) => String.fromCharCode(65 + index)
 
+  const toggleColumnVisibility = (index: number) => {
+    const newVisibility = [...columnVisibility]
+    newVisibility[index] = !newVisibility[index]
+    setColumnVisibility(newVisibility)
+  }
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -49,12 +70,22 @@ export default function SpreadsheetDialog({ title }: { title?: string }) {
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-[95vw] max-h-[90vh] p-0 overflow-auto">
-        <DialogTitle className="px-4 pt-4">Hoja de Materiales</DialogTitle>
-        <DialogDescription className="px-4">
-          Edita los datos de la hoja de cálculo
-        </DialogDescription>
+        <DialogTitle className="px-4 pt-4">
+          <div>Hoja de Materiales</div>
+        </DialogTitle>
+        <div className="px-4 flex items-center justify-between">
+          <DialogDescription>
+            {isEditing ? 'Edita los datos' : 'Visualiza los datos'}
+          </DialogDescription>
+          {isAdmin && (
+            <Button variant="outline" onClick={() => setIsEditing(!isEditing)}>
+              <Pencil className="w-4 h-4 mr-2" />
+              {isEditing ? 'Guardar' : 'Editar'}
+            </Button>
+          )}
+        </div>
         <div className="p-4">
-          <div className="border border-border bg-background">
+          <div className="border border-border bg-background overflow-x-auto">
             <div
               className="grid"
               style={{
@@ -65,9 +96,15 @@ export default function SpreadsheetDialog({ title }: { title?: string }) {
               {Array.from({ length: COLS }).map((_, i) => (
                 <div
                   key={i}
-                  className="border-r border-b border-border bg-muted px-2 py-1 text-sm font-medium text-muted-foreground"
+                  className="border-r border-b border-border bg-muted px-2 py-1 text-sm font-medium text-muted-foreground flex items-center gap-2"
                 >
                   {getColumnLabel(i)}
+                  {isAdmin && isEditing && (
+                    <Checkbox
+                      checked={columnVisibility[i]}
+                      onCheckedChange={() => toggleColumnVisibility(i)}
+                    />
+                  )}
                 </div>
               ))}
             </div>
@@ -91,23 +128,26 @@ export default function SpreadsheetDialog({ title }: { title?: string }) {
                 }}
               >
                 {data.map((row, rowIndex) =>
-                  row.map((cellValue, colIndex) => (
-                    <Cell
-                      key={`${rowIndex}-${colIndex}`}
-                      value={cellValue}
-                      onChange={(value) =>
-                        updateCell(rowIndex, colIndex, value)
-                      }
-                      isEven={rowIndex % 2 === 0}
-                      isActive={
-                        activeCell?.row === rowIndex &&
-                        activeCell?.col === colIndex
-                      }
-                      onActivate={() =>
-                        setActiveCell({ row: rowIndex, col: colIndex })
-                      }
-                    />
-                  )),
+                  row.map((cellValue, colIndex) =>
+                    columnVisibility[colIndex] ? (
+                      <Cell
+                        key={`${rowIndex}-${colIndex}`}
+                        value={cellValue}
+                        onChange={(value) =>
+                          updateCell(rowIndex, colIndex, value)
+                        }
+                        isEven={rowIndex % 2 === 0}
+                        isActive={
+                          activeCell?.row === rowIndex &&
+                          activeCell?.col === colIndex
+                        }
+                        onActivate={() =>
+                          setActiveCell({ row: rowIndex, col: colIndex })
+                        }
+                        readOnly={!isEditing}
+                      />
+                    ) : null,
+                  ),
                 )}
               </div>
             </div>

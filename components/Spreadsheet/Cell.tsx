@@ -16,6 +16,7 @@ interface CellProps {
   position?: CellPosition
   isActive: boolean
   onActivate: () => void
+  readOnly: boolean
 }
 
 export default function Cell({
@@ -24,25 +25,31 @@ export default function Cell({
   isEven,
   isActive,
   onActivate,
+  readOnly, // Recibe la prop readOnly
 }: CellProps) {
   const [isEditing, setIsEditing] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  // Removemos onActivate de las dependencias ya que no necesita re-ejecutarse cuando cambia
   useEffect(() => {
-    if (isEditing) {
+    if (isEditing && !readOnly) {
       inputRef.current?.focus()
     }
-  }, [isEditing])
+  }, [isEditing, readOnly])
 
   const handleClick = () => {
-    setIsEditing(true)
-    onActivate()
+    if (!readOnly) {
+      setIsEditing(true)
+      onActivate()
+    }
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value
     onChange(newValue)
+  }
+
+  const handleBlur = () => {
+    setIsEditing(false)
   }
 
   return (
@@ -52,15 +59,16 @@ export default function Cell({
           ref={inputRef}
           value={value}
           onChange={handleChange}
-          onBlur={() => setIsEditing(false)}
+          onBlur={handleBlur}
           className="absolute inset-0 border-primary rounded-none focus-visible:ring-0 focus-visible:ring-offset-0"
+          readOnly={readOnly}
         />
       ) : (
         <div
           className={`w-full h-full border-r border-b border-border px-2 py-1 cursor-text truncate
             ${isEven ? 'bg-background' : 'bg-muted/30'} 
             ${isActive ? 'border-2 border-primary' : ''}
-            hover:bg-accent/50`}
+            hover:bg-accent/50 ${readOnly ? 'cursor-default' : ''}`}
           onClick={handleClick}
         >
           {value}

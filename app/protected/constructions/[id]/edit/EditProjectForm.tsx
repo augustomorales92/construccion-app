@@ -19,6 +19,7 @@ type Props = {
   clients: Customer[] | null
   managers: Manager[] | null
   id?: string
+  isAdmin?: boolean
 }
 
 export default function EditProjectForm({
@@ -26,6 +27,7 @@ export default function EditProjectForm({
   clients,
   id,
   managers,
+  isAdmin
 }: Props) {
   const [projectData, setProjectData] = useState<Construction>(
     project || {
@@ -89,7 +91,7 @@ export default function EditProjectForm({
 
   return (
     <div className="container mx-auto px-4 my-2 min-h-custom md:h-custom">
-      <Card className="p-4">
+      <Card className="p-4 border-none">
         <CardHeader className="p-2 ">
           <CardTitle className="mb-4 flex justify-between items-center p-2">
             <Button
@@ -206,7 +208,7 @@ export default function EditProjectForm({
                 {!isNewProject && (
                   <ImageUpload images={images} setImages={setImage} />
                 )}
-                <FileUpload excelFile={excelFile} setExcelFile={setExcelFile} isNewProject={isNewProject}/>
+                <FileUpload excelFile={excelFile} setExcelFile={setExcelFile} isNewProject={isNewProject} isAdmin={isAdmin}/>
               </>
             </div>
             <div className="flex justify-end items-center gap-4">

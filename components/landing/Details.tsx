@@ -239,7 +239,7 @@ export default function CardComponent({
             <CardContent className="p-6 flex justify-between items-center">
               <h2 className="text-xl font-semibold ">Materiales Comprados</h2>
 
-              <SpreadsheetDialog />
+              <SpreadsheetDialog isAdmin={isAdmin} />
             </CardContent>
           </Card>
 
