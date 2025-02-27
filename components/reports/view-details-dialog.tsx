@@ -41,13 +41,13 @@ export function ViewDetailsDialog({ report, open, onOpenChange, onUpdateStatus }
             <div className="flex justify-end gap-4 pt-4">
               <Button
                 variant="outline"
-                className="text-red-600 hover:text-red-600 hover:bg-red-50"
+                className="text-red-600 hover:text-red-50 hover:bg-red-600 bg-red-50"
                 onClick={() => onUpdateStatus(report.id, "rechazado")}
               >
                 <XCircle className="mr-2 h-4 w-4" />
                 Rechazar
               </Button>
-              <Button className="bg-green-600 hover:bg-green-700" onClick={() => onUpdateStatus(report.id, "aprobado")}>
+              <Button className="bg-green-100 hover:bg-green-600 text-green-600 hover:text-green-100" onClick={() => onUpdateStatus(report.id, "aprobado")}>
                 <CheckCircle className="mr-2 h-4 w-4" />
                 Aprobar
               </Button>
