@@ -13,31 +13,61 @@ import { Pencil, Shovel } from 'lucide-react'
 import { useState } from 'react'
 import Cell from './Cell'
 
-const MIN_ROWS = 30
-const COLS = 10
-
-interface CellPosition {
-  row: number
-  col: number
+interface SpreadsheetDialogProps {
+  title?: string
+  isAdmin?: boolean
+  isCreation?: boolean
+  /**
+   * Datos iniciales, por ejemplo:
+   * [
+   *   ["1", "Trazo y nivelación", "m2", "8583.72", "4.79", "41014.99", "5000", "300", "5300"],
+   *   ["2", "Desmonte", "m3", "100", "10", "1000", "...", "...", "..."],
+   *   ...
+   * ]
+   */
+  initialData?: string[][]
 }
 
 export default function SpreadsheetDialog({
   title,
   isAdmin,
   isCreation,
-}: {
-  title?: string
-  isAdmin?: boolean
-  isCreation?: boolean
-}) {
-  const initialData = Array(MIN_ROWS)
-    .fill(null)
-    .map(() => Array(COLS).fill(''))
-  const [data, setData] = useState<string[][]>(initialData)
-  const [activeCell, setActiveCell] = useState<CellPosition | null>(null)
-  const [numRows, setNumRows] = useState(MIN_ROWS)
+  initialData = [],
+}: SpreadsheetDialogProps) {
+  const MIN_ROWS = 30
+  // Definimos las columnas que quieres mostrar
+  const columns = [
+    'N°',
+    'CONCEPTO',
+    'UT',
+    'CANT.',
+    'PRECIO UNIT.',
+    'SUBTOTAL',
+    'ACLM ANT',
+    'ACTUAL',
+    'ACLM',
+  ]
+  const colCount = columns.length
+
+  const rowCount = Math.max(initialData.length, MIN_ROWS)
+
+  const [data, setData] = useState<string[][]>(() =>
+    Array.from({ length: rowCount }, (_, rowIndex) => {
+      const rowData = initialData[rowIndex] || []
+      return Array.from(
+        { length: colCount },
+        (_, colIndex) => rowData[colIndex] ?? '',
+      )
+    }),
+  )
+
+  const [activeCell, setActiveCell] = useState<{
+    row: number
+    col: number
+  } | null>(null)
+  const [numRows, setNumRows] = useState(data.length)
   const [columnVisibility, setColumnVisibility] = useState(
-    Array(COLS).fill(true),
+    Array(colCount).fill(true),
   )
   const [isEditing, setIsEditing] = useState(isCreation ?? false)
 
@@ -45,15 +75,16 @@ export default function SpreadsheetDialog({
     if (!isEditing) return
 
     const newData = [...data]
+
     while (row >= newData.length) {
-      newData.push(Array(COLS).fill(''))
+      newData.push(Array(colCount).fill(''))
     }
+
     newData[row][col] = value
     setData(newData)
+
     setNumRows(Math.max(MIN_ROWS, newData.length))
   }
-
-  const getColumnLabel = (index: number) => String.fromCharCode(65 + index)
 
   const toggleColumnVisibility = (index: number) => {
     const newVisibility = [...columnVisibility]
@@ -69,6 +100,7 @@ export default function SpreadsheetDialog({
           {title ?? 'Ver'}
         </Button>
       </DialogTrigger>
+
       <DialogContent className="max-w-[95vw] max-h-[90vh] p-0 overflow-auto">
         <DialogTitle className="px-4 pt-4">
           <div>Hoja de Materiales</div>
@@ -84,21 +116,26 @@ export default function SpreadsheetDialog({
             </Button>
           )}
         </div>
+
         <div className="p-4">
           <div className="border border-border bg-background overflow-x-auto">
+            {/* Encabezado de columnas */}
             <div
               className="grid"
               style={{
-                gridTemplateColumns: `40px repeat(${COLS}, minmax(100px, 1fr))`,
+                gridTemplateColumns: `40px repeat(${colCount}, minmax(100px, 1fr))`,
               }}
             >
+              {/* Celda vacía arriba de la columna de filas */}
               <div className="border-r border-b border-border bg-muted" />
-              {Array.from({ length: COLS }).map((_, i) => (
+
+              {/* Nombre de cada columna */}
+              {columns.map((colName, i) => (
                 <div
                   key={i}
                   className="border-r border-b border-border bg-muted px-2 py-1 text-sm font-medium text-muted-foreground flex items-center gap-2"
                 >
-                  {getColumnLabel(i)}
+                  {colName}
                   {isAdmin && isEditing && (
                     <Checkbox
                       checked={columnVisibility[i]}
@@ -109,7 +146,9 @@ export default function SpreadsheetDialog({
               ))}
             </div>
 
+            {/* Cuerpo de la tabla */}
             <div className="grid" style={{ gridTemplateColumns: '40px 1fr' }}>
+              {/* Columna de números de fila */}
               <div className="grid auto-rows-[40px]">
                 {Array.from({ length: numRows }).map((_, i) => (
                   <div
@@ -121,15 +160,25 @@ export default function SpreadsheetDialog({
                 ))}
               </div>
 
+              {/* Celdas de datos */}
               <div
                 className="grid auto-rows-[40px]"
                 style={{
-                  gridTemplateColumns: `repeat(${COLS}, minmax(100px, 1fr))`,
+                  gridTemplateColumns: `repeat(${
+                    isAdmin || isEditing
+                      ? colCount
+                      : columnVisibility.filter(Boolean).length
+                  }, minmax(100px, 1fr))`,
                 }}
               >
                 {data.map((row, rowIndex) =>
-                  row.map((cellValue, colIndex) =>
-                    columnVisibility[colIndex] ? (
+                  row
+                    .map((cellValue, colIndex) => ({ cellValue, colIndex }))
+                    .filter(
+                      ({ colIndex }) =>
+                        isAdmin || isEditing || columnVisibility[colIndex],
+                    )
+                    .map(({ cellValue, colIndex }) => (
                       <Cell
                         key={`${rowIndex}-${colIndex}`}
                         value={cellValue}
@@ -146,8 +195,7 @@ export default function SpreadsheetDialog({
                         }
                         readOnly={!isEditing}
                       />
-                    ) : null,
-                  ),
+                    )),
                 )}
               </div>
             </div>
