@@ -101,7 +101,6 @@ export async function POST(req: Request) {
           unit: item.unit,
           quantity: item.quantity,
           price: item.price,
-          weight: item.weight,
           projectId: project.id,
         })),
       })
@@ -195,7 +194,6 @@ export async function PUT(req: Request) {
               unit: itemData.unit,
               quantity: itemData.quantity,
               price: itemData.price,
-              weight: itemData.weight,
             },
           })
 
@@ -217,7 +215,6 @@ export async function PUT(req: Request) {
               unit: itemData.unit,
               quantity: itemData.quantity,
               price: itemData.price,
-              weight: itemData.weight,
             },
           })
 
@@ -238,7 +235,6 @@ export async function PUT(req: Request) {
               unit: itemData.unit,
               quantity: itemData.quantity,
               price: itemData.price,
-              weight: itemData.weight,
             },
           })
         }
