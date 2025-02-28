@@ -1,11 +1,11 @@
-generator client {
-  provider = "prisma-client-js"
-}
-
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
 }
 
 model User {
@@ -24,28 +24,29 @@ model User {
 }
 
 model Project {
-  id            String         @id @default(uuid())
-  name          String
-  description   String?
-  address       String?
-  budget        Float?
-  progressTotal Float?         @default(0)
-  accessCode    String
-  projectNumber String?
-  images        String[]       @default([])
-  files         String[]       @default([])
-  certificates  Certificate[]
-  items         Item[]
-  users         UserProject[]
-  incidents     Incident[]
-  customerId    String?
-  customer      Customer?      @relation(fields: [customerId], references: [id])
-  managerId     String?
-  manager       Manager?       @relation(fields: [managerId], references: [id])
-  notifications Notification[]
-  messages      Message[]
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  id                   String         @id @default(uuid())
+  name                 String
+  description          String?
+  address              String?
+  budget               Float?
+  progressTotal        Float?         @default(0)
+  totalCertifiedAmount Float?         @default(0)
+  accessCode           String
+  projectNumber        String?
+  images               String[]       @default([])
+  files                String[]       @default([])
+  certificates         Certificate[]
+  items                Item[]
+  users                UserProject[]
+  incidents            Incident[]
+  customerId           String?
+  customer             Customer?      @relation(fields: [customerId], references: [id])
+  managerId            String?
+  manager              Manager?       @relation(fields: [managerId], references: [id])
+  notifications        Notification[]
+  messages             Message[]
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
 
   @@map("projects")
 }
@@ -75,14 +76,14 @@ model Incident {
 }
 
 model Certificate {
-  id               String                    @id @default(uuid())
-  version          Int?
-  certificateItems CertificateItemProgress[]
-  status           ProgressUpdateStatus      @default(PENDING)
-  progressPercent  Float                     @default(0)
-  issuedAt         DateTime                  @default(now())
-  Project          Project                   @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  projectId        String
+  id                String                    @id @default(uuid())
+  version           Int?
+  certificateItems  CertificateItemProgress[]
+  status            ProgressUpdateStatus      @default(PENDING)
+  certificateAmount Float?                    @default(0)
+  issuedAt          DateTime                  @default(now())
+  Project           Project                   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId         String
 
   @@map("certificates")
 }
@@ -94,7 +95,6 @@ model Item {
   unit             String?
   quantity         Float?
   price            Float?
-  weight           Float?
   certificateItems CertificateItemProgress[]
   projectId        String
   Project          Project                   @relation(fields: [projectId], references: [id], onDelete: Cascade)

@@ -1,4 +1,5 @@
-import { createUserInPrisma } from '@/app/actions'
+
+import { createUserInPrisma } from '@/actions/actions'
 import { createClient } from '@/utils/supabase/server'
 import { NextResponse } from 'next/server'
 

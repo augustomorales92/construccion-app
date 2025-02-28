@@ -95,7 +95,6 @@ export const createFirstProjectSchema = z.object({
         unit: z.string(),
         quantity: z.number(),
         price: z.number(),
-        weight: z.number(),
       }),
     )
     .optional(),

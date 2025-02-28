@@ -105,61 +105,82 @@ export async function POST(req: Request) {
           })
         }
       }
-      // CALCULO EL PROGRESO DE CADA CERTIFICADO 
 
       console.log('id del certificado', certificateId)
-      const itemProgressMap = new Map<string, number>()
-      console.log('progreso acumulado de item', itemProgressMap)
+      // Traigo progreso previo aprobado de cada item
+      const previousApprovedProgressMap = new Map<string, number>()
+      const approvedCertificates = await tx.certificate.findMany({
+        where: { projectId, status: 'APPROVED' },
+        include: { certificateItems: true },
+      })
       // Recorremos cada certificado y sus avances
-      for (const cert of project.certificates) {
+      for (const cert of approvedCertificates) {
         for (const itemProgress of cert.certificateItems) {
-          const currentProgress = itemProgressMap.get(itemProgress.itemId) || 0
-          console.log('progreso actual', currentProgress)
-          const newProgress = Math.min(
-            currentProgress + itemProgress.progress,
-            100,
-          ) 
-          itemProgressMap.set(itemProgress.itemId, newProgress)
+          const previousProgress =
+            previousApprovedProgressMap.get(itemProgress.itemId) || 0
+          console.log('progreso previo', previousProgress)
+          previousApprovedProgressMap.set(
+            itemProgress.itemId,
+            Math.min(previousProgress + itemProgress.progress, 100),
+          )
+        }
+      }
+      // CALCULOS DE PROGRESOS Y MONTOS
+      // Busco con el nuevo certificado los progresos
+      const certificateItems = await tx.certificateItemProgress.findMany({
+        where: { certificateId },
+        include: {
+          item: true,
+        },
+      })
+      console.log('certificateItems', certificateItems)
+
+      let certificateAmount = 0
+
+      for (const itemProgress of certificateItems) {
+        const previousProgress =
+          previousApprovedProgressMap.get(itemProgress.itemId) || 0
+        const newProgress = itemProgress.progress
+
+        // Aseguraramos de no cobrar progreso ya aprobado y cobrado
+        const progressToCharge = Math.max(newProgress - previousProgress, 0)
+
+        if (progressToCharge > 0) {
+          const itemPrice = itemProgress.item.price || 0
+          certificateAmount += (progressToCharge / 100) * itemPrice
         }
       }
 
-      const progressSum = await tx.certificateItemProgress.aggregate({
-        _sum: {
-          progress: true,
-        },
-        where: {
-          certificateId,
-        },
-      })
-      console.log('suma progreso', progressSum)
-      const totalItemsProject = project.items.length
-      console.log('total items', totalItemsProject)
-      const progressPercent = totalItemsProject
-        ? (progressSum._sum.progress ?? 0) / totalItemsProject
-        : 0
-      console.log('progreso certificado:', progressPercent)
+      console.log('certificateAmount después de ajuste:', certificateAmount)
+
+      console.log('certificateAmount:', certificateAmount)
+
       await tx.certificate.update({
         where: { id: certificateId },
-        data: { progressPercent },
+        data: { certificateAmount },
       })
 
-      // CALCULO EL PROGRESO DEL PROYECTO (ESTO QUEIRO DARLE UNA VUELTA MAS )
+      const totalCertifiedAmount =
+        allCertificates.reduce(
+          (acc, cert) => acc + (cert.certificateAmount || 0),
+          0,
+        ) + (certificateAmount || 0)
+      console.log('totalCertifiedAmount:', totalCertifiedAmount)
 
-      const totalProgress = allCertificates.reduce(
-        (acc, cert) => acc + cert.progressPercent,
-        0,
-      )
-      const projectProgress = totalItemsProject
-        ? totalProgress / totalItemsProject
+      const projectProgress = project.budget
+        ? (totalCertifiedAmount/ project.budget) * 100
         : 0
 
-      console.log('progreso proyecto:', projectProgress)
+      console.log('progressTotal:', projectProgress)
       await tx.project.update({
         where: { id: projectId },
-        data: { progressTotal: projectProgress },
+        data: {
+          totalCertifiedAmount,
+          progressTotal: projectProgress,
+        },
       })
 
-      return { project, certificateId, progressPercent, projectProgress }
+      return { project, certificateId }
     })
     return NextResponse.json(updatedProject, { status: 200 })
   } catch (error) {
