@@ -1,3 +1,4 @@
+import { progress } from 'framer-motion'
 import * as z from 'zod'
 
 export const incidentSchema = z.object({
@@ -37,7 +38,7 @@ const itemSchema = z.object({
   unit: z.string().min(1, 'La unidad es obligatoria'),
   quantity: z.number().positive('La cantidad debe ser mayor a 0'),
   price: z.number().positive('El precio debe ser mayor a 0'),
-  weight: z.number().positive('El peso ponderado debe ser mayor a 0'),
+  progresItem: z.number().min(0).max(100),
 })
 
 export const editProjectSchema = z.object({
@@ -60,13 +61,13 @@ export const editProjectSchema = z.object({
         unit: z.string().min(1).optional(),
         quantity: z.number().positive().optional(),
         price: z.number().positive().optional(),
-        weight: z.number().optional(),
+        progressItem: z.number().optional(),
       }),
     )
     .optional(),
 
   itemsToDelete: z.array(z.string()).optional(),
-  isTable: z.boolean(),
+  isSheet: z.boolean(),
 })
 
 const updatedItemSchema = z.object({
@@ -95,6 +96,7 @@ export const createFirstProjectSchema = z.object({
         unit: z.string(),
         quantity: z.number(),
         price: z.number(),
+        progressItem: z.number().optional(),
       }),
     )
     .optional(),

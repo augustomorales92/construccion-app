@@ -95,6 +95,7 @@ model Item {
   unit             String?
   quantity         Float?
   price            Float?
+  progressItem     Float?                    @default(0)
   certificateItems CertificateItemProgress[]
   projectId        String
   Project          Project                   @relation(fields: [projectId], references: [id], onDelete: Cascade)

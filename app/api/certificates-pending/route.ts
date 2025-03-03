@@ -13,6 +13,7 @@ export async function GET(req:NextRequest) {
     }
     const certificates = await prisma.certificate.findMany({
       where: {
+        projectId,
         status: 'PENDING',
       },
       include: { certificateItems: true, Project: true },
