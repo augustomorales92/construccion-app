@@ -10,6 +10,13 @@ export async function GET() {
 
   try {
     const projects = await prisma.project.findMany({
+      where: {
+        users: {
+          some: {
+            userId: userAuth.id, 
+          },
+        },
+      },
       include: {
         certificates: {
           orderBy: { version: 'desc' },

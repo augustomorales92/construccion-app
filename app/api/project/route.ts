@@ -16,7 +16,7 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const project = await prisma.project.findMany({
+    const project = await prisma.project.findUnique({
       where: {
         id: projectId,
       },
@@ -142,7 +142,8 @@ export async function PUT(req: Request) {
       )
     }
 
-    const { newItems, itemsToUpdate, itemsToDelete, projectData, isTable } = parsedData.data
+    const { newItems, itemsToUpdate, itemsToDelete, projectData, isSheet } =
+      parsedData.data
 
     const updatedProject = await prisma.$transaction(async (tx) => {
       const project = await tx.project.findUnique({
@@ -167,14 +168,12 @@ export async function PUT(req: Request) {
         throw new Error('Certificado versión 1 no encontrado')
       }
 
-      if (Object.keys(projectData).length > 1) {
-        await tx.project.update({
-          where: { id: projectData.id },
-          data: { ...projectData },
-        })
-      }
+      await tx.project.update({
+        where: { id: projectData.id },
+        data: { ...projectData },
+      })
 
-      if (isTable) {
+      if (isSheet) {
         const itemIdsToDelete = project.items.map((item) => item.id)
 
         await tx.certificateItemProgress.deleteMany({
@@ -239,7 +238,7 @@ export async function PUT(req: Request) {
           })
         }
 
-        if (itemsToDelete && itemsToDelete.length > 0) {
+        if (itemsToDelete?.length) {
           await tx.certificateItemProgress.deleteMany({
             where: { itemId: { in: itemsToDelete } },
           })

@@ -46,9 +46,6 @@ export async function POST(req: Request) {
       const allCertificates = project.certificates
       // extraigo el ultimo
       const latestCertificate = allCertificates[0]
-      if (!latestCertificate) {
-        throw new Error('No se encontraron certificados para este proyecto')
-      }
       console.log('last certi', latestCertificate)
       console.log('all certi', { allCertificates })
 
@@ -107,24 +104,21 @@ export async function POST(req: Request) {
       }
 
       console.log('id del certificado', certificateId)
+      // Añadir la nueva columan en item de progreso general... y ese progress es el que hay que comparara
       // Traigo progreso previo aprobado de cada item
-      const previousApprovedProgressMap = new Map<string, number>()
-      const approvedCertificates = await tx.certificate.findMany({
-        where: { projectId, status: 'APPROVED' },
-        include: { certificateItems: true },
+      const itemsWithProgress = await tx.item.findMany({
+        where: { projectId },
+        select: {
+          id: true,
+          progressItem: true, 
+          price: true,
+        },
       })
-      // Recorremos cada certificado y sus avances
-      for (const cert of approvedCertificates) {
-        for (const itemProgress of cert.certificateItems) {
-          const previousProgress =
-            previousApprovedProgressMap.get(itemProgress.itemId) || 0
-          console.log('progreso previo', previousProgress)
-          previousApprovedProgressMap.set(
-            itemProgress.itemId,
-            Math.min(previousProgress + itemProgress.progress, 100),
-          )
-        }
-      }
+      // mapeo para acceder al progreso acumulado
+      const previousApprovedProgressMap = new Map(
+        itemsWithProgress.map(item => [item.id, item.progressItem ?? 0])
+      )
+
       // CALCULOS DE PROGRESOS Y MONTOS
       // Busco con el nuevo certificado los progresos
       const certificateItems = await tx.certificateItemProgress.findMany({
@@ -149,11 +143,13 @@ export async function POST(req: Request) {
           const itemPrice = itemProgress.item.price || 0
           certificateAmount += (progressToCharge / 100) * itemPrice
         }
+        await tx.item.update({
+          where: { id: itemProgress.itemId },
+          data: { progressItem: Math.max(previousProgress, Math.min(newProgress, 100)) }
+        })
       }
 
-      console.log('certificateAmount después de ajuste:', certificateAmount)
-
-      console.log('certificateAmount:', certificateAmount)
+      console.log('certificateAmount despues de ajuste:', certificateAmount)
 
       await tx.certificate.update({
         where: { id: certificateId },
