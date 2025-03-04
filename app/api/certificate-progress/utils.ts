@@ -1,5 +1,6 @@
 import { Prisma, PrismaClient } from '@prisma/client'
 import { DefaultArgs } from '@prisma/client/runtime/library'
+import { progress } from 'framer-motion'
 
 type UpdatedItem = {
   itemId: string
@@ -61,7 +62,7 @@ export const calculateSameDayCertificateProgress = async (
       },
     })
   }
-
+  console.log('certificate id mismo dia', certificateId)
   await updateCertificates(tx, projectId, certificateId, budget)
   return certificateId
 }
@@ -72,8 +73,8 @@ export const calculateNewCertificateProgress = async (
   projectId: string,
   budget: number | null,
   updatedItems: UpdatedItem[],
+  bodyDate: Date,
 ) => {
-  const bodyDate = new Date()
 
   const newVersion = (latestCertificateVersion || 0) + 1
   const newCertificate = await tx.certificate.create({
@@ -104,7 +105,7 @@ export const calculateNewCertificateProgress = async (
       },
     })
   }
-
+  console.log('certificate id nuevo', certificateId)
   await updateCertificates(tx, projectId, certificateId, budget)
 }
 
@@ -114,37 +115,47 @@ const updateCertificates = async (
   certificateId: any,
   budget: any,
 ) => {
-  const certificateItems = await tx.certificateItemProgress.findMay({
+  const certificateItems = await tx.certificateItemProgress.findMany({
     where: { certificateId },
-    select: { progress: true },
     include: {
-      item: true,
+      item: {
+        select: {
+          id: true,
+          progressItem: true,
+          price: true,
+        },
+      },
     },
   })
+  console.log('certificate items', certificateItems)
 
   const certificateAmount = certificateItems.reduce(
     (acc: number, item: any) => acc + (item.progress / 100) * item.item.price,
     0,
   )
+  console.log('suma de los certiificados monto',certificateAmount)
 
   await tx.certificate.update({
     where: { id: certificateId },
     data: {
-      amount: certificateAmount,
+      certificateAmount,
     },
   })
 
   const certificates = await tx.certificate.findMany({
     where: { projectId },
-    select: { amount: true },
+    select: { certificateAmount: true },
   })
 
   const totalCertifiedAmount = certificates.reduce(
-    (acc: number, certificate: any) => acc + certificate.amount,
+    (acc: number, certificate: any) => acc + certificate.certificateAmount,
     0,
   )
+  console.log('total certificate amount',totalCertifiedAmount)
 
   const projectProgress = budget ? (totalCertifiedAmount / budget) * 100 : 0
+
+  console.log('progreso total',projectProgress)
 
   await tx.project.update({
     where: { id: projectId },

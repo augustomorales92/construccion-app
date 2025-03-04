@@ -56,10 +56,12 @@ export async function POST(req: Request) {
       let certificateId 
       
       if(isSameDay) {
+        console.log('mismo dia uso certificado')
         certificateId = await calculateSameDayCertificateProgress(tx, latestCertificate.id, projectId, project.budget, updatedItems)
       }
       else {
-        certificateId = await calculateNewCertificateProgress(tx ,latestCertificate.version, projectId, project.budget,updatedItems)
+        console.log('dia distinto se crea uno')
+        certificateId = await calculateNewCertificateProgress(tx ,latestCertificate.version, projectId, project.budget,updatedItems, bodyDate)
       }
 
 /*       let certificateId
