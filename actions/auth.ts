@@ -1,7 +1,8 @@
+'use server'
+
 import { createAdminClient, createClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
-;('use server')
 
 export default async function getUser() {
   try {
