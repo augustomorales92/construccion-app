@@ -168,6 +168,13 @@ export async function POST(req: Request) {
         : 0
 
       console.log('progressTotal:', projectProgress)
+
+      //aca deberias obtener el progreso del certificado que vas a actualizar
+      //y restarle el progreso que tenia antes y sumarle el nuevo progreso
+      //y con eso calcular el progreso total del proyecto
+      //y actualizar el progreso total del proyecto
+      // te agregue una nueva columna
+
       await tx.project.update({
         where: { id: projectId },
         data: {
