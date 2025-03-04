@@ -1,11 +1,11 @@
-import { forgotPasswordAction } from "@/actions/actions";
-import { FormMessage, Message } from "@/components/form-message";
-import { SubmitButton } from "@/components/submit-button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import Link from "next/link";
-import { SmtpMessage } from "../smtp-message";
-import { Card } from "@/components/ui/card";
+import { forgotPasswordAction } from '@/actions/actions'
+import { FormMessage, Message } from '@/components/form-message'
+import { SubmitButton } from '@/components/submit-button'
+import { Card } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import Link from 'next/link'
+import { SmtpMessage } from '../smtp-message'
 
 export default async function ForgotPassword(props: {
   searchParams: Promise<Message>
@@ -17,7 +17,7 @@ export default async function ForgotPassword(props: {
         <div>
           <h1 className="text-2xl font-medium">Recupera tu contraseña</h1>
           <p className="text-sm text-secondary-foreground">
-            ¿Ya tienes una cuenta?{" "}
+            ¿Ya tienes una cuenta?{' '}
             <Link className="text-primary underline" href="/sign-in">
               Inicia sesión
             </Link>
@@ -34,5 +34,5 @@ export default async function ForgotPassword(props: {
       </form>
       <SmtpMessage />
     </Card>
-  );
+  )
 }

@@ -1,8 +1,7 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Heart } from 'lucide-react'
 import Image from 'next/image'
-import { Certificates, Construction } from '../../lib/types'
+import { Construction } from '../../lib/types'
 
 interface CardProps {
   construction: Construction
@@ -16,7 +15,7 @@ export default function CardComponent({
   isFavorite,
   isBlur,
 }: CardProps) {
-  const calculateTotalAmount = (certificados: Certificates[]) => {
+  /*  const calculateTotalAmount = (certificados: Certificates[]) => {
     return certificados?.reduce((total, cert) => total + cert.montoGastado, 0)
   }
 
@@ -26,7 +25,7 @@ export default function CardComponent({
       certificados?.reduce((total, cert) => total + cert.avance, 0) /
       certificados.length
     )
-  }
+  } */
 
   return (
     <Card

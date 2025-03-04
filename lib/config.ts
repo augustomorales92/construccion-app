@@ -7,7 +7,7 @@ const {
   WHASTAPP_FILE_MANAGER_URL,
   NEXT_PUBLIC_SUPABASE_URL,
   SERVICE_ROLE_SUPABASE_KEY,
-} = process.env;
+} = process.env
 
 export const config = {
   NEXT_PUBLIC_APP_URL,
@@ -18,4 +18,4 @@ export const config = {
   WHASTAPP_FILE_MANAGER_URL,
   NEXT_PUBLIC_SUPABASE_URL,
   SERVICE_ROLE_SUPABASE_KEY,
-};
+}

@@ -3,7 +3,10 @@ import prisma from '@/lib/db'
 import { isSameDayFn } from '@/lib/utils'
 import { updateProgressSchema } from '@/schemas'
 import { NextResponse } from 'next/server'
-import { calculateNewCertificateProgress, calculateSameDayCertificateProgress } from './utils'
+import {
+  calculateNewCertificateProgress,
+  calculateSameDayCertificateProgress,
+} from './utils'
 
 export async function POST(req: Request) {
   try {
@@ -53,18 +56,30 @@ export async function POST(req: Request) {
       const bodyDate = new Date(date)
       const certificateDate = new Date(latestCertificate.issuedAt)
       const isSameDay = isSameDayFn(bodyDate, certificateDate)
-      let certificateId 
-      
-      if(isSameDay) {
+      let certificateId
+
+      if (isSameDay) {
         console.log('mismo dia uso certificado')
-        certificateId = await calculateSameDayCertificateProgress(tx, latestCertificate.id, projectId, project.budget, updatedItems)
-      }
-      else {
+        certificateId = await calculateSameDayCertificateProgress(
+          tx,
+          latestCertificate.id,
+          projectId,
+          project.budget,
+          updatedItems,
+        )
+      } else {
         console.log('dia distinto se crea uno')
-        certificateId = await calculateNewCertificateProgress(tx ,latestCertificate.version, projectId, project.budget,updatedItems, bodyDate)
+        certificateId = await calculateNewCertificateProgress(
+          tx,
+          latestCertificate.version,
+          projectId,
+          project.budget,
+          updatedItems,
+          bodyDate,
+        )
       }
 
-/*       let certificateId
+      /*       let certificateId
 
       if (isSameDay) {
         console.log('mismo dia certific existent', latestCertificate.id)

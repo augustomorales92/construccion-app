@@ -3,7 +3,7 @@ import prisma from '@/lib/db'
 import { managerSchema } from '@/schemas'
 import { NextRequest, NextResponse } from 'next/server'
 
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   const userAuth = await getUser()
   if (!userAuth) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

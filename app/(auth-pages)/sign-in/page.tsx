@@ -20,7 +20,7 @@ export default async function Login(props: { searchParams: Promise<Message> }) {
               Sign in
             </h1>
             <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-              Don't have an account?{' '}
+              {`Don't have an account? `}
               <Link
                 className="font-medium text-primary hover:underline"
                 href="/sign-up"

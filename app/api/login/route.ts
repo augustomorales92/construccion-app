@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server'
-import { createClient } from '@/utils/supabase/server'
 import prisma from '@/lib/db'
+import { createClient } from '@/utils/supabase/server'
+import { NextResponse } from 'next/server'
 
 //  ESTA RUT ALA CREE PARA RECUPERAR EL TOKEN EN POSTMAN Y QUE ME DEJE INTERACTUAR COMO AUTH USER
 
@@ -34,6 +34,7 @@ export async function POST(req: Request) {
       { status: 200 },
     )
   } catch (error) {
+    console.error('Error interno del servidor:', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 },
@@ -48,6 +49,8 @@ export async function GET() {
     })
     return NextResponse.json(certificates)
   } catch (error) {
+    console.error('Error interno del servidor:', error)
+
     return NextResponse.json(
       { error: 'Error obteniendo certificados' },
       { status: 500 },

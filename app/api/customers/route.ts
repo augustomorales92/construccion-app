@@ -3,7 +3,7 @@ import prisma from '@/lib/db'
 import { customerSchema } from '@/schemas'
 import { NextRequest, NextResponse } from 'next/server'
 
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   const userAuth = await getUser()
   if (!userAuth) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -82,7 +82,7 @@ export async function PUT(req: NextRequest) {
       where: {
         id: cusotmerId,
       },
-      data: { name, email, phone},
+      data: { name, email, phone },
     })
     return NextResponse.json(updatedCustomer)
   } catch (error) {

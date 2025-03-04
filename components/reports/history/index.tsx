@@ -1,93 +1,93 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { DataTable } from "../data-table";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, PenLine } from "lucide-react";
-import Link from "next/link";
-import { EditReportDialog } from "./edit-report-dialog";
-import { Row } from "@tanstack/react-table";
+import { Button } from '@/components/ui/button'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Row } from '@tanstack/react-table'
+import { ArrowLeft, PenLine } from 'lucide-react'
+import Link from 'next/link'
+import { useState } from 'react'
+import { DataTable } from '../data-table'
+import { EditReportDialog } from './edit-report-dialog'
 
 // Tipos
-type Status = "pendiente" | "aprobado" | "rechazado";
-type ReportType = "diario" | "quincenal";
+type Status = 'pendiente' | 'aprobado' | 'rechazado'
+type ReportType = 'diario' | 'quincenal'
 
 interface Report {
-  id: string;
-  fecha: string;
-  tipo: ReportType;
-  contenido: string;
-  estado: Status;
-  autor: string;
+  id: string
+  fecha: string
+  tipo: ReportType
+  contenido: string
+  estado: Status
+  autor: string
 }
 
 // Datos de ejemplo
 const historicalReports: Report[] = [
   {
-    id: "1",
-    fecha: "2024-02-20",
-    tipo: "diario",
-    contenido: "Reporte diario del equipo A",
-    estado: "aprobado",
-    autor: "Juan Pérez",
+    id: '1',
+    fecha: '2024-02-20',
+    tipo: 'diario',
+    contenido: 'Reporte diario del equipo A',
+    estado: 'aprobado',
+    autor: 'Juan Pérez',
   },
   {
-    id: "2",
-    fecha: "2024-02-21",
-    tipo: "diario",
-    contenido: "Reporte con errores de formato",
-    estado: "rechazado",
-    autor: "María García",
+    id: '2',
+    fecha: '2024-02-21',
+    tipo: 'diario',
+    contenido: 'Reporte con errores de formato',
+    estado: 'rechazado',
+    autor: 'María García',
   },
   {
-    id: "3",
-    fecha: "2024-02-15",
-    tipo: "quincenal",
-    contenido: "Certificado quincenal aprobado",
-    estado: "aprobado",
-    autor: "Carlos López",
+    id: '3',
+    fecha: '2024-02-15',
+    tipo: 'quincenal',
+    contenido: 'Certificado quincenal aprobado',
+    estado: 'aprobado',
+    autor: 'Carlos López',
   },
   {
-    id: "4",
-    fecha: "2024-02-15",
-    tipo: "quincenal",
-    contenido: "Certificado con información incompleta",
-    estado: "rechazado",
-    autor: "Ana Martínez",
+    id: '4',
+    fecha: '2024-02-15',
+    tipo: 'quincenal',
+    contenido: 'Certificado con información incompleta',
+    estado: 'rechazado',
+    autor: 'Ana Martínez',
   },
-];
+]
 
 // Columnas para la tabla
 const columns = ({ onEdit }: { onEdit: (report: Report) => void }) => [
   {
-    accessorKey: "fecha",
-    header: "Fecha",
+    accessorKey: 'fecha',
+    header: 'Fecha',
     cell: ({ row }: { row: Row<Report> }) => (
-      <div className="text-xs md:text-sm">{row.getValue("fecha")}</div>
+      <div className="text-xs md:text-sm">{row.getValue('fecha')}</div>
     ),
   },
   {
-    accessorKey: "autor",
-    header: "Autor",
+    accessorKey: 'autor',
+    header: 'Autor',
     cell: ({ row }: { row: Row<Report> }) => (
-      <div className="text-xs md:text-sm">{row.getValue("autor")}</div>
+      <div className="text-xs md:text-sm">{row.getValue('autor')}</div>
     ),
   },
   {
-    accessorKey: "contenido",
-    header: "Contenido",
+    accessorKey: 'contenido',
+    header: 'Contenido',
     cell: ({ row }: { row: Row<Report> }) => (
       <div className="text-xs md:text-sm max-w-[200px] truncate">
-        {row.getValue("contenido")}
+        {row.getValue('contenido')}
       </div>
     ),
   },
   {
-    id: "actions",
+    id: 'actions',
     cell: ({ row }: { row: Row<Report> }) => {
-      const report = row.original as Report;
-      return report.estado === "rechazado" ? (
+      const report = row.original as Report
+      return report.estado === 'rechazado' ? (
         <Button
           variant="ghost"
           size="sm"
@@ -96,35 +96,35 @@ const columns = ({ onEdit }: { onEdit: (report: Report) => void }) => [
         >
           <PenLine className="h-3 w-3 md:h-4 md:w-4" />
         </Button>
-      ) : null;
+      ) : null
     },
   },
-];
+]
 
 export default function HistoryPage() {
-  const [reports, setReports] = useState<Report[]>(historicalReports);
-  const [selectedReport, setSelectedReport] = useState<Report | null>(null);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [reports, setReports] = useState<Report[]>(historicalReports)
+  const [selectedReport, setSelectedReport] = useState<Report | null>(null)
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
 
   const handleEdit = (report: Report) => {
-    setSelectedReport(report);
-    setIsEditDialogOpen(true);
-  };
+    setSelectedReport(report)
+    setIsEditDialogOpen(true)
+  }
 
   const handleUpdate = (updatedReport: Report) => {
     setReports(
       reports.map((report) =>
-        report.id === updatedReport.id ? updatedReport : report
-      )
-    );
-    setIsEditDialogOpen(false);
-  };
+        report.id === updatedReport.id ? updatedReport : report,
+      ),
+    )
+    setIsEditDialogOpen(false)
+  }
 
   const filterReports = (tipo: ReportType, estado: Status) => {
     return reports.filter(
-      (report) => report.tipo === tipo && report.estado === estado
-    );
-  };
+      (report) => report.tipo === tipo && report.estado === estado,
+    )
+  }
 
   return (
     <div className="container mx-auto py-4 md:py-10 px-2 md:px-4 space-y-6">
@@ -155,7 +155,7 @@ export default function HistoryPage() {
             </h3>
             <DataTable
               columns={columns({ onEdit: handleEdit })}
-              data={filterReports("diario", "aprobado")}
+              data={filterReports('diario', 'aprobado')}
             />
           </div>
           <div>
@@ -164,7 +164,7 @@ export default function HistoryPage() {
             </h3>
             <DataTable
               columns={columns({ onEdit: handleEdit })}
-              data={filterReports("diario", "rechazado")}
+              data={filterReports('diario', 'rechazado')}
             />
           </div>
         </TabsContent>
@@ -176,7 +176,7 @@ export default function HistoryPage() {
             </h3>
             <DataTable
               columns={columns({ onEdit: handleEdit })}
-              data={filterReports("quincenal", "aprobado")}
+              data={filterReports('quincenal', 'aprobado')}
             />
           </div>
           <div>
@@ -185,7 +185,7 @@ export default function HistoryPage() {
             </h3>
             <DataTable
               columns={columns({ onEdit: handleEdit })}
-              data={filterReports("quincenal", "rechazado")}
+              data={filterReports('quincenal', 'rechazado')}
             />
           </div>
         </TabsContent>
@@ -200,5 +200,5 @@ export default function HistoryPage() {
         />
       )}
     </div>
-  );
+  )
 }

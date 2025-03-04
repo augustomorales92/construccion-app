@@ -29,6 +29,7 @@ export async function GET() {
     })
     return NextResponse.json(projects)
   } catch (error) {
+    console.log(error)
     return NextResponse.json(
       { error: 'Error obteniendo certificados' },
       { status: 500 },

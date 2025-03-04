@@ -12,7 +12,7 @@ export default function Grid({
 }) {
   const router = useRouter()
 
-  const [emblaRef] = useEmblaCarousel({
+  const [_emblaRef] = useEmblaCarousel({
     slidesToScroll: 1,
     align: 'start',
     containScroll: 'trimSnaps',
