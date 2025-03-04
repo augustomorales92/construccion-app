@@ -193,7 +193,7 @@ export default function SpreadsheetDialog({
                         onActivate={() =>
                           setActiveCell({ row: rowIndex, col: colIndex })
                         }
-                        readOnly={!isEditing}
+                        readOnly={!isEditing || !isAdmin}
                       />
                     )),
                 )}
