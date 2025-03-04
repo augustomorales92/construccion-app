@@ -25,7 +25,7 @@ export default function Cell({
   isEven,
   isActive,
   onActivate,
-  readOnly, // Recibe la prop readOnly
+  readOnly,
 }: CellProps) {
   const [isEditing, setIsEditing] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
