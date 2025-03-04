@@ -100,8 +100,8 @@ export async function toggleUserFavorite(id?: string) {
 
 export async function updateProfileAction(
   id: string,
-  formData: FormData,
   prevState: { error?: string; success?: string } | null | undefined,
+  formData: FormData,
 ) {
   const supabase = await createAdminClient()
 

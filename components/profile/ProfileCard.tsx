@@ -99,7 +99,7 @@ export default function ProfileForm({ user }: { user: any }) {
     formData.append('bio', data.bio || '')
 
     try {
-      await updateProfileAction(user.id, formData, null)
+      await updateProfileAction(user.id, null, formData)
       toast.success('Profile updated successfully')
     } catch (error) {
       toast.error('Failed to update profile')

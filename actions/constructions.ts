@@ -188,7 +188,7 @@ export async function getIncidentsByConstructionId(
 type FormDataValues = z.infer<typeof projectSchema>
 
 export async function createProject(
-  formData: FormDataValues,
+  formData: FormData,
 ): Promise<{ success: boolean; error?: string }> {
   const userAuth = await getUser()
 
@@ -206,7 +206,11 @@ export async function createProject(
     }
   }
 
-  const { name, description, address, budget, projectNumber } = formData
+  const name = formData.get('name') as string
+  const description = formData.get('description') as string
+  const address = formData.get('address') as string
+  const budget = Number(formData.get('budget'))
+  const projectNumber = formData.get('projectNumber') as string
 
   const accessCode = uuidv4()
   try {
