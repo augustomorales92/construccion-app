@@ -1,25 +1,185 @@
-
-generator client {
-  provider = "prisma-client-js"
-}
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
 
-model Work {
-  id        Int     @id @default(autoincrement())
-  title     String
-  content   String?
-  published Boolean @default(false)
-  owner    User?   @relation(fields: [ownerId], references: [id])
-  ownerId  Int?
+generator client {
+  provider = "prisma-client-js"
 }
 
 model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
-  works Work[]
+  id            String         @id @default(uuid())
+  email         String         @unique
+  name          String?
+  role          String?
+  projects      UserProject[]
+  incidents     Incident[]
+  notifications Notification[]
+  messages      Message[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@map("users")
+}
+
+model Project {
+  id                   String         @id @default(uuid())
+  name                 String
+  description          String?
+  address              String?
+  budget               Float?
+  progressTotal        Float?         @default(0)
+  totalCertifiedAmount Float?         @default(0)
+  accessCode           String
+  projectNumber        String?
+  images               String[]       @default([])
+  files                String[]       @default([])
+  certificates         Certificate[]
+  items                Item[]
+  users                UserProject[]
+  incidents            Incident[]
+  customerId           String?
+  customer             Customer?      @relation(fields: [customerId], references: [id])
+  managerId            String?
+  manager              Manager?       @relation(fields: [managerId], references: [id])
+  notifications        Notification[]
+  messages             Message[]
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
+
+  @@map("projects")
+}
+
+model UserProject {
+  userId    String
+  user      User    @relation(fields: [userId], references: [id])
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id])
+
+  @@id([userId, projectId])
+  @@map("users_projects")
+}
+
+model Incident {
+  id          String   @id @default(uuid())
+  description String
+  date        DateTime @default(now())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("incidents")
+}
+
+model Certificate {
+  id                  String                    @id @default(uuid())
+  version             Int?
+  certificateItems    CertificateItemProgress[]
+  status              ProgressUpdateStatus      @default(PENDING)
+  certificateAmount   Float?                    @default(0)
+  issuedAt            DateTime                  @default(now())
+  Project             Project                   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId           String
+
+  @@map("certificates")
+}
+
+model Item {
+  id               String                    @id @default(uuid())
+  section          String?
+  description      String?
+  unit             String?
+  quantity         Float?
+  price            Float?
+  progressItem     Float?                    @default(0)
+  certificateItems CertificateItemProgress[]
+  projectId        String
+  Project          Project                   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt        DateTime                  @default(now())
+  updatedAt        DateTime                  @updatedAt
+
+  @@map("items")
+}
+
+model CertificateItemProgress {
+  id            String      @id @default(uuid())
+  certificate   Certificate @relation(fields: [certificateId], references: [id], onDelete: Cascade)
+  certificateId String
+  item          Item        @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  itemId        String
+  progress      Float       @default(0)
+  date          DateTime    @default(now())
+  notes         String?
+  photos        String[]    @default([])
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@map("certificate_items")
+}
+
+enum ProgressUpdateStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("notifications")
+}
+
+model Manager {
+  id        String    @id @default(uuid())
+  name      String
+  email     String?
+  phone     String?
+  projects  Project[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("managers")
+}
+
+model Customer {
+  id        String    @id @default(uuid())
+  name      String
+  email     String?
+  phone     String?
+  projects  Project[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("customers")
+}
+
+enum MessageType {
+  Receiver
+  Sender
+}
+
+model Message {
+  id        String      @id @default(uuid())
+  userId    String
+  user      User        @relation(fields: [userId], references: [id])
+  type      MessageType
+  projectId String?
+  project   Project?    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  content   String
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  @@map("messages")
 }

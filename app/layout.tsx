@@ -2,7 +2,10 @@ import Layout from '@/components/layout'
 import { Toaster } from '@/components/ui/sonner'
 import { ThemeProvider } from 'next-themes'
 import { Geist } from 'next/font/google'
+//import Layout from './(auth-pages)/layout'
+
 import './globals.css'
+import getUser from '@/actions/auth'
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`

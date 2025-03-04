@@ -13,7 +13,7 @@ export default async function Login(props: { searchParams: Promise<Message> }) {
   const searchParams = await props.searchParams
   return (
     <div className="h-full flex justify-center items-center w-full">
-      <Card className="w-96 min-h-[70vh] ">
+      <Card className="w-96 min-h-[70vh]">
         <CardHeader>
           <div className="text-center">
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
