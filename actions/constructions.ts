@@ -1,94 +1,93 @@
 'use server'
 
-
 import prisma from '@/lib/db'
-import { revalidatePath } from 'next/cache'
-import getUser from './auth'
-import { projectSchema } from '@/schemas'
-import { z } from 'zod'
-import { v4 as uuidv4 } from 'uuid'
 import { Incidents } from '@/lib/types'
+import { projectSchema } from '@/schemas'
+import { revalidatePath } from 'next/cache'
+import { v4 as uuidv4 } from 'uuid'
+import { z } from 'zod'
+import getUser from './auth'
 
 const clientsSample = [
   {
     id: 1,
-    name: "Juan Pérez",
-    email: "juan@example.com",
-    phone: "123-456-7890",
+    name: 'Juan Pérez',
+    email: 'juan@example.com',
+    phone: '123-456-7890',
   },
   {
     id: 2,
-    name: "María García",
-    email: "maria@example.com",
-    phone: "098-765-4321",
+    name: 'María García',
+    email: 'maria@example.com',
+    phone: '098-765-4321',
   },
-];
+]
 
 const managerSample = [
   {
     id: 1,
-    name: "Pedro",
-    email: "",
-    phone: "",
+    name: 'Pedro',
+    email: '',
+    phone: '',
   },
   {
     id: 2,
-    name: "Luis",
-    email: "",
-    phone: "",
+    name: 'Luis',
+    email: '',
+    phone: '',
   },
-];
+]
 
 const constructions = [
   {
-    id: "1",
-    name: "Casa Moderna",
+    id: '1',
+    name: 'Casa Moderna',
     customer: clientsSample[0],
     progressPercent: 30,
     budget: 500000,
-    materialsPurchased: ["Cemento", "Ladrillos", "Acero"],
-    estimatedTime: "6 meses",
-    description: "Construcción de una casa moderna de dos pisos.",
-    images: ["/images/placeholder.svg?height=200&width=300"],
+    materialsPurchased: ['Cemento', 'Ladrillos', 'Acero'],
+    estimatedTime: '6 meses',
+    description: 'Construcción de una casa moderna de dos pisos.',
+    images: ['/images/placeholder.svg?height=200&width=300'],
     certificates: [],
-    password: "1234",
-    ref: "#234234234234",
+    password: '1234',
+    ref: '#234234234234',
     manager: managerSample[0],
-    status: "En progreso",
+    status: 'En progreso',
   },
   {
-    id: "2",
-    name: "Oficina Comercial",
+    id: '2',
+    name: 'Oficina Comercial',
     customer: clientsSample[1],
     progressPercent: 60,
     budget: 750000,
-    materialsPurchased: ["Vidrio", "Aluminio", "Cableado"],
-    estimatedTime: "4 meses",
+    materialsPurchased: ['Vidrio', 'Aluminio', 'Cableado'],
+    estimatedTime: '4 meses',
     description:
-      "Remodelación de oficinas comerciales en el centro de la ciudad.",
-    images: ["/images/placeholder.svg?height=200&width=300"],
+      'Remodelación de oficinas comerciales en el centro de la ciudad.',
+    images: ['/images/placeholder.svg?height=200&width=300'],
     certificates: [],
-    password: "3456",
-    ref: "#2352543534",
+    password: '3456',
+    ref: '#2352543534',
     manager: managerSample[1],
-    status: "En progreso",
+    status: 'En progreso',
   },
   {
-    id: "3",
-    name: "Edificio 3 plantas",
+    id: '3',
+    name: 'Edificio 3 plantas',
     customer: clientsSample[1],
     progressPercent: 60,
     budget: 750000,
-    materialsPurchased: ["Vidrio", "Aluminio", "Cableado"],
-    estimatedTime: "8 meses",
+    materialsPurchased: ['Vidrio', 'Aluminio', 'Cableado'],
+    estimatedTime: '8 meses',
     description:
-      "Construcción de un edificio de 3 plantas en el centro de la ciudad.",
-    images: ["/images/placeholder.svg?height=200&width=300"],
+      'Construcción de un edificio de 3 plantas en el centro de la ciudad.',
+    images: ['/images/placeholder.svg?height=200&width=300'],
     certificates: [],
-    password: "1111",
-    ref: "#5432349",
+    password: '1111',
+    ref: '#5432349',
     manager: managerSample[0],
-    status: "En progreso",
+    status: 'En progreso',
   },
 ]
 
@@ -169,8 +168,8 @@ export async function verifyPassword(
   constructionId: string | undefined,
   password: string,
 ) {
-  const construction = constructions.find((c) => c.id === constructionId);
-  return construction?.password === password;
+  const construction = constructions.find((c) => c.id === constructionId)
+  return construction?.password === password
 }
 
 export async function getConstructionById(id: string) {
@@ -282,7 +281,7 @@ export async function getProjectsByUser() {
 
 export async function getUsersByWork(workId: string) {
   try {
-    const workWithUsers = await prisma.work.findUnique({
+    const workWithUsers = await prisma.project.findUnique({
       where: {
         id: workId,
       },
@@ -310,19 +309,14 @@ export async function getUsersByWork(workId: string) {
 
 export async function getClients() {
   // Aquí iría la lógica para obtener todos los clientes de la base de datos
-  return clientsSample;
+  return clientsSample
 }
 
 export async function getManagers() {
-  return managerSample;
-}
-
-export async function createProject(formData: FormData) {
-  // Aquí iría la lógica para crear una nueva obra en la base de datos
-  console.log("Creando nueva obra:", Object.fromEntries(formData));
+  return managerSample
 }
 
 export async function updateProject(formData: FormData) {
   // Aquí iría la lógica para actualizar una obra existente en la base de datos
-  console.log("Actualizando obra:", Object.fromEntries(formData));
+  console.log('Actualizando obra:', Object.fromEntries(formData))
 }
