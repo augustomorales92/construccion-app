@@ -51,17 +51,13 @@ export const signUpAction = async (role: string | null, formData: FormData) => {
     },
   })
 
-  if (error) {
-    console.error(error.code + ' ' + error.message)
-    return encodedRedirect('error', '/sign-up', error.message)
-  } else {
     return encodedRedirect(
       'success',
       '/sign-up',
       'Thanks for signing up! Please check your email for a verification link.',
     )
   }
-}
+
 
 export const signInAction = async (formData: FormData) => {
   const email = formData.get("email") as string;

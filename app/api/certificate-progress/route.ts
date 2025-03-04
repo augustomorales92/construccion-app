@@ -168,6 +168,7 @@ export async function POST(req: Request) {
         : 0
 
       console.log('progressTotal:', projectProgress)
+
       await tx.project.update({
         where: { id: projectId },
         data: {

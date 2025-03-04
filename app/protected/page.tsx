@@ -1,7 +1,5 @@
 import getUser from '@/actions/auth'
 import ReportsPage from '@/components/reports'
-import { InfoIcon } from 'lucide-react'
-
 import { redirect } from 'next/navigation'
 
 export default async function ProtectedPage() {
