@@ -10,7 +10,9 @@ export default async function Constructions() {
     getMyConstructions(),
     getUser(),
   ])
+
   const isAdmin = user?.user_metadata.role === 'ADMIN'
+  
   return (
     <div className="min-h-custom md:h-custom w-full bg-background container">
       <div className="flex flex-col md:flex-row justify-between items-center mb-4 p-4 md:p-6 gap-4">
