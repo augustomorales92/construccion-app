@@ -81,7 +81,6 @@ model Certificate {
   certificateItems    CertificateItemProgress[]
   status              ProgressUpdateStatus      @default(PENDING)
   certificateAmount   Float?                    @default(0)
-  certificateProgress Float?                    @default(0)
   issuedAt            DateTime                  @default(now())
   Project             Project                   @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId           String

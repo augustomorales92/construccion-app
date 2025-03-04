@@ -3,6 +3,7 @@ import prisma from '@/lib/db'
 import { isSameDayFn } from '@/lib/utils'
 import { updateProgressSchema } from '@/schemas'
 import { NextResponse } from 'next/server'
+import { calculateNewCertificateProgress, calculateSameDayCertificateProgress } from './utils'
 
 export async function POST(req: Request) {
   try {
@@ -52,8 +53,16 @@ export async function POST(req: Request) {
       const bodyDate = new Date(date)
       const certificateDate = new Date(latestCertificate.issuedAt)
       const isSameDay = isSameDayFn(bodyDate, certificateDate)
+      let certificateId 
+      
+      if(isSameDay) {
+        certificateId = await calculateSameDayCertificateProgress(tx, latestCertificate.id, projectId, project.budget, updatedItems)
+      }
+      else {
+        certificateId = await calculateNewCertificateProgress(tx ,latestCertificate.version, projectId, project.budget,updatedItems)
+      }
 
-      let certificateId
+/*       let certificateId
 
       if (isSameDay) {
         console.log('mismo dia certific existent', latestCertificate.id)
@@ -104,6 +113,7 @@ export async function POST(req: Request) {
       }
 
       console.log('id del certificado', certificateId)
+
       // Añadir la nueva columan en item de progreso general... y ese progress es el que hay que comparara
       // Traigo progreso previo aprobado de cada item
       const itemsWithProgress = await tx.item.findMany({
@@ -176,7 +186,7 @@ export async function POST(req: Request) {
           progressTotal: projectProgress,
         },
       })
-
+ */
       return { project, certificateId }
     })
     return NextResponse.json(updatedProject, { status: 200 })
