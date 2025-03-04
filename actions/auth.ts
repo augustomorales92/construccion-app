@@ -1,22 +1,21 @@
 'use server'
 
-import { createAdminClient, createClient } from '@/utils/supabase/server'
+import {
+  createAdminClient,
+  createClient,
+  createServerComponentClient,
+} from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
 
 export default async function getUser() {
-  try {
-    const supabase = await createClient()
+  const supabase = await createServerComponentClient({ cookies })
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
-    return user
-  } catch (error) {
-    console.error('Error getting user', error)
-    return null
-  }
+  return user
 }
 
 export async function getLoggedInUser() {
