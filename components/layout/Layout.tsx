@@ -10,7 +10,6 @@ import {
   HardHat,
   Home,
   Menu,
-  MessageSquare,
   User as UserIcon,
   Users,
   X,
