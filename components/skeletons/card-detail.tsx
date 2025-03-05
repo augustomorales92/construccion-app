@@ -21,9 +21,7 @@ export default function CardDetailSkeleton() {
           </span>
 
           <span className="grid grid-cols-2 md:flex items-center gap-4 w-full justify-between sm:justify-end">
-            <Skeleton className="h-10 w-24 rounded-md" />
-            <Skeleton className="h-10 w-24 rounded-md" />
-            <Skeleton className="h-10 w-24 rounded-md" />
+            <Skeleton className="h-10 w-1/2 rounded-md" />
           </span>
         </div>
 

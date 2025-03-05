@@ -1,18 +1,16 @@
-import getUser from '@/actions/auth'
 import {
   getConstructionById,
   getIncidentsByConstructionId,
 } from '@/actions/constructions'
 import CardDetails from '@/components/landing/Details'
-import { notFound, redirect } from 'next/navigation'
+import { notFound } from 'next/navigation'
 
 export default async function Details({
   params,
 }: {
   params: Promise<{ id: string }>
 }) {
-  const [user, param] = await Promise.all([getUser(), params])
-  const id = param.id
+  const id = (await params).id
 
   let construction = null
   let incidents = null
@@ -27,16 +25,5 @@ export default async function Details({
     }
   }
 
-  const isFavorite = user?.user_metadata.favorites?.includes(id)
-  if (user && user.user_metadata.role !== 'ADMIN' && !isFavorite) {
-    return redirect('/')
-  }
-
-  return (
-    <CardDetails
-      construction={construction}
-      incidents={incidents}
-      isFavorite={isFavorite}
-    />
-  )
+  return <CardDetails construction={construction} incidents={incidents} />
 }

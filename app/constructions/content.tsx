@@ -4,31 +4,24 @@ import CardDetails from '@/components/landing/Details'
 import CardDetailSkeleton from '@/components/skeletons/card-detail'
 import useUser from '@/hooks/use-user'
 import useFetchQuery from '@/hooks/useFetchQuery'
-import { constructions, sampleIncidents } from '@/lib/constants'
+import { getConstructionById } from '@/services/projects'
+import Cookies from 'js-cookie'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import Cookies from 'js-cookie'
 
 type Props = {
   password?: string
   id: string
 }
 
-const getConstructionById = async (id: string) => {
-  const construction = constructions.find(
-    (construction) => construction.id === id,
-  )
-  const incidents = sampleIncidents
-  return { construction, incidents }
-}
-
 export default function Content({ id, password }: Props) {
-  const { user, favorites, isAdmin } = useUser()
-  const isFavorite = favorites.includes(id)
-  const backUrl = '/'
   const router = useRouter()
+  const { user, favorites, isAdmin } = useUser()
   const [showPasswordModal, setShowPasswordModal] = useState(false)
 
+  const isFavorite = favorites.includes(id)
+  const backUrl = '/'
+  
   const { data, isLoading } = useFetchQuery(
     ['construction', id],
     () => getConstructionById(id),
@@ -68,16 +61,7 @@ export default function Content({ id, password }: Props) {
         setShowPasswordModal(true)
       }
     }
-  }, [
-    user,
-    password,
-    data,
-    isFavorite,
-    isLoading,
-    router,
-    backUrl,
-    id,
-  ])
+  }, [user, password, data, isFavorite, isLoading, router, backUrl, id])
 
   if (isLoading) {
     return <CardDetailSkeleton />

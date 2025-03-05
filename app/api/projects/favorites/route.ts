@@ -2,13 +2,14 @@ import getUser from '@/actions/auth'
 import prisma from '@/lib/db'
 import { NextResponse } from 'next/server'
 
-export async function GET(req: Request) {
-  const url = new URL(req.url)
-  const query = url.searchParams.get('query') ?? ''
+export async function GET(_req: Request) {
   const userAuth = await getUser()
+
   if (!userAuth) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
+
+  const favorites = userAuth.user_metadata?.favorites || []
 
   try {
     const projects = await prisma.project.findMany({
@@ -18,20 +19,9 @@ export async function GET(req: Request) {
             userId: userAuth.id,
           },
         },
-        OR: [
-          {
-            name: {
-              contains: query,
-              mode: 'insensitive',
-            },
-          },
-          {
-            projectNumber: {
-              contains: query,
-              mode: 'insensitive',
-            },
-          },
-        ],
+        id: {
+          in: favorites,
+        },
       },
       include: {
         certificates: {

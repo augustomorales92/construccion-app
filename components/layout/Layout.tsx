@@ -58,7 +58,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             icon: Home,
             targetHrefs: ['^/constructions/\\d+$'],
           },
-          { href: '/mensajes', label: 'Mensajes', icon: MessageSquare },
           { href: '/protected/profile', label: 'Perfil', icon: UserIcon },
         ]
     : []

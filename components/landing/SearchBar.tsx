@@ -5,19 +5,13 @@ import type React from 'react'
 import { Input } from '@/components/ui/input'
 import useDebounce from '@/hooks/use-debounce'
 import useFetchQuery from '@/hooks/useFetchQuery'
-import { constructions } from '@/lib/constants'
+import { getConstructionsByQuery } from '@/services/projects'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Home, Search } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Construction } from '../../lib/types'
 import PasswordModal from './PasswordModal'
-
-const getConstructions = async (query: string) => {
-  return constructions.filter((construction) =>
-    construction.name.toLowerCase().includes(query.toLowerCase()),
-  )
-}
 
 function ActionSearchBar({ favorites }: { favorites?: string[] }) {
   const params = useSearchParams()
@@ -40,7 +34,7 @@ function ActionSearchBar({ favorites }: { favorites?: string[] }) {
 
   const { data, isLoading } = useFetchQuery(
     ['constructions', debouncedQuery],
-    () => getConstructions(debouncedQuery),
+    () => getConstructionsByQuery(debouncedQuery),
   )
 
   useEffect(() => {

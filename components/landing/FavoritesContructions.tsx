@@ -2,15 +2,9 @@
 
 import useUser from '@/hooks/use-user'
 import useFetchQuery from '@/hooks/useFetchQuery'
-import { constructions } from '@/lib/constants'
+import { getFavoriteConstructions } from '@/services/projects'
 import CardGridSkeleton from '../skeletons/card-grid'
 import CardGrid from './CardGrid'
-
-export async function getFavoriteConstructions(favorites: string[]) {
-  return constructions.filter((construction) =>
-    favorites.includes(construction.id),
-  )
-}
 
 export default function FavoritesContructions() {
   const { user, favorites } = useUser()
