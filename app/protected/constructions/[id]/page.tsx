@@ -36,7 +36,6 @@ export default async function Details({
     <CardDetails
       construction={construction}
       incidents={incidents}
-      user={user}
       isFavorite={isFavorite}
     />
   )
