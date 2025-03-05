@@ -2,7 +2,7 @@
 
 import { signOutAction } from '@/actions/actions'
 import { Button } from '@/components/ui/button'
-import { User } from '@supabase/supabase-js'
+import useUser from '@/hooks/use-user'
 import {
   BrickWall,
   Briefcase,
@@ -16,29 +16,25 @@ import {
   X,
 } from 'lucide-react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
+import { useEffect, useState, useTransition } from 'react'
 import { ThemeSwitcher } from '../theme-switcher'
 import Frame from './navbar'
 
-export default function Layout({
-  children,
-  user,
-}: {
-  children: React.ReactNode
-  user: User | null
-}) {
+export default function Layout({ children }: { children: React.ReactNode }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const pathname = usePathname()
-
+  const { user, setUser, isAdmin } = useUser()
+  const router = useRouter()
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen)
+  const [isPending, startTransition] = useTransition()
 
   useEffect(() => {
     setIsMobileMenuOpen(false)
   }, [pathname])
 
   const navItems = user
-    ? user.user_metadata.role === 'ADMIN'
+    ? isAdmin
       ? [
           {
             href: '/protected',
@@ -67,12 +63,30 @@ export default function Layout({
         ]
     : []
 
+  const logout = () => {
+    startTransition(async () => {
+      try {
+        await signOutAction()
+        router.push('/')
+      } catch (error) {
+        console.error('Error cerrando sesión:', error)
+      } finally {
+        setUser(null)
+      }
+    })
+  }
+
+  const logoUrl = isAdmin ? '/protected' : '/'
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header para desktop */}
-      <header className="border-b border-b-foreground/10 shadow-md hidden md:block">
+      <header className="border-b border-b-foreground/10 shadow-md hidden lg:block">
         <div className="container mx-auto px-4 h-16 flex justify-between items-center">
-          <Link href="/" className="flex gap-2 items-center" prefetch={true}>
+          <Link
+            href={logoUrl}
+            className="flex gap-2 items-center"
+            prefetch={true}
+          >
             <BrickWall className="w-7 h-7" />
             <span className="text-lg">Busca tu obra</span>
           </Link>
@@ -94,9 +108,9 @@ export default function Layout({
               <>
                 <Frame tabs={navItems} />
 
-                <form action={signOutAction}>
+                <form action={logout}>
                   <Button type="submit" variant="ghost" size="sm">
-                    Cerrar sesión
+                    {isPending ? 'Cerrando sesión...' : 'Cerrar sesión'}
                   </Button>
                 </form>
               </>
@@ -106,9 +120,13 @@ export default function Layout({
       </header>
 
       {/* Header para móvil */}
-      <header className="border-b border-b-foreground/10 shadow-md md:hidden">
+      <header className="border-b border-b-foreground/10 shadow-md lg:hidden">
         <div className="container mx-auto px-4 h-16 flex justify-between items-center">
-          <Link href="/" className="flex gap-2 items-center" prefetch={true}>
+          <Link
+            href={logoUrl}
+            className="flex gap-2 items-center"
+            prefetch={true}
+          >
             <BrickWall className="w-4 h-4" />
             <span className="text-sm">Busca tu obra</span>
           </Link>
@@ -144,18 +162,18 @@ export default function Layout({
 
       {/* Menú móvil */}
       {isMobileMenuOpen && user && (
-        <nav className="shadow-md md:hidden fixed top-[64px] left-0 right-0 z-50">
+        <nav className="shadow-md lg:hidden fixed top-[64px] left-0 right-0 z-50">
           <div className="px-1 mx-auto bg-background flex flex-col">
             <Frame tabs={navItems} isMobile />
             <div className="px-4 py-2">
-              <form action={signOutAction}>
+              <form action={logout}>
                 <Button
                   type="submit"
                   variant="ghost"
                   size="sm"
                   className="w-full justify-start"
                 >
-                  Cerrar sesión
+                  {isPending ? 'Cerrando sesión...' : 'Cerrar sesión'}
                 </Button>
               </form>
             </div>
@@ -164,7 +182,7 @@ export default function Layout({
       )}
 
       {/* Contenido principal */}
-      <main className="w-full flex flex-col min-h-custom items-center">
+      <main className="w-full flex flex-col flex-grow">
         <div className="flex-grow w-full overflow-auto">{children}</div>
       </main>
 

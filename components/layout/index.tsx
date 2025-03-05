@@ -1,4 +1,5 @@
 import getUser from '@/actions/auth'
+import { UserProvider } from '@/contexts/session'
 import Layout from './Layout'
 
 interface Props {
@@ -7,5 +8,10 @@ interface Props {
 
 export default async function LayoutPage({ children }: Props) {
   const user = await getUser()
-  return <Layout user={user}>{children}</Layout>
+
+  return (
+    <UserProvider user={user}>
+      <Layout>{children}</Layout>
+    </UserProvider>
+  )
 }

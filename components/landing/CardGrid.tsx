@@ -15,7 +15,7 @@ export default function CardGrid({
   isBlur,
   userLogged,
 }: {
-  constructions: Construction[]
+  constructions?: Construction[]
   favorites?: string[]
   isBlur?: boolean
   userLogged?: boolean
@@ -47,7 +47,7 @@ export default function CardGrid({
     <div className=" py-8">
       <div className="overflow-hidden rounded-xl p-1" ref={emblaRef}>
         <div className="flex ">
-          {constructions.map((card) => (
+          {constructions?.map((card) => (
             <div
               key={card.id}
               className="flex-[0_0_100%] min-w-0 sm:flex-[0_0_33.33%] pl-4 first:pl-0 rounded-xl p-2"

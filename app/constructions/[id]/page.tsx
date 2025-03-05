@@ -1,50 +1,14 @@
-import getUser from '@/actions/auth'
-import {
-  getConstructionById,
-  getIncidentsByConstructionId,
-} from '@/actions/constructions'
-import CardDetails from '@/components/landing/Details'
 import { cookies } from 'next/headers'
-import { redirect } from 'next/navigation'
+import Content from '../content'
 
 export default async function Details({
   params,
 }: {
   params: Promise<{ id: string }>
 }) {
-  const id = (await params).id
-  const [construction, incidents, user, cookieStore] = await Promise.all([
-    getConstructionById(id),
-    getIncidentsByConstructionId(Number.parseInt(id)),
-    getUser(),
-    cookies(),
-  ])
-
+  const [urlParams, cookieStore] = await Promise.all([params, cookies()])
+  const id = urlParams.id
   const password = cookieStore.get('password')?.value
-  const isIncorrectPassword = !user && password !== construction?.password
-  const isFavorite = user?.user_metadata.favorites?.includes(id)
 
-  const backUrl =`/`
-
-  if (user) {
-    const isAdmin = user.user_metadata.role === 'ADMIN'
-    if (isAdmin && (!isFavorite || isIncorrectPassword)) {
-      return redirect('/')
-    }
-  } else {
-    if (isIncorrectPassword) {
-      return redirect('/')
-    }
-  }
-
-  return (
-    <CardDetails
-      construction={construction}
-      incidents={incidents}
-      user={user}
-      isFavorite={isFavorite}
-      isIncorrectPassword={isIncorrectPassword}
-      backUrl={backUrl}
-    />
-  )
+  return <Content id={id} password={password} />
 }

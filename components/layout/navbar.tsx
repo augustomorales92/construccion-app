@@ -21,79 +21,75 @@ interface FrameProps {
 export default function Frame({ tabs = [], isMobile }: FrameProps) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
   const [hoverStyle, setHoverStyle] = useState({})
-  const [activeStyle, setActiveStyle] = useState<{
-    left?: string
-    width?: string
-    top?: string
-    height?: string
-    bottom?: string
-  }>({})
+  const [activeStyle, setActiveStyle] = useState({})
   const tabRefs = useRef<(HTMLAnchorElement | null)[]>([])
   const pathname = usePathname()
 
   const activeIndex = tabs.findIndex((tab) => {
     const matches = tab.targetHrefs?.some((regex) =>
-      new RegExp(regex).test(pathname),
+      new RegExp(regex).test(pathname)
     )
     return tab.href === pathname || matches
   })
 
-  useEffect(() => {
-    if (tabs.length === 0) return
-
-    const updateStyles = () => {
-      if (hoveredIndex !== null) {
-        const hoveredElement = tabRefs.current[hoveredIndex]
-        if (hoveredElement) {
-          if (isMobile) {
-            setHoverStyle({
+  const updateStyles = () => {
+    if (hoveredIndex !== null) {
+      const hoveredElement = tabRefs.current[hoveredIndex]
+      if (hoveredElement) {
+        const hoverStyles = isMobile
+          ? {
               top: `${hoveredElement.offsetTop}px`,
               height: `${hoveredElement.offsetHeight}px`,
+              left: '0',
               width: '100%',
-            })
-          } else {
-            setHoverStyle({
+            }
+          : {
               left: `${hoveredElement.offsetLeft}px`,
               width: `${hoveredElement.offsetWidth}px`,
-            })
-          }
-        }
+              height: `${hoveredElement.offsetHeight}px`,
+              top: '0',
+            }
+        setHoverStyle(hoverStyles)
       }
+    }
 
-      if (activeIndex !== -1) {
-        const activeElement = tabRefs.current[activeIndex]
-        if (activeElement) {
-          if (isMobile) {
-            setActiveStyle({
+    if (activeIndex !== -1) {
+      const activeElement = tabRefs.current[activeIndex]
+      if (activeElement) {
+        const activeStyles = isMobile
+          ? {
               left: '0',
               top: `${activeElement.offsetTop}px`,
               height: `${activeElement.offsetHeight}px`,
               width: '2px',
-            })
-          } else {
-            setActiveStyle({
+            }
+          : {
               left: `${activeElement.offsetLeft}px`,
               width: `${activeElement.offsetWidth}px`,
               bottom: '-6px',
               height: '2px',
-            })
-          }
-        }
+            }
+        setActiveStyle(activeStyles)
       }
     }
+  }
 
+  useEffect(() => {
+    if (tabs.length === 0) return
+
+    // Actualizar estilos inmediatamente
     updateStyles()
-    if (!activeStyle.width && !activeStyle.height) {
-      requestAnimationFrame(updateStyles)
+
+    // Actualizar estilos después del siguiente frame
+    requestAnimationFrame(updateStyles)
+
+    // Agregar listener para cambios de tamaño
+    window.addEventListener('resize', updateStyles)
+
+    return () => {
+      window.removeEventListener('resize', updateStyles)
     }
-  }, [
-    hoveredIndex,
-    activeIndex,
-    activeStyle.width,
-    activeStyle.height,
-    tabs,
-    isMobile,
-  ])
+  }, [hoveredIndex, activeIndex, isMobile, tabs.length])
 
   if (tabs.length === 0) {
     return null
@@ -121,7 +117,9 @@ export default function Frame({ tabs = [], isMobile }: FrameProps) {
 
             {/* Tabs */}
             <div
-              className={`flex ${isMobile ? 'flex-col' : 'flex-row'} w-full`}
+              className={`relative flex ${
+                isMobile ? 'flex-col' : 'flex-row items-center'
+              } w-full`}
             >
               {tabs.map((tab, index) => {
                 const Icon = tab.icon
@@ -132,7 +130,7 @@ export default function Frame({ tabs = [], isMobile }: FrameProps) {
                     ref={(el) => {
                       tabRefs.current[index] = el
                     }}
-                    className={`w-full px-4 py-3 cursor-pointer transition-colors duration-300 ${
+                    className={`px-4 py-3 cursor-pointer transition-colors duration-300 ${
                       index === activeIndex
                         ? 'text-primary dark:text-primary'
                         : 'text-primary/50 dark:text-primary/50'

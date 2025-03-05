@@ -4,7 +4,7 @@
     "next",
     "prettier"
   ],
-  "plugins": ["prettier", "@typescript-eslint"],
+  "plugins": ["prettier", "@typescript-eslint", "@tanstack/eslint-plugin-query"],
   "parser": "@typescript-eslint/parser",
   "rules": {
     "semi": ["error", "never"],

@@ -2,7 +2,7 @@
 import { toggleUserFavorite } from '@/actions/auth'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { User } from '@supabase/supabase-js'
+import useUser from '@/hooks/use-user'
 import Cookies from 'js-cookie'
 import {
   ArrowLeft,
@@ -16,7 +16,7 @@ import {
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Certificates, Construction, Incidents } from '../../lib/types'
 import SpreadsheetDialog from '../Spreadsheet'
 import CertificateModal from './CertificateModal'
@@ -25,30 +25,26 @@ import PasswordModal from './PasswordModal'
 import { WhatsAppShareLinkPopover } from './ShareComponent'
 
 interface CardProps {
-  construction: Construction | null
-  incidents: Incidents[] | null
-  user: User | null
+  construction?: Construction | null
+  incidents?: Incidents[] | null
   isFavorite?: boolean
-  isIncorrectPassword?: boolean
   backUrl?: string
+  showPasswordModal?: boolean
 }
 
 export default function CardComponent({
   construction,
   incidents,
-  user,
   isFavorite,
-  isIncorrectPassword,
   backUrl,
+  showPasswordModal,
 }: CardProps) {
   const router = useRouter()
+  const { user, isAdmin } = useUser()
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0)
   const [modalOpen, setModalOpen] = useState(false)
-  const [PasswordModalOpen, setPasswordModalOpen] = useState(false)
   const pathname = usePathname()
-  const userRole = user?.user_metadata.role
   const isProtected = pathname.includes('/protected')
-  const isAdmin = userRole === 'ADMIN' && isProtected
   const imagesLength = construction?.images?.length || 1
 
   const nextPhoto = () => {
@@ -92,7 +88,7 @@ export default function CardComponent({
   }
 
   const toggleFavorite = async () => {
-    if (userRole) {
+    if (user) {
       await toggleUserFavorite(String(construction?.id))
     } else {
       Cookies.set('favorite', String(construction?.id))
@@ -100,19 +96,13 @@ export default function CardComponent({
     }
   }
 
-  useEffect(() => {
-    if (isIncorrectPassword && !isAdmin) {
-      setPasswordModalOpen(true)
-    }
-
-    Cookies.remove('password')
-  }, [construction])
-
   return (
     <div className="container mx-auto py-4">
-      <div className={`${isIncorrectPassword ? 'blur-md' : ''}`}>
+      <div className={`${showPasswordModal ? 'blur-md' : ''}`}>
         <div
-          className={`mb-4 flex justify-between items-center ${userRole === 'ADMIN' ? 'flex-col' : 'flex-row'} sm:flex-row gap-2 w-full`}
+          className={`mb-4 flex justify-between items-center ${
+            isAdmin ? 'flex-col' : 'flex-row'
+          } sm:flex-row gap-2 w-full`}
         >
           <span className="flex w-full ">
             <Button
@@ -157,7 +147,9 @@ export default function CardComponent({
                   height={500}
                   src={foto || '/images/placeholder.svg'}
                   alt={`Foto ${index + 1} de la Construction`}
-                  className={`absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-500 ${index === currentPhotoIndex ? 'opacity-100' : 'opacity-0'}`}
+                  className={`absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-500 ${
+                    index === currentPhotoIndex ? 'opacity-100' : 'opacity-0'
+                  }`}
                 />
               ))}
             </div>
@@ -167,7 +159,9 @@ export default function CardComponent({
                 onClick={toggleFavorite}
               >
                 <Heart
-                  className={`h-6 w-6 ${isFavorite ? 'text-red-500 fill-red-500' : 'text-black'}`}
+                  className={`h-6 w-6 ${
+                    isFavorite ? 'text-red-500 fill-red-500' : 'text-black'
+                  }`}
                 />
               </span>
             )}
@@ -249,7 +243,7 @@ export default function CardComponent({
                 <span className="flex items-center">
                   <h2 className="text-xl font-semibold">certificates</h2>
                 </span>
-                {userRole === 'ADMIN' && (
+                {isAdmin && (
                   <Button
                     variant="outline"
                     onClick={() => handleAddCertificado()}
@@ -297,11 +291,11 @@ export default function CardComponent({
           }
         />
       )}
-      {PasswordModalOpen && (
+      {showPasswordModal && (
         <PasswordModal
-          isOpen={PasswordModalOpen}
+          isOpen={showPasswordModal}
           onClose={() => {
-            router.push('/')
+            //router.push('/')
           }}
           card={construction}
         />

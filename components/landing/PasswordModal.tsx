@@ -19,7 +19,7 @@ import { Construction } from '../../lib/types'
 interface PasswordModalProps {
   isOpen: boolean
   onClose: () => void
-  card: Construction | null
+  card?: Construction | null
 }
 
 const MAX_ATTEMPTS = 3
@@ -67,7 +67,7 @@ export default function PasswordModal({
 
     if (isBlocked) return
 
-    const today = getToday() // Get today's date only when needed
+    const today = getToday()
     const attemptsKey = `attempts_${today}`
     const blockExpirationKey = `blockExpiration_${today}`
 
@@ -76,7 +76,7 @@ export default function PasswordModal({
 
       if (response) {
         onClose()
-        Cookies.set('password', password)
+        Cookies.set('password', password, { expires: 1 })
         router.push(`/constructions/${card?.id}`)
       } else {
         const newAttempts = attempts + 1

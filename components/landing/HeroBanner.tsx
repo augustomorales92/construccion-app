@@ -1,15 +1,13 @@
-import getUser from '@/actions/auth'
-import { getConstructions } from '@/actions/constructions'
+'use client'
+
+import useUser from '@/hooks/use-user'
 import cleanEnergy from '@/public/images/constru.jpg'
 import Image from 'next/image'
 import SearchBar from './SearchBar'
 
-export default async function HeroBanner() {
-  const [constructions, user] = await Promise.all([
-    getConstructions(),
-    getUser(),
-  ])
-  const favorites = user?.user_metadata.favorites || []
+export default function HeroBanner() {
+  const { favorites } = useUser()
+
   return (
     <div className="relative w-full h-[25rem]">
       <Image
@@ -25,7 +23,7 @@ export default async function HeroBanner() {
             Busca tu obra
           </h1>
 
-          <SearchBar constructions={constructions} favorites={favorites}/>
+          <SearchBar favorites={favorites} />
         </div>
       </div>
     </div>

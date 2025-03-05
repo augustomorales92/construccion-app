@@ -1,6 +1,8 @@
+import Constructions from '@/app/protected/constructions/page'
 import { clsx, type ClassValue } from 'clsx'
 import { format, isSameDay } from 'date-fns'
 import { twMerge } from 'tailwind-merge'
+import { constructions } from './constants'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -56,4 +58,8 @@ export const getProjectNumber = (name: string) => {
   const randomLetters = getRandomLetter() + getRandomLetter()
 
   return `${prefix}-${currentYear}-${randomLetters}`
+}
+
+export const getMockedConstructions = () => {
+  return constructions
 }
