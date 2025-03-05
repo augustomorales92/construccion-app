@@ -1,5 +1,11 @@
 'use server'
 
+import {
+  clientsSample,
+  constructions,
+  managerSample,
+  sampleIncidents,
+} from '@/lib/constants'
 import prisma from '@/lib/db'
 import { Incidents } from '@/lib/types'
 import { projectSchema } from '@/schemas'
@@ -7,16 +13,57 @@ import { revalidatePath } from 'next/cache'
 import { v4 as uuidv4 } from 'uuid'
 import { z } from 'zod'
 import getUser from './auth'
-import { clientsSample, constructions, managerSample, sampleIncidents } from '@/lib/constants'
-
 
 export async function getConstructions() {
   // Aquí iría la lógica para obtener todas las obras de la base de datos
   return constructions
 }
 
-export async function getMyConstructions() {
-  // Aquí iría la lógica para obtener todas las obras de la base de datos
+export async function getMyConstructions({ query }: { query: string }) {
+  const userAuth = await getUser()
+
+  if (!userAuth) {
+    return null
+  }
+
+  try {
+    const projects = await prisma.project.findMany({
+      where: {
+        users: {
+          some: {
+            userId: userAuth.id,
+          },
+        },
+        OR: [
+          {
+            name: {
+              contains: query,
+              mode: 'insensitive',
+            },
+          },
+          {
+            projectNumber: {
+              contains: query,
+              mode: 'insensitive',
+            },
+          },
+        ],
+      },
+      include: {
+        certificates: {
+          orderBy: { version: 'desc' },
+          include: {
+            certificateItems: true,
+          },
+        },
+        items: true,
+      },
+    })
+    return projects
+  } catch (error) {
+    console.log(error)
+    return { error: 'Error obteniendo certificados' }
+  }
   return constructions
 }
 export async function getFavoriteConstructions() {

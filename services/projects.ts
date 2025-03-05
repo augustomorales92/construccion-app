@@ -1,3 +1,4 @@
+//import { getMyConstructions } from '@/actions/constructions'
 import { constructions, sampleIncidents } from '@/lib/constants'
 import { Construction, Incidents } from '@/lib/types'
 //import axios from 'axios'
@@ -25,18 +26,20 @@ export const getConstructionById = async (
 
 export const getConstructionsByQuery = async (
   query: string,
-): Promise<Construction[]> => {
+): Promise<any[]> => {
+  /*   try {
+        const data = await axios.get(`api/projects?query=${query}`)
+        return data
+        return null
+    } catch (error) {
+        console.error(error)
+        return null
+    } */
+  //const constructions = await getMyConstructions({ query })
   return constructions.filter((construction) =>
     construction.name.toLowerCase().includes(query.toLowerCase()),
   )
-/*   try {
-    const data = await axios.get(`api/projects?query=${query}`)
-    return data
-    return null
-  } catch (error) {
-    console.error(error)
-    return null
-  } */
+//  return constructions as any[]
 }
 
 export async function getFavoriteConstructions(favorites: string[]) {
