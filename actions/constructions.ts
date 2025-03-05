@@ -19,8 +19,8 @@ export async function getConstructions() {
   return constructions
 }
 
-export async function getMyConstructions({ query }: { query: string }) {
-  const userAuth = await getUser()
+export async function getMyConstructions(query?: string) {
+  /*   const userAuth = await getUser()
 
   if (!userAuth) {
     return null
@@ -64,6 +64,8 @@ export async function getMyConstructions({ query }: { query: string }) {
     console.log(error)
     return { error: 'Error obteniendo certificados' }
   }
+  */
+  console.log(query)
   return constructions
 }
 export async function getFavoriteConstructions() {
