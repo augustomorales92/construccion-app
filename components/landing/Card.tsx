@@ -1,9 +1,9 @@
-"use client"
+'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Heart } from "lucide-react"
-import Image from "next/image"
-import type { Construction } from "@/lib/types"
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import type { Construction } from '@/lib/types'
+import { Heart } from 'lucide-react'
+import Image from 'next/image'
 
 interface CardProps {
   construction: Construction
@@ -12,19 +12,28 @@ interface CardProps {
   isBlur?: boolean
 }
 
-export default function CardComponent({ construction, onClick, isFavorite, isBlur }: CardProps) {
+export default function CardComponent({
+  construction,
+  onClick,
+  isFavorite,
+  isBlur,
+}: CardProps) {
   return (
-    <Card className={`overflow-hidden shadow-md shadow-current ${isBlur ? "blur-sm" : ""}`} onClick={onClick}>
+    <Card
+      className={`overflow-hidden shadow-md shadow-current ${isBlur ? 'blur-sm' : ''}`}
+      onClick={onClick}
+    >
       <CardHeader className="p-0 relative">
-        <Image
-          src={construction.images[0] || "/images/placeholder.svg"}
-          alt={`Imagen de ${construction.name}`}
-          className="w-full h-48 object-cover"
-          width={500}
-          height={200}
-          placeholder="blur"
-          blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PC9zdmc+"
-        />
+        <div className="relative w-full h-48">
+          <Image
+            src={construction.images[0] || '/images/placeholder.svg'}
+            alt={`Imagen de ${construction.name}`}
+            fill
+            objectFit="cover"
+            placeholder="blur"
+            blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PC9zdmc+"
+          />
+        </div>
         {isFavorite && (
           <div className="absolute top-2 right-4">
             <Heart className="h-6 w-6 text-red-500 fill-red-500" />
@@ -62,4 +71,3 @@ export default function CardComponent({ construction, onClick, isFavorite, isBlu
     </Card>
   )
 }
-
