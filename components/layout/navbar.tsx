@@ -27,7 +27,7 @@ export default function Frame({ tabs = [], isMobile }: FrameProps) {
 
   const activeIndex = tabs.findIndex((tab) => {
     const matches = tab.targetHrefs?.some((regex) =>
-      new RegExp(regex).test(pathname)
+      new RegExp(regex).test(pathname),
     )
     return tab.href === pathname || matches
   })
@@ -77,13 +77,10 @@ export default function Frame({ tabs = [], isMobile }: FrameProps) {
   useEffect(() => {
     if (tabs.length === 0) return
 
-    // Actualizar estilos inmediatamente
     updateStyles()
 
-    // Actualizar estilos después del siguiente frame
     requestAnimationFrame(updateStyles)
 
-    // Agregar listener para cambios de tamaño
     window.addEventListener('resize', updateStyles)
 
     return () => {

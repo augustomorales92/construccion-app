@@ -9,7 +9,7 @@ import useFetchQuery from '@/hooks/useFetchQuery'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Home, Search } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { PartialConstruction } from '../../lib/types'
 import PasswordModal from './PasswordModal'
 
@@ -25,14 +25,17 @@ function ActionSearchBar({ favorites }: { favorites?: string[] }) {
   )
   const [isModalOpen, setIsModalOpen] = useState(false)
 
-  const handleCardClick = (card: PartialConstruction) => {
-    if (favorites?.includes(card.id)) {
-      router.push(`/constructions/${card.id}`)
-    } else {
-      setSelectedCard(card)
-      setIsModalOpen(true)
-    }
-  }
+  const handleCardClick = useCallback(
+    (card: PartialConstruction) => {
+      if (favorites?.includes(card.id)) {
+        router.push(`/constructions/${card.id}`)
+      } else {
+        setSelectedCard(card)
+        setIsModalOpen(true)
+      }
+    },
+    [favorites, router],
+  )
 
   const { data, isLoading } = useFetchQuery(
     ['constructions', debouncedQuery],
@@ -40,12 +43,10 @@ function ActionSearchBar({ favorites }: { favorites?: string[] }) {
   )
 
   useEffect(() => {
-    // Actualiza el ancho del dropdown cuando el componente se monta
     if (searchBarRef.current) {
       setDropdownWidth(searchBarRef.current.offsetWidth)
     }
 
-    // Listener para resize
     const handleResize = () => {
       if (searchBarRef.current) {
         setDropdownWidth(searchBarRef.current.offsetWidth)
@@ -159,7 +160,7 @@ function ActionSearchBar({ favorites }: { favorites?: string[] }) {
         )}
       </motion.ul>
     )
-  }, [data, isLoading])
+  }, [data, isLoading, handleCardClick])
 
   return (
     <div className="w-full max-w-xl mx-auto">

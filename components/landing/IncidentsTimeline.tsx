@@ -50,7 +50,7 @@ export function ConstructionIncidentsTimeline({ incidents }: ConstructionInciden
                         day: "numeric",
                       })}
                     </div>
-                    <div className="mt-1 text-sm text-muted-foreground">{incident.content}</div>
+                    <div className="mt-1 text-sm text-muted-foreground">{incident.description}</div>
                   </div>
                 </div>
               </div>
