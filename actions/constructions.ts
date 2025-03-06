@@ -1,26 +1,15 @@
 'use server'
 
-import {
-  clientsSample,
-  constructions,
-  managerSample,
-  sampleIncidents,
-} from '@/lib/constants'
+import { clientsSample, managerSample } from '@/lib/constants'
 import prisma from '@/lib/db'
-import { Incidents } from '@/lib/types'
+import { PartialConstruction } from '@/lib/types'
 import { projectSchema } from '@/schemas'
 import { revalidatePath } from 'next/cache'
 import { v4 as uuidv4 } from 'uuid'
-import { z } from 'zod'
 import getUser from './auth'
 
-export async function getConstructions() {
-  // Aquí iría la lógica para obtener todas las obras de la base de datos
-  return constructions
-}
-
 export async function getMyConstructions(query?: string) {
-  /*   const userAuth = await getUser()
+  const userAuth = await getUser()
 
   if (!userAuth) {
     return null
@@ -34,20 +23,6 @@ export async function getMyConstructions(query?: string) {
             userId: userAuth.id,
           },
         },
-        OR: [
-          {
-            name: {
-              contains: query,
-              mode: 'insensitive',
-            },
-          },
-          {
-            projectNumber: {
-              contains: query,
-              mode: 'insensitive',
-            },
-          },
-        ],
       },
       include: {
         certificates: {
@@ -62,41 +37,29 @@ export async function getMyConstructions(query?: string) {
     return projects
   } catch (error) {
     console.log(error)
-    return { error: 'Error obteniendo certificados' }
+    throw new Error('Failed to get my projects')
   }
-  */
-  console.log(query)
-  return constructions
-}
-export async function getFavoriteConstructions() {
-  const user = await getUser()
-  const favorites = user?.user_metadata.favorites || []
-  // Aquí iría la lógica para obtener las obras favoritas de la base de datos
-  return constructions.filter((obra) => favorites.includes(obra.id))
 }
 
 export async function verifyPassword(
   constructionId: string | undefined,
   password: string,
 ) {
-  const construction = constructions.find((c) => c.id === constructionId)
-  return construction?.password === password
+  try {
+    const project = await prisma.project.findUnique({
+      where: {
+        id: constructionId,
+      },
+      select: {
+        accessCode: true,
+      },
+    })
+    return project?.accessCode === password
+  } catch (error) {
+    console.error('Error verifying password:', error)
+    return false
+  }
 }
-
-export async function getConstructionById(id: string) {
-  // Aquí iría la lógica para obtener una obra específica de la base de datos
-
-  return constructions.find((obra) => obra.id === id) || null
-}
-
-export async function getIncidentsByConstructionId(
-  id: number,
-): Promise<Incidents[]> {
-  // Aquí iría la lógica para obtener todas las incidencias de una obra específica
-  return sampleIncidents
-}
-
-type FormDataValues = z.infer<typeof projectSchema>
 
 export async function createProject(
   formData: FormData,
@@ -234,4 +197,77 @@ export async function getManagers() {
 export async function updateProject(formData: FormData) {
   // Aquí iría la lógica para actualizar una obra existente en la base de datos
   console.log('Actualizando obra:', Object.fromEntries(formData))
+}
+
+export async function getProjectsByQuery(
+  query: string,
+): Promise<PartialConstruction[] | null> {
+  try {
+    const projects = await prisma.project.findMany({
+      where: {
+        OR: [
+          {
+            name: {
+              contains: query,
+              mode: 'insensitive',
+            },
+          },
+          {
+            projectNumber: {
+              contains: query,
+              mode: 'insensitive',
+            },
+          },
+        ],
+      },
+      select: {
+        id: true,
+        name: true,
+        projectNumber: true,
+        address: true,
+      },
+    })
+
+    return projects
+  } catch (error) {
+    console.error('Error getting projects by query:', error)
+    return null
+  }
+}
+
+export async function getProjectById(id: string) {
+  try {
+    const project = await prisma.project.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        certificates: true,
+        incidents: true,
+        items: true,
+        customer: true,
+        manager: true,
+      },
+    })
+    return project
+  } catch (error) {
+    console.error('Error getting project by id:', error)
+    return null
+  }
+}
+
+export async function getFavoriteProjects(favorites: string[]) {
+  try {
+    const projects = await prisma.project.findMany({
+      where: {
+        id: {
+          in: favorites,
+        },
+      },
+    })
+    return projects
+  } catch (error) {
+    console.error('Error getting favorite projects:', error)
+    return []
+  }
 }

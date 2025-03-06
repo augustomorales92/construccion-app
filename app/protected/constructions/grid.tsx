@@ -2,7 +2,6 @@
 
 import Card from '@/components/landing/Card'
 import { Construction } from '@/lib/types'
-import useEmblaCarousel from 'embla-carousel-react'
 import { useRouter } from 'next/navigation'
 
 export default function Grid({
@@ -11,12 +10,6 @@ export default function Grid({
   constructions?: Construction[] | null
 }) {
   const router = useRouter()
-
-  const [_emblaRef] = useEmblaCarousel({
-    slidesToScroll: 1,
-    align: 'start',
-    containScroll: 'trimSnaps',
-  })
 
   const handleCardClick = (card: Construction) => {
     router.push(`/protected/constructions/${card.id}`)

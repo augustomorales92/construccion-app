@@ -6,6 +6,7 @@ import { SubmitButton } from '@/components/submit-button'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import useUser from '@/hooks/use-user'
 import type { User } from '@supabase/supabase-js'
 import Link from 'next/link'
 import { useActionState } from 'react'
@@ -14,8 +15,9 @@ interface ProfileFormProps {
   user: Pick<User, 'email' | 'phone' | 'id'>
 }
 
-export function ProfileForm({ user }: ProfileFormProps) {
-  const updateProfile = updateProfileAction.bind(null, user.id)
+export function ProfileForm() {
+  const { user } = useUser()
+  const updateProfile = updateProfileAction.bind(null, user?.id as string)
   const [state, formAction] = useActionState(updateProfile, null)
 
   return (
@@ -36,7 +38,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
         type="email"
         name="email"
         placeholder="tu@email.com"
-        defaultValue={user.email || ''}
+        defaultValue={user?.email || ''}
         required
       />
       <Label htmlFor="phone">Teléfono</Label>
@@ -44,7 +46,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
         type="tel"
         name="phone"
         placeholder="+34600000000"
-        defaultValue={user.phone || ''}
+        defaultValue={user?.phone || ''}
         required
       />
       <SubmitButton>Actualizar perfil</SubmitButton>

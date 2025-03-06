@@ -31,9 +31,7 @@ import {
 } from '@/components/ui/table'
 import { Customer } from '@/lib/types'
 import { Edit, Trash2 } from 'lucide-react'
-import { useEffect, useState } from 'react'
-
-
+import { useState } from 'react'
 
 export default function Customers() {
   const [customers, setCustomers] = useState<Customer[]>([])
@@ -41,26 +39,8 @@ export default function Customers() {
     null,
   )
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [customerToDelete, setCustomerToDelete] = useState<number | null>(null)
+  const [customerToDelete, setCustomerToDelete] = useState<string | null>(null)
   const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false)
-
-  useEffect(() => {
-    // Aquí normalmente harías una llamada a la API
-    setCustomers([
-      {
-        id: 1,
-        name: 'Juan Pérez',
-        email: 'juan@example.com',
-        phone: '123-456-7890',
-      },
-      {
-        id: 2,
-        name: 'María García',
-        email: 'maria@example.com',
-        phone: '098-765-4321',
-      },
-    ])
-  }, [])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -81,11 +61,11 @@ export default function Customers() {
         )
       } else {
         // Agregar nuevo cliente
-        const newCustomer = {
+   /*      const newCustomer = {
           ...customerInEdition,
           id: customers.length + 1,
         }
-        setCustomers([...customers, newCustomer])
+        setCustomers([...customers, newCustomer]) */
       }
       setCustomerInEdition(null)
       setIsDialogOpen(false)
@@ -102,11 +82,11 @@ export default function Customers() {
   }
 
   const startCreation = () => {
-    setCustomerInEdition({ id: 0, name: '', email: '', phone: '' })
+    setCustomerInEdition({ id: '0', name: '', email: '', phone: '' })
     setIsDialogOpen(true)
   }
 
-  const confirmDeletion = (id: number) => {
+  const confirmDeletion = (id: string) => {
     setCustomerToDelete(id)
     setIsAlertDialogOpen(true)
   }

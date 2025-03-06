@@ -2,15 +2,15 @@
 
 import type React from 'react'
 
+import { getProjectsByQuery } from '@/actions/constructions'
 import { Input } from '@/components/ui/input'
 import useDebounce from '@/hooks/use-debounce'
 import useFetchQuery from '@/hooks/useFetchQuery'
-import { getConstructionsByQuery } from '@/services/projects'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Home, Search } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Construction } from '../../lib/types'
+import { PartialConstruction } from '../../lib/types'
 import PasswordModal from './PasswordModal'
 
 function ActionSearchBar({ favorites }: { favorites?: string[] }) {
@@ -20,10 +20,12 @@ function ActionSearchBar({ favorites }: { favorites?: string[] }) {
   const debouncedQuery = useDebounce(inputQuery, 500)
   const searchBarRef = useRef<HTMLDivElement>(null)
   const [dropdownWidth, setDropdownWidth] = useState<number>(0)
-  const [selectedCard, setSelectedCard] = useState<Construction | null>(null)
+  const [selectedCard, setSelectedCard] = useState<PartialConstruction | null>(
+    null,
+  )
   const [isModalOpen, setIsModalOpen] = useState(false)
 
-  const handleCardClick = (card: Construction) => {
+  const handleCardClick = (card: PartialConstruction) => {
     if (favorites?.includes(card.id)) {
       router.push(`/constructions/${card.id}`)
     } else {
@@ -34,7 +36,7 @@ function ActionSearchBar({ favorites }: { favorites?: string[] }) {
 
   const { data, isLoading } = useFetchQuery(
     ['constructions', debouncedQuery],
-    () => getConstructionsByQuery(debouncedQuery),
+    () => getProjectsByQuery(debouncedQuery),
   )
 
   useEffect(() => {
@@ -130,13 +132,13 @@ function ActionSearchBar({ favorites }: { favorites?: string[] }) {
                     {action.name}
                   </span>
                   <span className="text-xs text-gray-400 max-w-[10rem] truncate">
-                    {action.description}
+                    {action.address}
                   </span>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-xs text-gray-400 text-right">
-                  {action.ref}
+                  {action.projectNumber}
                 </span>
               </div>
             </motion.li>

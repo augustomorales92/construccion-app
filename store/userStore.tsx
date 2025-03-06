@@ -6,7 +6,16 @@ interface UserState {
   setUser: (user: User | null) => void
 }
 
-export const useUserStore = create<UserState>((set) => ({
+const useUserStore = create<UserState>((set) => ({
   user: null,
-  setUser: (user) => set({ user }),
+  setUser: (user) => {
+    set({ user })
+    if (user) {
+      sessionStorage.setItem('user', JSON.stringify(user))
+    } else {
+      sessionStorage.removeItem('user')
+    }
+  },
 }))
+
+export { useUserStore }

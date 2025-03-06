@@ -1,7 +1,11 @@
-import { getClients, getConstructionById, getManagers } from '@/actions/constructions'
+import getUser from '@/actions/auth'
+import {
+  getClients,
+  getManagers,
+  getProjectById,
+} from '@/actions/constructions'
 import { notFound } from 'next/navigation'
 import EditProjectForm from './EditProjectForm'
-import getUser from '@/actions/auth'
 
 export default async function EditConstruction({
   params,
@@ -13,11 +17,12 @@ export default async function EditConstruction({
     params,
     getClients(),
     getManagers(),
-    getUser()
+    getUser(),
   ])
   const id = param.id
-  if (id !== 'new') {
-    construction = await getConstructionById(id)
+  const isNewProject = id === 'new'
+  if (!isNewProject) {
+    construction = await getProjectById(id)
 
     if (!construction) {
       notFound()
@@ -26,5 +31,13 @@ export default async function EditConstruction({
 
   const isAdmin = user?.user_metadata.role === 'ADMIN'
 
-  return <EditProjectForm project={construction} clients={clients} id={id} managers={managers} isAdmin={isAdmin}/>
+  return (
+    <EditProjectForm
+      project={construction}
+      clients={clients}
+      managers={managers}
+      isAdmin={isAdmin}
+      isNewProject={isNewProject}
+    />
+  )
 }

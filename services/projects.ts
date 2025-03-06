@@ -1,6 +1,7 @@
 //import { getMyConstructions } from '@/actions/constructions'
+import { getProjectsByQuery } from '@/actions/constructions'
 import { constructions, sampleIncidents } from '@/lib/constants'
-import { Construction, Incidents } from '@/lib/types'
+import { Construction, Incidents, PartialConstruction } from '@/lib/types'
 //import axios from 'axios'
 
 interface ConstructionByIdResponse {
@@ -24,9 +25,11 @@ export const getConstructionById = async (
   } */
 }
 
+
+
 export const getConstructionsByQuery = async (
   query: string,
-): Promise<any[]> => {
+): Promise<PartialConstruction[] | null> => {
   /*   try {
         const data = await axios.get(`api/projects?query=${query}`)
         return data
@@ -36,10 +39,11 @@ export const getConstructionsByQuery = async (
         return null
     } */
   //const constructions = await getMyConstructions({ query })
-  return constructions.filter((construction) =>
+  /*  return constructions.filter((construction) =>
     construction.name.toLowerCase().includes(query.toLowerCase()),
-  )
-//  return constructions as any[]
+  ) */
+  //  return constructions as any[]
+  return await getProjectsByQuery(query)
 }
 
 export async function getFavoriteConstructions(favorites: string[]) {

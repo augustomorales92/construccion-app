@@ -1,7 +1,4 @@
-import {
-  getConstructionById,
-  getIncidentsByConstructionId,
-} from '@/actions/constructions'
+import { getProjectById } from '@/actions/constructions'
 import CardDetails from '@/components/landing/Details'
 import { notFound } from 'next/navigation'
 
@@ -13,17 +10,14 @@ export default async function Details({
   const id = (await params).id
 
   let construction = null
-  let incidents = null
 
   if (id !== 'new') {
-    ;[construction, incidents] = await Promise.all([
-      getConstructionById(id),
-      getIncidentsByConstructionId(Number.parseInt(id)),
-    ])
+    construction = await getProjectById(id)
+
     if (!construction) {
       notFound()
     }
   }
 
-  return <CardDetails construction={construction} incidents={incidents} />
+  return <CardDetails construction={construction} />
 }

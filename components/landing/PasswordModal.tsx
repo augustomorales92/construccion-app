@@ -10,16 +10,16 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import { PartialConstruction } from '@/lib/types'
 import Cookies from 'js-cookie'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
-import { Construction } from '../../lib/types'
 
 interface PasswordModalProps {
   isOpen: boolean
   onClose: () => void
-  card?: Construction | null
+  card?: PartialConstruction | null
 }
 
 const MAX_ATTEMPTS = 3

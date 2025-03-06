@@ -1,4 +1,3 @@
-
 'use client'
 
 import useEmblaCarousel from 'embla-carousel-react'
@@ -15,7 +14,7 @@ export default function CardGrid({
   isBlur,
   userLogged,
 }: {
-  constructions?: Construction[]
+  constructions?: Construction[] | null
   favorites?: string[]
   isBlur?: boolean
   userLogged?: boolean

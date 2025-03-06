@@ -107,8 +107,11 @@ export async function updateProfileAction(
   const name = formData.get('name') as string
   const email = formData.get('email') as string
   const phone = formData.get('phone') as string
-  ;``
+
   try {
+    if (!id) {
+      return { error: 'No se encontró el usuario' }
+    }
     const {
       data: { user },
       error,

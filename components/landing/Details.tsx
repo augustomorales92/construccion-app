@@ -3,21 +3,13 @@ import { toggleUserFavorite } from '@/actions/auth'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import useUser from '@/hooks/use-user'
+import { Certificates, Construction } from '@/lib/types'
 import Cookies from 'js-cookie'
-import {
-  ArrowLeft,
-  ChevronLeft,
-  ChevronRight,
-  Download,
-  Edit,
-  FileText,
-  Heart,
-} from 'lucide-react'
+import { ArrowLeft, ChevronLeft, ChevronRight, Edit, Heart } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { Certificates, Construction, Incidents } from '../../lib/types'
 import SpreadsheetDialog from '../Spreadsheet'
 import CertificateModal from './CertificateModal'
 import { ConstructionIncidentsTimeline } from './IncidentsTimeline'
@@ -26,7 +18,6 @@ import { WhatsAppShareLinkPopover } from './ShareComponent'
 
 interface CardProps {
   construction?: Construction | null
-  incidents?: Incidents[] | null
   isFavorite?: boolean
   backUrl?: string
   showPasswordModal?: boolean
@@ -34,7 +25,6 @@ interface CardProps {
 
 export default function CardComponent({
   construction,
-  incidents,
   isFavorite,
   backUrl,
   showPasswordModal,
@@ -42,7 +32,8 @@ export default function CardComponent({
   const router = useRouter()
   const { user, isAdmin } = useUser()
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0)
-  const [modalOpen, setModalOpen] = useState(false)
+  const [selectedCertificate, setSelectedCertificate] =
+    useState<Certificates | null>(null)
   const pathname = usePathname()
   const isProtected = pathname.includes('/protected')
   const imagesLength = construction?.images?.length || 1
@@ -57,34 +48,11 @@ export default function CardComponent({
     )
   }
 
-  const calcularTotalGastado = () => {
+  const totalSpends = () => {
     return construction?.certificates?.reduce(
-      (total, cert) => total + cert.montoGastado,
+      (total, cert) => total + (cert.certificateAmount || 0),
       0,
     )
-  }
-
-  const calcularAvancePromedio = () => {
-    if (!construction?.certificates?.length) return 0
-    return (
-      construction?.certificates?.reduce(
-        (total, cert) => total + cert.avance,
-        0,
-      ) / construction?.certificates.length
-    )
-  }
-
-  const handleAddCertificado = () => {
-    setModalOpen(true)
-  }
-
-  const onCertificateAdded = (
-    ConstructionId?: string,
-    newCertificate?: Certificates,
-  ) => {
-    // Add the new certificado to the Construction
-    console.log('Certificado added:', ConstructionId, newCertificate)
-    setModalOpen(false)
   }
 
   const toggleFavorite = async () => {
@@ -131,7 +99,9 @@ export default function CardComponent({
                 <WhatsAppShareLinkPopover id={String(construction?.id)} />
               </>
             )}
-            <ConstructionIncidentsTimeline incidents={incidents || []} />
+            <ConstructionIncidentsTimeline
+              incidents={construction?.incidents || []}
+            />
           </span>
         </div>
 
@@ -192,15 +162,15 @@ export default function CardComponent({
                 Detalles de la Construction
               </h2>
               <p>
-                <strong>Cliente:</strong> {construction?.customer.name}
+                <strong>Cliente:</strong> {construction?.customer?.name}
               </p>
               <p>
                 <strong>Presupuesto:</strong> $
-                {construction?.budget.toLocaleString()}
+                {construction?.budget?.toLocaleString()}
               </p>
               <p>
                 <strong>Total gastado:</strong> $
-                {calcularTotalGastado()?.toLocaleString()}
+                {totalSpends()?.toLocaleString()}
               </p>
               <p>
                 <strong>Tiempo estimado:</strong> {construction?.estimatedTime}
@@ -210,14 +180,14 @@ export default function CardComponent({
                 <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
                   <div
                     className="bg-blue-600 h-2.5 rounded-full"
-                    style={{ width: `${calcularAvancePromedio()}%` }}
+                    style={{ width: `${construction?.progressTotal}%` }}
                     role="progressbar"
-                    aria-valuenow={calcularAvancePromedio()}
+                    aria-valuenow={construction?.progressTotal || 0}
                     aria-valuemin={0}
                     aria-valuemax={100}
                   ></div>
                 </div>
-                <p>{calcularAvancePromedio().toFixed(2)}% completado</p>
+                <p>{construction?.progressTotal?.toFixed(2)}% completado</p>
               </div>
             </CardContent>
           </Card>
@@ -243,34 +213,19 @@ export default function CardComponent({
                 <span className="flex items-center">
                   <h2 className="text-xl font-semibold">certificates</h2>
                 </span>
-                {isAdmin && (
-                  <Button
-                    variant="outline"
-                    onClick={() => handleAddCertificado()}
-                    className="min-w-36"
-                  >
-                    <FileText className="w-4 h-4 mr-2" />
-                    Certificado
-                  </Button>
-                )}
               </div>
               {construction?.certificates?.length ? (
                 <ul className="space-y-2">
-                  {construction?.certificates.map((certificado) => (
+                  {construction?.certificates.map((certificate) => (
                     <li
-                      key={certificado.id}
+                      key={certificate.id}
                       className="flex justify-between items-center"
                     >
-                      <span>Certificado #{certificado.id}</span>
                       <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() =>
-                          window.open(certificado.archivo, '_blank')
-                        }
+                        variant="ghost"
+                        onClick={() => setSelectedCertificate(certificate)}
                       >
-                        <Download className="w-4 h-4 mr-2" />
-                        Descargar
+                        Certificado #{certificate.version}
                       </Button>
                     </li>
                   ))}
@@ -282,13 +237,10 @@ export default function CardComponent({
           </Card>
         </div>
       </div>
-      {modalOpen && (
+      {!!selectedCertificate && (
         <CertificateModal
-          isOpen={modalOpen}
-          onClose={() => setModalOpen(false)}
-          onCertificateAdded={(newCertificate) =>
-            onCertificateAdded(construction?.id, newCertificate)
-          }
+          isOpen={!!selectedCertificate}
+          onClose={() => setSelectedCertificate(null)}
         />
       )}
       {showPasswordModal && (

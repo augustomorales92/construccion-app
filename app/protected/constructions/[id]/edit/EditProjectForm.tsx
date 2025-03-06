@@ -18,39 +18,39 @@ type Props = {
   project: Construction | null
   clients: Customer[] | null
   managers: Manager[] | null
-  id?: string
   isAdmin?: boolean
+  isNewProject?: boolean
 }
 
 export default function EditProjectForm({
   project,
   clients,
-  id,
   managers,
-  isAdmin
+  isAdmin,
+  isNewProject,
 }: Props) {
   const [projectData, setProjectData] = useState<Construction>(
     project || {
       id: '',
-      ref: '',
       name: '',
-      customer: {} as Customer,
-      progressPercent: 0,
-      budget: 0,
-      materialsPurchased: [] as string[],
-      estimatedTime: '',
       description: '',
+      address: '',
+      budget: 0,
+      progressTotal: 0,
+      totalCertifiedAmount: 0,
+      accessCode: '',
+      projectNumber: '',
+      estimatedTime: '',
       images: [] as string[],
+      files: [] as string[],
+      customer: {} as Customer,
       certificates: [],
       manager: {} as Manager,
-      status: '',
-      password: '',
     },
   )
   const [images, setImage] = useState<File[]>([])
   const [excelFile, setExcelFile] = useState<File | null>(null)
   const router = useRouter()
-  const isNewProject = id === 'new'
   const handleInputChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -100,7 +100,7 @@ export default function EditProjectForm({
                 router.push(
                   isNewProject
                     ? '/protected/constructions'
-                    : `/protected/constructions/${id}`,
+                    : `/protected/constructions/${project?.id}`,
                 )
               }
               className="flex items-center"
@@ -133,7 +133,7 @@ export default function EditProjectForm({
                     <select
                       id="cliente"
                       name="cliente"
-                      value={projectData.customer.id}
+                      value={projectData.customer?.id}
                       onChange={handleInputChange}
                       className="border p-2 rounded w-full"
                     >
@@ -153,7 +153,7 @@ export default function EditProjectForm({
                     <select
                       id="manager"
                       name="manager"
-                      value={projectData.manager.id}
+                      value={projectData.manager?.id}
                       onChange={handleInputChange}
                       className="border p-2 rounded w-full"
                     >
@@ -173,7 +173,7 @@ export default function EditProjectForm({
                     id="avance"
                     name="avance"
                     type="number"
-                    value={projectData.progressPercent}
+                    value={projectData.progressTotal || 0}
                     onChange={handleInputChange}
                   />
                 </div>
@@ -183,7 +183,7 @@ export default function EditProjectForm({
                     id="presupuesto"
                     name="presupuesto"
                     type="number"
-                    value={projectData.budget}
+                    value={projectData.budget || 0}
                     onChange={handleInputChange}
                   />
                 </div>
@@ -192,7 +192,7 @@ export default function EditProjectForm({
                   <Input
                     id="tiempoEstimado"
                     name="tiempoEstimado"
-                    value={projectData.estimatedTime}
+                    value={projectData.estimatedTime || ''}
                     onChange={handleInputChange}
                   />
                 </div>
@@ -201,14 +201,19 @@ export default function EditProjectForm({
                   <Textarea
                     id="descripcion"
                     name="descripcion"
-                    value={projectData.description}
+                    value={projectData.description || ''}
                     onChange={handleInputChange}
                   />
                 </div>
                 {!isNewProject && (
                   <ImageUpload images={images} setImages={setImage} />
                 )}
-                <FileUpload excelFile={excelFile} setExcelFile={setExcelFile} isNewProject={isNewProject} isAdmin={isAdmin}/>
+                <FileUpload
+                  excelFile={excelFile}
+                  setExcelFile={setExcelFile}
+                  isNewProject={isNewProject}
+                  isAdmin={isAdmin}
+                />
               </>
             </div>
             <div className="flex justify-end items-center gap-4">
@@ -216,7 +221,7 @@ export default function EditProjectForm({
                 href={
                   isNewProject
                     ? '/protected/constructions'
-                    : `/protected/constructions/${id}`
+                    : `/protected/constructions/${project?.id}`
                 }
               >
                 <Button

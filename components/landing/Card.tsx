@@ -49,7 +49,7 @@ export default function CardComponent({
       <CardContent className="p-4">
         <CardTitle className="text-xl mb-2">{construction.name}</CardTitle>
         <p>
-          <strong>Cliente:</strong> {construction.customer.name}
+          <strong>Cliente:</strong> {construction.customer?.name}
         </p>
         <div className="mt-2">
           <p className="font-bold">Avance:</p>

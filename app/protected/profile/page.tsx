@@ -1,4 +1,3 @@
-import getUser from '@/actions/auth'
 import {
   Card,
   CardContent,
@@ -6,16 +5,9 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { redirect } from 'next/navigation'
 import { ProfileForm } from './profile-form'
 
-export default async function ProfilePage() {
-  const user = await getUser()
-
-  if (!user) {
-    redirect('/')
-  }
-
+export default function ProfilePage() {
   return (
     <div className="container max-w-2xl py-10 h-custom flex justify-center items-center">
       <Card>
@@ -26,7 +18,7 @@ export default async function ProfilePage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <ProfileForm user={user} />
+          <ProfileForm />
         </CardContent>
       </Card>
     </div>
