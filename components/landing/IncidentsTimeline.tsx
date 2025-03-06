@@ -14,7 +14,6 @@ interface ConstructionIncidentsTimelineProps {
 export function ConstructionIncidentsTimeline({ incidents }: ConstructionIncidentsTimelineProps) {
   const [open, setOpen] = useState(false)
 
-  const sortedIncidents = [...incidents].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -31,9 +30,9 @@ export function ConstructionIncidentsTimeline({ incidents }: ConstructionInciden
         </SheetHeader>
         <ScrollArea className="h-[calc(100vh-120px)] mt-6 pr-4">
           <div className="space-y-8">
-            {sortedIncidents.map((incident, index) => (
+            {incidents.map((incident, index) => (
               <div key={incident.id} className="relative">
-                {index !== sortedIncidents.length - 1 && (
+                {index !== incidents.length - 1 && (
                   <span className="absolute top-8 left-4 -bottom-9 w-px bg-border" />
                 )}
                 <div className="flex items-start">

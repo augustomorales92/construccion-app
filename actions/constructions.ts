@@ -89,7 +89,7 @@ export async function createProject(
   const accessCode = uuidv4()
   try {
     await prisma.$transaction(async (tx) => {
-      const project = await tx.project.create({
+      await tx.project.create({
         data: {
           name,
           description: description || null,
@@ -243,7 +243,11 @@ export async function getProjectById(id: string) {
       },
       include: {
         certificates: true,
-        incidents: true,
+        incidents: {
+          orderBy: {
+            createdAt: 'desc',
+          },
+        },
         items: true,
         customer: true,
         manager: true,
