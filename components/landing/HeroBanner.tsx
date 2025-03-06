@@ -1,7 +1,7 @@
 'use client'
 
 import useUser from '@/hooks/use-user'
-import cleanEnergy from '@/public/images/constru.jpg'
+import cleanEnergy from '@/public/images/constru.webp'
 import Image from 'next/image'
 import SearchBar from './SearchBar'
 
