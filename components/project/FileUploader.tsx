@@ -1,15 +1,16 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useRef } from "react"
 import { FileSpreadsheet, Upload, Loader2, AlertCircle } from "lucide-react"
 import ResultModal from "./ResultModal"
-
+import { processData } from "./utils"
+import { ProcessedData } from "./types"
+  
 export default function FileUploader() {
   const [file, setFile] = useState<File | null>(null)
   const [loading, setLoading] = useState(false)
-  const [response, setResponse] = useState<any>(null)
+  const [processedData, setProcessedData] = useState<ProcessedData | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isDragging, setIsDragging] = useState(false)
   const [showModal, setShowModal] = useState(false)
@@ -34,7 +35,7 @@ export default function FileUploader() {
 
     try {
       setLoading(true)
-      setResponse(null)
+      setProcessedData(null)
       setError(null)
 
       const res = await fetch("/api/convert", {
@@ -49,7 +50,10 @@ export default function FileUploader() {
 
       const data = await res.json()
       console.log("Respuesta del servidor:", data)
-      setResponse(data)
+
+      // Procesar los datos antes de mostrar el modal
+      const processed = processData(data)
+      setProcessedData(processed)
       setShowModal(true)
     } catch (error) {
       console.error("Error:", error)
@@ -152,7 +156,7 @@ export default function FileUploader() {
             className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md transition-colors duration-200 flex items-center"
           >
             <Upload className="h-5 w-5 mr-2" />
-            Procesar Archivo
+            Convertir Archivo
           </button>
         </div>
       )}
@@ -166,7 +170,9 @@ export default function FileUploader() {
       )}
 
       {/* Modal con resultados */}
-      {response && showModal && <ResultModal data={response} isOpen={showModal} onClose={() => setShowModal(false)} />}
+      {processedData && showModal && (
+        <ResultModal data={processedData} isOpen={showModal} onClose={() => setShowModal(false)} />
+      )}
     </div>
   )
 }

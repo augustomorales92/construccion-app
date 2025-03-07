@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     const fileBlob = new Blob([buffer], { type: file.type })
     pythonFormData.append("file", fileBlob, file.name)
 
-    const pythonServiceUrl = "https://converterfileobras-production.up.railway.app/convert"
+    const pythonServiceUrl = `${process.env.PYTHON_ENDPOINT_URL}/convert`
 
     const response = await axios.post(pythonServiceUrl, pythonFormData, {
       headers: {

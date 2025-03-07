@@ -1,64 +1,17 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import React, { useState } from "react"
 import { X, CheckCircle, AlertCircle } from "lucide-react"
-import type { JSX } from "react"
-
-interface Item {
-  section: string
-  description: string
-  unit: string
-  quantity: number
-  price: number
-  code?: string
-  subtotal?: number
-}
+import { ProcessedData } from "./types"
 
 interface ResultModalProps {
-  data: Item[]
+  data: ProcessedData
   isOpen: boolean
   onClose: () => void
 }
 
 export default function ResultModal({ data, isOpen, onClose }: ResultModalProps) {
-  const [processedData, setProcessedData] = useState<Item[]>([])
-  const [sectionMap, setSectionMap] = useState<Map<string, string>>(new Map())
   const [isValid, setIsValid] = useState<boolean | null>(null)
-
-  useEffect(() => {
-    if (data && Array.isArray(data)) {
-      // Procesar los datos para añadir códigos y subtotales
-      const sections = new Map<string, string>()
-      const sectionCounts = new Map<string, number>()
-
-      // Asignar letras a las secciones
-      let nextLetter = "A"
-      data.forEach((item) => {
-        if (!sections.has(item.section)) {
-          sections.set(item.section, nextLetter)
-          sectionCounts.set(item.section, 0)
-          nextLetter = String.fromCharCode(nextLetter.charCodeAt(0) + 1)
-        }
-      })
-
-      setSectionMap(sections)
-
-      // Procesar cada ítem
-      const processed = data.map((item) => {
-        const sectionLetter = sections.get(item.section) || "?"
-        const count = (sectionCounts.get(item.section) || 0) + 1
-        sectionCounts.set(item.section, count)
-
-        return {
-          ...item,
-          code: `${sectionLetter}.${count}`,
-          subtotal: item.quantity * item.price,
-        }
-      })
-
-      setProcessedData(processed)
-    }
-  }, [data])
 
   if (!isOpen) return null
 
@@ -78,52 +31,11 @@ export default function ResultModal({ data, isOpen, onClose }: ResultModalProps)
     }, 1500)
   }
 
-  const total = processedData.reduce((sum, item) => sum + (item.subtotal || 0), 0)
-
-  // Agrupar los datos por sección para mostrar encabezados
-  const groupedData: JSX.Element[] = []
-  let currentSection = ""
-
-  processedData.forEach((item, index) => {
-    // Si es una nueva sección, añadir encabezado
-    if (item.section !== currentSection) {
-      currentSection = item.section
-      const sectionLetter = sectionMap.get(item.section) || "?"
-
-      // Añadir fila de encabezado de sección
-      groupedData.push(
-        <tr key={`section-${sectionLetter}`} className="bg-gray-100">
-          <td className="px-6 py-3 whitespace-nowrap text-sm font-bold text-gray-900">{sectionLetter}</td>
-          <td colSpan={6} className="px-6 py-3 whitespace-nowrap text-sm font-bold text-gray-900">
-            {item.section}
-          </td>
-        </tr>,
-      )
-    }
-
-    // Añadir fila de datos
-    groupedData.push(
-      <tr key={index} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.code}</td>
-        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.section}</td>
-        <td className="px-6 py-4 text-sm text-gray-500">{item.description}</td>
-        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.unit}</td>
-        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
-          {item.quantity.toLocaleString("es-AR")}
-        </td>
-        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">{formatCurrency(item.price)}</td>
-        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-right">
-          {formatCurrency(item.subtotal || 0)}
-        </td>
-      </tr>,
-    )
-  })
-
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-6xl max-h-[90vh] flex flex-col">
         <div className="flex justify-between items-center p-4 border-b">
-          <h2 className="text-xl font-bold">Resultados de la tabla</h2>
+          <h2 className="text-xl font-bold">Resultados de la Conversión</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
             <X className="h-6 w-6" />
           </button>
@@ -152,7 +64,7 @@ export default function ResultModal({ data, isOpen, onClose }: ResultModalProps)
                     scope="col"
                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                   >
-                    Nº
+                    Código
                   </th>
                   <th
                     scope="col"
@@ -193,7 +105,36 @@ export default function ResultModal({ data, isOpen, onClose }: ResultModalProps)
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {groupedData}
+                {Object.entries(data.sections).map(([sectionName, { letter, items }]) => (
+                  <React.Fragment key={`section-group-${letter}`}>
+                    {/* Fila de encabezado de sección */}
+                    <tr key={`section-${letter}`} className="bg-gray-100">
+                      <td className="px-6 py-3 whitespace-nowrap text-sm font-bold text-gray-900">{letter}</td>
+                      <td colSpan={6} className="px-6 py-3 whitespace-nowrap text-sm font-bold text-gray-900">
+                        {sectionName}
+                      </td>
+                    </tr>
+
+                    {/* Filas de ítems de la sección */}
+                    {items.map((item, index) => (
+                      <tr key={`${letter}-${index}`} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.code}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.section}</td>
+                        <td className="px-6 py-4 text-sm text-gray-500">{item.description}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.unit}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
+                          {item.quantity.toLocaleString("es-AR")}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
+                          {formatCurrency(item.price)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-right">
+                          {formatCurrency(item.subtotal)}
+                        </td>
+                      </tr>
+                    ))}
+                  </React.Fragment>
+                ))}
 
                 {/* Fila de total */}
                 <tr className="bg-gray-200">
@@ -201,7 +142,7 @@ export default function ResultModal({ data, isOpen, onClose }: ResultModalProps)
                     TOTAL:
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 text-right">
-                    {formatCurrency(total)}
+                    {formatCurrency(data.total)}
                   </td>
                 </tr>
               </tbody>
