@@ -21,6 +21,7 @@ interface CardProps {
   isFavorite?: boolean
   backUrl?: string
   showPasswordModal?: boolean
+  closePasswordModal?: () => void
 }
 
 export default function CardComponent({
@@ -28,6 +29,7 @@ export default function CardComponent({
   isFavorite,
   backUrl,
   showPasswordModal,
+  closePasswordModal
 }: CardProps) {
   const router = useRouter()
   const { user, isAdmin } = useUser()
@@ -246,9 +248,7 @@ export default function CardComponent({
       {showPasswordModal && (
         <PasswordModal
           isOpen={showPasswordModal}
-          onClose={() => {
-            //router.push('/')
-          }}
+          onClose={closePasswordModal!}
           card={construction}
         />
       )}

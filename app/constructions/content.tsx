@@ -65,6 +65,10 @@ export default function Content({ id, password }: Props) {
     return <CardDetailSkeleton />
   }
 
+  const closePasswordModal = () => {
+    setShowPasswordModal(false)
+  }
+
   return (
     <>
       <CardDetails
@@ -72,6 +76,7 @@ export default function Content({ id, password }: Props) {
         isFavorite={isFavorite}
         backUrl={backUrl}
         showPasswordModal={showPasswordModal}
+        closePasswordModal={closePasswordModal}
       />
     </>
   )
