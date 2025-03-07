@@ -50,7 +50,7 @@ export default function UploadFile({
           <div className="space-y-1 text-center">
             <FileSpreadsheet className="mx-auto h-12 w-12 text-gray-400" />
             <div className="flex text-sm text-gray-600">
-              <span className="relative font-medium text-blue-600 hover:underline focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+              <span className="relative font-medium text-blue-600 hover:underline focus-within:outline-hidden focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
                 Subir archivo Excel
               </span>
             </div>

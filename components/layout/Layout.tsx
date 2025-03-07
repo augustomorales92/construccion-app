@@ -180,8 +180,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       )}
 
       {/* Contenido principal */}
-      <main className="w-full flex flex-col flex-grow">
-        <div className="flex-grow w-full overflow-auto">{children}</div>
+      <main className="w-full flex flex-col grow">
+        <div className="grow w-full overflow-auto">{children}</div>
       </main>
 
       {/* Footer */}

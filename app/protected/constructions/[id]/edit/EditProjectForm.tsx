@@ -1,16 +1,20 @@
 'use client'
 
+import type React from 'react'
+
 import { createProject, updateProject } from '@/actions/constructions'
+import { Combobox, type ComboboxOption } from '@/components/projects/combobox'
+import MonthPickerList from '@/components/projects/month-picker'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Construction, Customer, Manager } from '@/lib/types'
+import type { Construction, Customer, Manager } from '@/lib/types'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import FileUpload from './FileUpload'
 import ImageUpload from './ImageUpload'
 
@@ -51,6 +55,26 @@ export default function EditProjectForm({
   const [images, setImage] = useState<File[]>([])
   const [excelFile, setExcelFile] = useState<File | null>(null)
   const router = useRouter()
+
+  // Convert clients and managers to ComboboxOption format
+  const clientOptions: ComboboxOption<Customer>[] = useMemo(() => {
+    if (!clients) return []
+    return clients.map((client) => ({
+      value: client.id,
+      label: client.name,
+      data: client,
+    }))
+  }, [clients])
+
+  const managerOptions: ComboboxOption<Manager>[] = useMemo(() => {
+    if (!managers) return []
+    return managers.map((manager) => ({
+      value: manager.id,
+      label: manager.name,
+      data: manager,
+    }))
+  }, [managers])
+
   const handleInputChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -60,18 +84,57 @@ export default function EditProjectForm({
     setProjectData((prev) => ({ ...prev, [name]: value }))
   }
 
+  const handleClientChange = (
+    value: string,
+    option?: ComboboxOption<Customer>,
+  ) => {
+    if (option && option.data) {
+      setProjectData((prev) => ({
+        ...prev,
+        customer: option.data,
+      }))
+    }
+  }
+
+  const handleManagerChange = (
+    value: string,
+    option?: ComboboxOption<Manager>,
+  ) => {
+    if (option && option.data) {
+      setProjectData((prev) => ({
+        ...prev,
+        manager: option.data,
+      }))
+    }
+  }
+
+  const handleMonthSelect = (date: Date | null, formattedValue: string) => {
+    setProjectData((prev) => ({ ...prev, estimatedTime: formattedValue }))
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     const formData = new FormData()
+
+    // Handle regular fields
     Object.entries(projectData).forEach(([key, value]) => {
-      if (Array.isArray(value)) {
+      if (key === 'customer' || key === 'manager') {
+        // Handle nested objects
+        if (value && typeof value === 'object' && 'id' in value) {
+          formData.append(`${key}Id`, value.id.toString())
+        }
+      } else if (Array.isArray(value)) {
+        // Handle arrays
         value.forEach((item, index) => {
           formData.append(`${key}[${index}]`, item)
         })
-      } else {
+      } else if (value !== undefined && value !== null) {
+        // Handle primitive values
         formData.append(key, value.toString())
       }
     })
+
+    // Handle file uploads
     images.forEach((img, index) => {
       formData.append(`imagen${index}`, img)
     })
@@ -80,19 +143,24 @@ export default function EditProjectForm({
       formData.append('excel', excelFile)
     }
 
-    if (projectData.id) {
-      await updateProject(formData)
-    } else {
-      await createProject(formData)
+    try {
+      if (projectData.id) {
+        await updateProject(formData)
+      } else {
+        await createProject(formData)
+      }
+      router.push('/obras')
+      router.refresh()
+    } catch (error) {
+      console.error('Error saving project:', error)
+      // Handle error (could add toast notification here)
     }
-    router.push('/obras')
-    router.refresh()
   }
 
   return (
     <div className="container mx-auto px-4 my-2 min-h-custom md:h-custom">
-      <Card className="p-4 border-none">
-        <CardHeader className="p-2 ">
+      <Card className="p-4 border-none shadow-sm">
+        <CardHeader className="p-2">
           <CardTitle className="mb-4 flex justify-between items-center p-2">
             <Button
               variant="ghost"
@@ -106,117 +174,157 @@ export default function EditProjectForm({
               className="flex items-center"
               size="icon"
             >
-              <ArrowLeft className=" h-4 w-4" />
+              <ArrowLeft className="h-4 w-4" />
             </Button>
 
-            <h1 className="text-3xl font-bold">
+            <h1 className="text-2xl font-bold">
               {isNewProject ? 'Agregar Nueva Obra' : 'Editar Obra'}
             </h1>
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <form className="space-y-4 flex flex-col justify-between h-full min-h-[60vh]">
-            <div>
-              <>
-                <div>
-                  <Label htmlFor="nombre">Nombre</Label>
-                  <Input
-                    id="nombre"
-                    name="nombre"
-                    value={projectData.name}
-                    onChange={handleInputChange}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="cliente">Cliente</Label>
-                  <div className="flex items-center space-x-2">
-                    <select
-                      id="cliente"
-                      name="cliente"
-                      value={projectData.customer?.id}
-                      onChange={handleInputChange}
-                      className="border p-2 rounded w-full"
-                    >
-                      <option value="">Selecione un cliente</option>
-                      {clients?.map((client) => (
-                        <option key={client.id} value={client.id}>
-                          {client.name}
-                        </option>
-                      ))}
-                      <option value="new">Nuevo Cliente</option>
-                    </select>
-                  </div>
-                </div>
-                <div>
-                  <Label htmlFor="manager">Encargado</Label>
-                  <div className="flex items-center space-x-2">
-                    <select
-                      id="manager"
-                      name="manager"
-                      value={projectData.manager?.id}
-                      onChange={handleInputChange}
-                      className="border p-2 rounded w-full"
-                    >
-                      <option value="">Selecciona al encargado</option>
-                      {managers?.map((manager) => (
-                        <option key={manager.id} value={manager.id}>
-                          {manager.name}
-                        </option>
-                      ))}
-                      <option value="new">Nuevo Encargado</option>
-                    </select>
-                  </div>
-                </div>
-                <div>
-                  <Label htmlFor="avance">Avance (%)</Label>
-                  <Input
-                    id="avance"
-                    name="avance"
-                    type="number"
-                    value={projectData.progressTotal || 0}
-                    onChange={handleInputChange}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="presupuesto">Presupuesto</Label>
-                  <Input
-                    id="presupuesto"
-                    name="presupuesto"
-                    type="number"
-                    value={projectData.budget || 0}
-                    onChange={handleInputChange}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="tiempoEstimado">Tiempo Estimado</Label>
-                  <Input
-                    id="tiempoEstimado"
-                    name="tiempoEstimado"
-                    value={projectData.estimatedTime || ''}
-                    onChange={handleInputChange}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="descripcion">Descripción</Label>
-                  <Textarea
-                    id="descripcion"
-                    name="descripcion"
-                    value={projectData.description || ''}
-                    onChange={handleInputChange}
-                  />
-                </div>
-                {!isNewProject && (
-                  <ImageUpload images={images} setImages={setImage} />
-                )}
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="nombre" className="text-sm font-medium">
+                  Nombre
+                </Label>
+                <Input
+                  id="nombre"
+                  name="nombre"
+                  value={projectData.name}
+                  onChange={handleInputChange}
+                  className="mt-1"
+                  required
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="cliente" className="text-sm font-medium">
+                  Cliente
+                </Label>
+                <Combobox
+                  options={clientOptions}
+                  value={projectData.customer?.id || ''}
+                  onChange={handleClientChange}
+                  placeholder="Seleccione un cliente"
+                  emptyMessage="No se encontraron clientes"
+                  searchPlaceholder="Buscar cliente..."
+                  renderOption={(option) => (
+                    <div className="flex flex-col">
+                      <span>{option.data.name}</span>
+                      {/*  
+                      {option.data.company && (
+                        <span className="text-xs text-muted-foreground">{option.data.company}</span>
+                      )}
+                     {option.data.email && (
+                        <span className="text-xs text-muted-foreground hidden">{option.data.email}</span>
+                      )} */}
+                    </div>
+                  )}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="manager" className="text-sm font-medium">
+                  Encargado
+                </Label>
+                <Combobox
+                  options={managerOptions}
+                  value={projectData.manager?.id || ''}
+                  onChange={handleManagerChange}
+                  placeholder="Seleccione un encargado"
+                  emptyMessage="No se encontraron encargados"
+                  searchPlaceholder="Buscar encargado..."
+                  renderOption={(option) => (
+                    <div className="flex flex-col">
+                      <span>{option.data.name}</span>
+                      {/*  {option.data.role && <span className="text-xs text-muted-foreground">{option.data.role}</span>}
+                      {option.data.department && (
+                        <span className="text-xs text-muted-foreground hidden">{option.data.department}</span>
+                      )} */}
+                    </div>
+                  )}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="avance" className="text-sm font-medium">
+                  Avance (%)
+                </Label>
+                <Input
+                  id="avance"
+                  name="avance"
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={projectData.progressTotal || 0}
+                  onChange={handleInputChange}
+                  className="mt-1"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="presupuesto" className="text-sm font-medium">
+                  Presupuesto
+                </Label>
+                <Input
+                  id="presupuesto"
+                  name="presupuesto"
+                  type="number"
+                  min="0"
+                  value={projectData.budget || 0}
+                  onChange={handleInputChange}
+                  className="mt-1"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="tiempoEstimado" className="text-sm font-medium">
+                  Tiempo Estimado
+                </Label>
+                <MonthPickerList
+                  initialValue={projectData.estimatedTime}
+                  onSelectMonth={handleMonthSelect}
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <Label htmlFor="descripcion" className="text-sm font-medium">
+                  Descripción
+                </Label>
+                <Textarea
+                  id="descripcion"
+                  name="descripcion"
+                  value={projectData.description || ''}
+                  onChange={handleInputChange}
+                  className="mt-1 min-h-[100px]"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <Label className="text-sm font-medium mb-2 block">
+                  Imágenes
+                </Label>
+                <ImageUpload images={images} setImages={setImage} />
+              </div>
+
+              <div>
+                <Label className="text-sm font-medium mb-2 block">
+                  Archivos
+                </Label>
                 <FileUpload
                   excelFile={excelFile}
                   setExcelFile={setExcelFile}
                   isNewProject={isNewProject}
                   isAdmin={isAdmin}
                 />
-              </>
+              </div>
             </div>
-            <div className="flex justify-end items-center gap-4">
+
+            <div className="flex justify-end items-center gap-4 pt-4 border-t">
               <Link
                 href={
                   isNewProject
@@ -225,6 +333,7 @@ export default function EditProjectForm({
                 }
               >
                 <Button
+                  type="button"
                   variant="destructive"
                   className="flex items-center gap-2"
                 >
@@ -232,7 +341,7 @@ export default function EditProjectForm({
                 </Button>
               </Link>
 
-              <Button type="button" onClick={handleSubmit}>
+              <Button type="submit">
                 {isNewProject ? 'Agregar Obra' : 'Guardar Cambios'}
               </Button>
             </div>

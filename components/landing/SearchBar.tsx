@@ -183,7 +183,7 @@ function ActionSearchBar({ favorites }: { favorites?: string[] }) {
       {debouncedQuery && (
         <AnimatePresence>
           <motion.div
-            className="absolute mt-1 border rounded-md shadow-sm overflow-hidden dark:border-gray-800 bg-white dark:bg-black"
+            className="absolute mt-1 border rounded-md shadow-xs overflow-hidden dark:border-gray-800 bg-white dark:bg-black"
             variants={container}
             initial="hidden"
             animate="show"
