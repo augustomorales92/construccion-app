@@ -17,14 +17,6 @@ interface SpreadsheetDialogProps {
   title?: string
   isAdmin?: boolean
   isCreation?: boolean
-  /**
-   * Datos iniciales, por ejemplo:
-   * [
-   *   ["1", "Trazo y nivelación", "m2", "8583.72", "4.79", "41014.99", "5000", "300", "5300"],
-   *   ["2", "Desmonte", "m3", "100", "10", "1000", "...", "...", "..."],
-   *   ...
-   * ]
-   */
   initialData?: string[][]
 }
 
@@ -38,6 +30,7 @@ export default function SpreadsheetDialog({
   // Definimos las columnas que quieres mostrar
   const columns = [
     'N°',
+    'SECCIÓN',
     'CONCEPTO',
     'UT',
     'CANT.',
