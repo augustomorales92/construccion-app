@@ -1,12 +1,13 @@
-"use client"
+'use client'
 
-import type React from "react"
-import { useState, useRef } from "react"
-import { FileSpreadsheet, Upload, Loader2, AlertCircle } from "lucide-react"
-import ResultModal from "./ResultModal"
-import { processData } from "./utils"
-import { ProcessedData } from "./types"
-  
+import type React from 'react'
+import { useState, useRef } from 'react'
+import { FileSpreadsheet, Upload, Loader2, AlertCircle } from 'lucide-react'
+import ResultModal from './ResultModal'
+import { processData } from './utils'
+import { Item, ProcessedData } from './types'
+import ResultModalSpreadsheet from './ResultModalSpreadsheet'
+
 export default function FileUploader() {
   const [file, setFile] = useState<File | null>(null)
   const [loading, setLoading] = useState(false)
@@ -15,6 +16,7 @@ export default function FileUploader() {
   const [isDragging, setIsDragging] = useState(false)
   const [showModal, setShowModal] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [originalItems, setOriginalItems] = useState<Item[]>([])
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0] || null
@@ -26,40 +28,52 @@ export default function FileUploader() {
 
   const handleUpload = async () => {
     if (!file) {
-      setError("Por favor, selecciona un archivo")
+      setError('Por favor, selecciona un archivo')
       return
     }
 
     const formData = new FormData()
-    formData.append("file", file)
+    formData.append('file', file)
 
     try {
       setLoading(true)
       setProcessedData(null)
       setError(null)
 
-      const res = await fetch("/api/convert", {
-        method: "POST",
+      const res = await fetch('/api/convert', {
+        method: 'POST',
         body: formData,
       })
 
       if (!res.ok) {
         const errorData = await res.json()
-        throw new Error(errorData.error || "Error en la conversión del archivo")
+        throw new Error(errorData.error || 'Error en la conversión del archivo')
       }
 
       const data = await res.json()
-      console.log("Respuesta del servidor:", data)
-
-      // Procesar los datos antes de mostrar el modal
+      console.log('Respuesta del servidor:', data)
+      setOriginalItems(data)
+      // Llamo a la fn para procesar los datos
       const processed = processData(data)
       setProcessedData(processed)
       setShowModal(true)
     } catch (error) {
-      console.error("Error:", error)
-      setError(error instanceof Error ? error.message : "Error desconocido")
+      console.error('Error:', error)
+      setError(error instanceof Error ? error.message : 'Error desconocido')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleModalClose = (isValidated: boolean | null) => {
+    setShowModal(false)
+
+    if (isValidated !== null) {
+      console.log("Datos validados:", isValidated ? "Correctos" : "Incorrectos")
+      console.log("Items originales guardados:", originalItems)
+
+      setFile(null)
+      setProcessedData(null)
     }
   }
 
@@ -89,13 +103,14 @@ export default function FileUploader() {
     const droppedFile = e.dataTransfer.files[0]
     if (
       droppedFile &&
-      (droppedFile.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
-        droppedFile.type === "application/vnd.ms-excel")
+      (droppedFile.type ===
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+        droppedFile.type === 'application/vnd.ms-excel')
     ) {
       setFile(droppedFile)
       setError(null)
     } else {
-      setError("Por favor, selecciona un archivo Excel (.xlsx, .xls)")
+      setError('Por favor, selecciona un archivo Excel (.xlsx, .xls)')
     }
   }
 
@@ -107,18 +122,23 @@ export default function FileUploader() {
 
   return (
     <div className="w-full">
-      {/* Área de drag and drop */}
       <div
         className={`p-8 border-2 border-dashed rounded-lg transition-colors duration-200 bg-white 
-          ${isDragging ? "border-green-400 bg-green-50" : "border-gray-300 hover:bg-gray-50"} 
-          ${file ? "border-blue-300" : ""}`}
+          ${isDragging ? 'border-green-400 bg-green-50' : 'border-gray-300 hover:bg-gray-50'} 
+          ${file ? 'border-blue-300' : ''}`}
         onDragEnter={handleDragEnter}
         onDragLeave={handleDragLeave}
         onDragOver={handleDragOver}
         onDrop={handleDrop}
         onClick={openFileSelector}
       >
-        <input type="file" ref={fileInputRef} accept=".xlsx,.xls" onChange={handleFileChange} className="hidden" />
+        <input
+          type="file"
+          ref={fileInputRef}
+          accept=".xlsx,.xls"
+          onChange={handleFileChange}
+          className="hidden"
+        />
 
         <div className="flex flex-col items-center justify-center text-center">
           {loading ? (
@@ -131,16 +151,22 @@ export default function FileUploader() {
               {file ? (
                 <div className="flex flex-col items-center">
                   <FileSpreadsheet className="h-12 w-12 text-blue-500 mb-4" />
-                  <p className="text-gray-700 font-medium mb-2">Archivo seleccionado:</p>
+                  <p className="text-gray-700 font-medium mb-2">
+                    Archivo seleccionado:
+                  </p>
                   <p className="text-blue-600 mb-4">{file.name}</p>
                 </div>
               ) : (
                 <>
                   <Upload className="h-12 w-12 text-gray-400 mb-4" />
                   <p className="text-gray-600 mb-2">
-                    {isDragging ? "Suelta el archivo aquí" : "Arrastra y suelta un archivo Excel (.xlsx, .xls) aquí"}
+                    {isDragging
+                      ? 'Suelta el archivo aquí'
+                      : 'Arrastra y suelta un archivo Excel (.xlsx, .xls) aquí'}
                   </p>
-                  <p className="text-blue-500 font-medium">o haz clic para seleccionar</p>
+                  <p className="text-blue-500 font-medium">
+                    o haz clic para seleccionar
+                  </p>
                 </>
               )}
             </>
@@ -148,7 +174,6 @@ export default function FileUploader() {
         </div>
       </div>
 
-      {/* Botón de subir */}
       {file && !loading && (
         <div className="mt-4 flex justify-center">
           <button
@@ -156,12 +181,11 @@ export default function FileUploader() {
             className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md transition-colors duration-200 flex items-center"
           >
             <Upload className="h-5 w-5 mr-2" />
-            Convertir Archivo
+            Procesar Archivo
           </button>
         </div>
       )}
 
-      {/* Mensaje de error */}
       {error && (
         <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start">
           <AlertCircle className="h-5 w-5 text-red-500 mt-0.5 mr-2 flex-shrink-0" />
@@ -169,11 +193,18 @@ export default function FileUploader() {
         </div>
       )}
 
-      {/* Modal con resultados */}
+      {/* Modal usando spreadsheet */}
+      {/* {processedData && showModal && (
+        <ResultModalSpreadsheet
+          data={processedData}
+          isOpen={showModal}
+          onClose={() => setShowModal(false)}
+        />
+      )} */}
+      {/* Modal de vercel (mas bonito) */}
       {processedData && showModal && (
-        <ResultModal data={processedData} isOpen={showModal} onClose={() => setShowModal(false)} />
+        <ResultModal data={processedData} isOpen={showModal} onClose={handleModalClose} />
       )}
     </div>
   )
 }
-
