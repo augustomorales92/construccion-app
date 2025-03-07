@@ -22,4 +22,4 @@ export interface ProcessedData {
   total: number
 }
 
-export type PreparedData = string[][]
+export type SpreadsheetData = string[][]

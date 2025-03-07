@@ -4,15 +4,15 @@ import type React from 'react'
 import { useState, useRef } from 'react'
 import { FileSpreadsheet, Upload, Loader2, AlertCircle } from 'lucide-react'
 import ResultModal from './ResultModal'
-import { prepareData, processData } from './utils'
-import { Item, PreparedData, ProcessedData } from './types'
+import { convertDataToSpreadsheetFormat, processData } from './utils'
+import { Item, SpreadsheetData, ProcessedData } from './types'
 import ResultModalSpreadsheet from './ResultModalSpreadsheet'
 
 export default function FileUploader() {
   const [file, setFile] = useState<File | null>(null)
   const [loading, setLoading] = useState(false)
-  const [processedData, setProcessedData] = useState<ProcessedData | null>(null)
-  const [preparedData, setPreparedData] = useState<PreparedData | null>(null)
+  // const [processedData, setProcessedData] = useState<ProcessedData | null>(null)
+  const [spreadsheetData, setSpreadsheetData] = useState<SpreadsheetData | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isDragging, setIsDragging] = useState(false)
   const [showModal, setShowModal] = useState(false)
@@ -38,8 +38,8 @@ export default function FileUploader() {
 
     try {
       setLoading(true)
-      setPreparedData(null)
-      setProcessedData(null)
+      setSpreadsheetData(null)
+      // setProcessedData(null)
       setError(null)
 
       const res = await fetch('/api/convert', {
@@ -55,12 +55,13 @@ export default function FileUploader() {
       const data = await res.json()
       console.log('Respuesta del servidor:', data)
       setOriginalItems(data)
-      // Llamo a la fn para procesar los datos
+      // Llamo a la fn para procesar los datos con groupBy
       const processed = processData(data)
-      setProcessedData(processed)
-      // Llamo a la fn para acomodar con spreadsheet
-      const prepared = prepareData(data)
-      setPreparedData(prepared)
+      // setProcessedData(processed)
+      
+      // Invoco a la fn para acomodar con spreadsheet
+      const preparedToSpreadSheet = convertDataToSpreadsheetFormat(processed)
+      setSpreadsheetData(preparedToSpreadSheet)
       setShowModal(true)
     } catch (error) {
       console.error('Error:', error)
@@ -78,8 +79,8 @@ export default function FileUploader() {
       console.log('Items originales guardados:', originalItems)
 
       setFile(null)
-      setProcessedData(null)
-      setPreparedData(null)
+      // setProcessedData(null)
+      setSpreadsheetData(null)
     }
   }
 
@@ -200,9 +201,9 @@ export default function FileUploader() {
       )}
 
       {/* Modal usando spreadsheet */}
-      {preparedData && showModal && (
+      {spreadsheetData && showModal && (
         <ResultModalSpreadsheet
-          data={preparedData}
+          data={spreadsheetData}
           isOpen={showModal}
           onClose={handleModalClose}
         />

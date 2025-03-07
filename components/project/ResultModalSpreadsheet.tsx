@@ -50,7 +50,7 @@ export default function ResultModalSpreadsheet({ data, isOpen, onClose }: Result
 
           {/* Usamos el componente SpreadsheetDialog con los datos procesados */}
           <div className="border border-border bg-background overflow-x-auto">
-            <SpreadsheetDialog title="Ver hoja de materiales" initialData={data} isAdmin={false} />
+            <SpreadsheetDialog title="Ver hoja de materiales" initialData={data} isAdmin={false} isCreation={true} />
           </div>
         </div>
 

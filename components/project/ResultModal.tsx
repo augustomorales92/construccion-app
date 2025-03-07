@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import { X, CheckCircle, AlertCircle } from 'lucide-react'
 import { ProcessedData } from './types'
+import { formatCurrency } from './utils'
 
 interface ResultModalProps {
   data: ProcessedData
@@ -18,14 +19,6 @@ export default function ResultModal({
   const [isValid, setIsValid] = useState<boolean | null>(null)
 
   if (!isOpen) return null
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('es-AR', {
-      style: 'currency',
-      currency: 'ARS',
-      minimumFractionDigits: 2,
-    }).format(value)
-  }
 
   const handleValidation = (valid: boolean) => {
     setIsValid(valid)

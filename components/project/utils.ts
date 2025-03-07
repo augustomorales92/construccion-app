@@ -28,49 +28,34 @@ export const processData = (data: Item[]): ProcessedData => {
   return { sections, total }
 }
 
-// PrepareData para el componente spreedSheet
-export const prepareData = (data: Item[]): string[][] => {
-  const groupedData = Object.groupBy(data, ({ section }: Item) => section)
+export const formatCurrency = (value: number) => {
+  return new Intl.NumberFormat("es-AR", {
+    style: "currency",
+    currency: "ARS",
+    minimumFractionDigits: 2,
+  }).format(value)
+}
 
-  let nextLetter = "A"
-  const rows: string[][] = []
+export const convertDataToSpreadsheetFormat = (data:ProcessedData)=> {
+  const spreadsheetData: string[][] = []
 
-  Object.entries(groupedData).forEach(([sectionName, items]) => {
-    const letter = nextLetter
-    nextLetter = String.fromCharCode(nextLetter.charCodeAt(0) + 1)
+  Object.entries(data.sections).forEach(([sectionName, { letter, items }]) => {
+    spreadsheetData.push([letter, sectionName, "", "", "", "", ""])
 
-    // Agregar fila de encabezado para la sección
-    rows.push([
-      letter,
-      sectionName,
-      "", // UT
-      "", // CANT
-      "", // PRECIO UNIT
-      "", // SUBTOTAL
-      "", // ACLM ANT
-      "", // ACTUAL
-      "", // ACLM
-    ])
-
-    // Agregar los ítems
-    items?.forEach((item, index) => {
-      rows.push([
-        `${letter}.${index + 1}`,
+    items.forEach((item) => {
+      spreadsheetData.push([
+        item.code,
+        item.section,
         item.description,
         item.unit,
         item.quantity.toString(),
-        item.price.toString(),
-        (item.quantity * item.price).toString(),
-        "", // ACLM ANT
-        "", // ACTUAL
-        "", // ACLM
+        item.price.toLocaleString("es-AR"),
+        formatCurrency(item.subtotal).replace("ARS", "").trim(),
       ])
     })
   })
 
-  // Agregar fila de total
-  const total = data.reduce((sum, item) => sum + item.quantity * item.price, 0)
-  rows.push(["", "TOTAL", "", "", "", total.toString(), "", "", ""])
+  spreadsheetData.push(["", "", "", "", "", "TOTAL:", formatCurrency(data.total).replace("ARS", "").trim()])
 
-  return rows
+  return spreadsheetData
 }
