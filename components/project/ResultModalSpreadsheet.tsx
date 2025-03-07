@@ -1,78 +1,33 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { X, CheckCircle, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { ProcessedData } from "./types"
 import SpreadsheetDialog from "../Spreadsheet"
 
-
 interface ResultModalProps {
-  data: ProcessedData
+  data: string[][] 
   isOpen: boolean
-  onClose: () => void
+  onClose: (isValidated: boolean | null) => void
 }
 
 export default function ResultModalSpreadsheet({ data, isOpen, onClose }: ResultModalProps) {
   const [isValid, setIsValid] = useState<boolean | null>(null)
-  const [spreadsheetData, setSpreadsheetData] = useState<string[][]>([])
-
-  // Convertir los datos procesados al formato que espera SpreadsheetDialog
-  useEffect(() => {
-    if (data) {
-      const rows: string[][] = []
-
-      // Para cada sección, añadir una fila de encabezado y luego los ítems
-      Object.entries(data.sections).forEach(([sectionName, { letter, items }]) => {
-        // Añadir fila de encabezado de sección
-        rows.push([
-          letter,
-          sectionName,
-          "", // UT
-          "", // CANT
-          "", // PRECIO UNIT
-          "", // SUBTOTAL
-          "", // ACLM ANT
-          "", // ACTUAL
-          "", // ACLM
-        ])
-
-        // Añadir los ítems de la sección
-        items.forEach((item) => {
-          rows.push([
-            item.code,
-            item.description,
-            item.unit,
-            item.quantity.toString(),
-            item.price.toString(),
-            item.subtotal.toString(),
-            "", // ACLM ANT (vacío por defecto)
-            "", // ACTUAL (vacío por defecto)
-            "", // ACLM (vacío por defecto)
-          ])
-        })
-      })
-
-      // Añadir fila de total
-      rows.push(["", "TOTAL", "", "", "", data.total.toString(), "", "", ""])
-
-      setSpreadsheetData(rows)
-    }
-  }, [data])
+ 
 
   const handleValidation = (valid: boolean) => {
     setIsValid(valid)
     // Aquí podrías enviar la validación a un servidor si es necesario
     setTimeout(() => {
-      onClose()
+        onClose(valid)
     }, 1500)
   }
 
   if (!isOpen) return null
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose(isValid)}>
       <DialogContent className="max-w-[95vw] max-h-[90vh] p-0 overflow-auto">
         <DialogHeader className="px-4 pt-4">
           <DialogTitle>Resultados de la Conversión</DialogTitle>
@@ -95,7 +50,7 @@ export default function ResultModalSpreadsheet({ data, isOpen, onClose }: Result
 
           {/* Usamos el componente SpreadsheetDialog con los datos procesados */}
           <div className="border border-border bg-background overflow-x-auto">
-            <SpreadsheetDialog title="Hoja de Materiales" initialData={spreadsheetData} isAdmin={false} />
+            <SpreadsheetDialog title="Ver hoja de materiales" initialData={data} isAdmin={false} />
           </div>
         </div>
 
@@ -113,7 +68,7 @@ export default function ResultModalSpreadsheet({ data, isOpen, onClose }: Result
             </>
           )}
           {isValid !== null && (
-            <Button variant="default" onClick={onClose}>
+            <Button variant="default" onClick={() => onClose(isValid)}>
               Cerrar
             </Button>
           )}

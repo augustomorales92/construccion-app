@@ -4,14 +4,15 @@ import type React from 'react'
 import { useState, useRef } from 'react'
 import { FileSpreadsheet, Upload, Loader2, AlertCircle } from 'lucide-react'
 import ResultModal from './ResultModal'
-import { processData } from './utils'
-import { Item, ProcessedData } from './types'
+import { prepareData, processData } from './utils'
+import { Item, PreparedData, ProcessedData } from './types'
 import ResultModalSpreadsheet from './ResultModalSpreadsheet'
 
 export default function FileUploader() {
   const [file, setFile] = useState<File | null>(null)
   const [loading, setLoading] = useState(false)
   const [processedData, setProcessedData] = useState<ProcessedData | null>(null)
+  const [preparedData, setPreparedData] = useState<PreparedData | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isDragging, setIsDragging] = useState(false)
   const [showModal, setShowModal] = useState(false)
@@ -37,6 +38,7 @@ export default function FileUploader() {
 
     try {
       setLoading(true)
+      setPreparedData(null)
       setProcessedData(null)
       setError(null)
 
@@ -56,6 +58,9 @@ export default function FileUploader() {
       // Llamo a la fn para procesar los datos
       const processed = processData(data)
       setProcessedData(processed)
+      // Llamo a la fn para acomodar con spreadsheet
+      const prepared = prepareData(data)
+      setPreparedData(prepared)
       setShowModal(true)
     } catch (error) {
       console.error('Error:', error)
@@ -69,11 +74,12 @@ export default function FileUploader() {
     setShowModal(false)
 
     if (isValidated !== null) {
-      console.log("Datos validados:", isValidated ? "Correctos" : "Incorrectos")
-      console.log("Items originales guardados:", originalItems)
+      console.log('Datos validados:', isValidated ? 'Correctos' : 'Incorrectos')
+      console.log('Items originales guardados:', originalItems)
 
       setFile(null)
       setProcessedData(null)
+      setPreparedData(null)
     }
   }
 
@@ -181,7 +187,7 @@ export default function FileUploader() {
             className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md transition-colors duration-200 flex items-center"
           >
             <Upload className="h-5 w-5 mr-2" />
-            Procesar Archivo
+            Verificar Archivo
           </button>
         </div>
       )}
@@ -194,17 +200,17 @@ export default function FileUploader() {
       )}
 
       {/* Modal usando spreadsheet */}
-      {/* {processedData && showModal && (
+      {preparedData && showModal && (
         <ResultModalSpreadsheet
-          data={processedData}
+          data={preparedData}
           isOpen={showModal}
-          onClose={() => setShowModal(false)}
+          onClose={handleModalClose}
         />
-      )} */}
-      {/* Modal de vercel (mas bonito) */}
-      {processedData && showModal && (
-        <ResultModal data={processedData} isOpen={showModal} onClose={handleModalClose} />
       )}
+      {/* Modal de vercel (mas bonito) */}
+      {/* {processedData && showModal && (
+        <ResultModal data={processedData} isOpen={showModal} onClose={handleModalClose} />
+      )} */}
     </div>
   )
 }

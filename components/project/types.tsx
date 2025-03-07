@@ -21,3 +21,5 @@ export interface ProcessedData {
   }
   total: number
 }
+
+export type PreparedData = string[][]

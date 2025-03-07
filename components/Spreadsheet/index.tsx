@@ -38,6 +38,7 @@ export default function SpreadsheetDialog({
   // Definimos las columnas que quieres mostrar
   const columns = [
     'N°',
+    'SECCIÓN',
     'CONCEPTO',
     'UT',
     'CANT.',
