@@ -22,7 +22,6 @@ export default function ResultModal({
 
   const handleValidation = (valid: boolean) => {
     setIsValid(valid)
-    // Aquí podrías enviar la validación a un servidor si es necesario
     setTimeout(() => {
       onClose(valid)
     }, 1500)
