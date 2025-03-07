@@ -20,7 +20,7 @@ export default function CardComponent({
 }: CardProps) {
   return (
     <Card
-      className={`overflow-hidden shadow-md shadow-current ${isBlur ? 'blur-sm' : ''}`}
+      className={`overflow-hidden shadow-md shadow-current ${isBlur ? 'blur-xs' : ''}`}
       onClick={onClick}
     >
       <CardHeader className="p-0 relative">

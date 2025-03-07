@@ -264,7 +264,7 @@ const BudgetTable: React.FC = () => {
           <div
             onPaste={(e) => handlePaste(e, section.id)}
             tabIndex={0}
-            className="focus:outline-none overflow-x-auto"
+            className="focus:outline-hidden overflow-x-auto"
           >
             <Table className="border-collapse">
               <TableHeader>

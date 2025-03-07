@@ -1,4 +1,3 @@
-import { progress } from 'framer-motion'
 import * as z from 'zod'
 
 export const incidentSchema = z.object({
@@ -11,14 +10,14 @@ export const managerSchema = z.object({
   name: z.string().min(3, 'Mínimo 3 caracteres'),
   email: z.string().email('Email inválido').optional(),
   phone: z.string().optional(),
-  projectIds: z.array(z.string()).optional(), 
+  projectIds: z.array(z.string()).optional(),
 })
 
 export const customerSchema = z.object({
   name: z.string().min(3, 'Mínimo 3 caracteres'),
   email: z.string().email('Email inválido').optional(),
   phone: z.string().optional(),
-  projectIds: z.array(z.string()).optional(), 
+  projectIds: z.array(z.string()).optional(),
 })
 
 export const projectSchema = z.object({
@@ -28,7 +27,7 @@ export const projectSchema = z.object({
   budget: z.number().optional(),
   projectNumber: z.string().optional(),
   accessCode: z.string(),
-  managerId:z.string().optional(),
+  managerId: z.string().optional(),
 })
 
 const itemSchema = z.object({

@@ -19,7 +19,7 @@ export default function HeroBanner() {
         placeholder="blur"
         blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PC9zdmc+"
       />
-      <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
         <div className="w-full max-w-4xl px-4">
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-6 text-center">
             Busca tu obra

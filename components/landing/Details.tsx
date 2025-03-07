@@ -21,6 +21,7 @@ interface CardProps {
   isFavorite?: boolean
   backUrl?: string
   showPasswordModal?: boolean
+  closePasswordModal?: () => void
 }
 
 export default function CardComponent({
@@ -28,6 +29,7 @@ export default function CardComponent({
   isFavorite,
   backUrl,
   showPasswordModal,
+  closePasswordModal,
 }: CardProps) {
   const router = useRouter()
   const { user, isAdmin } = useUser()
@@ -110,18 +112,28 @@ export default function CardComponent({
         <Card className="mb-8">
           <CardContent className="p-0 relative">
             <div className="relative h-[25rem] w-full">
-              {construction?.images.map((foto, index) => (
+              {construction?.images?.length ? (
+                construction?.images.map((foto, index) => (
+                  <Image
+                    key={index}
+                    width={500}
+                    height={500}
+                    src={foto ?? '/images/placeholder.svg'}
+                    alt={`Foto ${index + 1} de la Construction`}
+                    className={`absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-500 ${
+                      index === currentPhotoIndex ? 'opacity-100' : 'opacity-0'
+                    }`}
+                  />
+                ))
+              ) : (
                 <Image
-                  key={index}
                   width={500}
                   height={500}
-                  src={foto || '/images/placeholder.svg'}
-                  alt={`Foto ${index + 1} de la Construction`}
-                  className={`absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-500 ${
-                    index === currentPhotoIndex ? 'opacity-100' : 'opacity-0'
-                  }`}
+                  src={'/images/placeholder.svg'}
+                  alt={`Foto  de la Construction`}
+                  className={`absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-500 ${'opacity-100'}`}
                 />
-              ))}
+              )}
             </div>
             {!isProtected && (
               <span
@@ -246,9 +258,7 @@ export default function CardComponent({
       {showPasswordModal && (
         <PasswordModal
           isOpen={showPasswordModal}
-          onClose={() => {
-            //router.push('/')
-          }}
+          onClose={closePasswordModal!}
           card={construction}
         />
       )}

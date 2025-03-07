@@ -1,10 +1,19 @@
+import { ourFileRouter } from '@/app/api/uploadthing/core'
 import Layout from '@/components/layout'
 import { Toaster } from '@/components/ui/sonner'
+import { NextSSRPlugin } from '@uploadthing/react/next-ssr-plugin'
 import { ThemeProvider } from 'next-themes'
 import { Geist } from 'next/font/google'
-//import Layout from './(auth-pages)/layout'
+import { connection } from 'next/server'
+import { Suspense } from 'react'
+import { extractRouterConfig } from 'uploadthing/server'
 
 import './globals.css'
+
+async function UTSSR() {
+  await connection()
+  return <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
+}
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -28,6 +37,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={geistSans.className} suppressHydrationWarning>
+      <Suspense fallback={null}>
+        <UTSSR />
+      </Suspense>
       <body className="bg-background text-foreground">
         <ThemeProvider
           attribute="class"

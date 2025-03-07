@@ -70,6 +70,7 @@ model Incident {
   project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   userId      String
   user        User     @relation(fields: [userId], references: [id])
+  images      String[] @default([])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -77,14 +78,14 @@ model Incident {
 }
 
 model Certificate {
-  id                  String                    @id @default(uuid())
-  version             Int?
-  certificateItems    CertificateItemProgress[]
-  status              ProgressUpdateStatus      @default(PENDING)
-  certificateAmount   Float?                    @default(0)
-  issuedAt            DateTime                  @default(now())
-  Project             Project                   @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  projectId           String
+  id                String                    @id @default(uuid())
+  version           Int?
+  certificateItems  CertificateItemProgress[]
+  status            ProgressUpdateStatus      @default(PENDING)
+  certificateAmount Float?                    @default(0)
+  issuedAt          DateTime                  @default(now())
+  Project           Project                   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId         String
 
   @@map("certificates")
 }

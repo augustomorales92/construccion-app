@@ -36,7 +36,7 @@ export function ConstructionIncidentsTimeline({ incidents }: ConstructionInciden
                   <span className="absolute top-8 left-4 -bottom-9 w-px bg-border" />
                 )}
                 <div className="flex items-start">
-                  <div className="flex-shrink-0 mr-4">
+                  <div className="shrink-0 mr-4">
                     <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground">
                       <Calendar className="h-4 w-4" />
                     </div>
