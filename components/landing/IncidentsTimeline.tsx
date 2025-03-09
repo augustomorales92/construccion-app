@@ -43,7 +43,7 @@ export function ConstructionIncidentsTimeline({ incidents }: ConstructionInciden
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="text-sm font-medium text-foreground">
-                      {new Date(incident.date).toLocaleDateString("es-ES", {
+                      {new Date(incident.issuedAt).toLocaleDateString("es-ES", {
                         year: "numeric",
                         month: "long",
                         day: "numeric",

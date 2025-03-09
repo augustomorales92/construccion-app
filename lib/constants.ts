@@ -88,57 +88,66 @@ const date = new Date()
 export const sampleIncidents: Incidents[] = [
   {
     id: '1',
-    date: date,
+    issuedAt: date,
     description: 'Inicio de la excavación para los cimientos.',
-
+    status: 'APPROVED',
   },
   {
     id: '2',
-    date: date,
+    issuedAt: date,
     description:
       'Retraso debido a lluvias intensas. Trabajo suspendido por 2 días.',
+    status: 'APPROVED',
   },
   {
     id: '3',
-    date: date,
+    issuedAt: date,
     description: 'Finalización de la colocación de cimientos.',
+    status: 'APPROVED',
   },
   {
     id: '4',
-    date: date,
+    issuedAt: date,
     description: 'Inicio de la construcción de la estructura principal.',
+    status: 'APPROVED',
   },
   {
     id: '5',
-    date: date,
+    issuedAt: date,
     description:
       'Problema con el suministro de materiales. Retraso estimado de 1 semana.',
+    status: 'APPROVED',
   },
   {
     id: '6',
-    date: date,
+    issuedAt: date,
     description: 'Finalización de la estructura principal.',
+    status: 'APPROVED',
   },
   {
     id: '7',
-    date: date,
+    issuedAt: date,
     description: 'Inicio de trabajos de instalación eléctrica y fontanería.',
+    status: 'APPROVED',
   },
   {
     id: '8',
-    date: date,
+    issuedAt: date,
     description:
       'Inspección de seguridad realizada. Todos los estándares cumplidos.',
+    status: 'APPROVED',
   },
   {
     id: '9',
-    date: date,
+    issuedAt: date,
     description: 'Inicio de trabajos de acabado interior.',
+    status: 'APPROVED',
   },
   {
     id: '10',
-    date: date,
+    issuedAt: date,
     description:
       'Retraso en la entrega de materiales para acabados. Impacto estimado de 3 días.',
+    status: 'PENDING',
   },
 ]
