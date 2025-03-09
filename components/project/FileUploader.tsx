@@ -1,18 +1,18 @@
 'use client'
 
+import { AlertCircle, FileSpreadsheet, Loader2, Upload } from 'lucide-react'
 import type React from 'react'
-import { useState, useRef } from 'react'
-import { FileSpreadsheet, Upload, Loader2, AlertCircle } from 'lucide-react'
-import ResultModal from './ResultModal'
-import { convertDataToSpreadsheetFormat, processData } from './utils'
-import { Item, SpreadsheetData, ProcessedData } from './types'
+import { useRef, useState } from 'react'
 import ResultModalSpreadsheet from './ResultModalSpreadsheet'
+import { Item, SpreadsheetData } from './types'
+import { convertDataToSpreadsheetFormat, processData } from './utils'
 
 export default function FileUploader() {
   const [file, setFile] = useState<File | null>(null)
   const [loading, setLoading] = useState(false)
   // const [processedData, setProcessedData] = useState<ProcessedData | null>(null)
-  const [spreadsheetData, setSpreadsheetData] = useState<SpreadsheetData | null>(null)
+  const [spreadsheetData, setSpreadsheetData] =
+    useState<SpreadsheetData | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isDragging, setIsDragging] = useState(false)
   const [showModal, setShowModal] = useState(false)
@@ -58,7 +58,7 @@ export default function FileUploader() {
       // Llamo a la fn para procesar los datos con groupBy
       const processed = processData(data)
       // setProcessedData(processed)
-      
+
       // Invoco a la fn para acomodar con spreadsheet
       const preparedToSpreadSheet = convertDataToSpreadsheetFormat(processed)
       setSpreadsheetData(preparedToSpreadSheet)
@@ -130,8 +130,8 @@ export default function FileUploader() {
   return (
     <div className="w-full">
       <div
-        className={`p-8 border-2 border-dashed rounded-lg transition-colors duration-200 bg-white 
-          ${isDragging ? 'border-green-400 bg-green-50' : 'border-gray-300 hover:bg-gray-50'} 
+        className={`p-8 border-2 border-dashed rounded-lg transition-colors duration-200 
+          ${isDragging ? 'border-green-400 bg-green-500/10' : 'border-gray-300 hover:bg-primary/10'} 
           ${file ? 'border-blue-300' : ''}`}
         onDragEnter={handleDragEnter}
         onDragLeave={handleDragLeave}

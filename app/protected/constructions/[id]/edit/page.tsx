@@ -2,16 +2,13 @@ import { handleSSRQueries } from '@/actions/auth'
 import { getProjectById } from '@/actions/constructions'
 import { getCustomers, getManagers } from '@/actions/people'
 import { notFound } from 'next/navigation'
+import { Suspense } from 'react'
 import EditProjectForm from './EditProjectForm'
 
-export default async function EditConstruction({
-  params,
-}: {
-  params: Promise<{ id: string }>
-}) {
-  let construction = null
+async function Content({ params }: { params: Promise<{ id: string }> }) {
+  const id = (await params).id
   const [data, clients, managers] = await Promise.all([
-    getProjectById(params),
+    getProjectById(id),
     handleSSRQueries(getCustomers),
     handleSSRQueries(getManagers),
   ])
@@ -22,10 +19,18 @@ export default async function EditConstruction({
 
   return (
     <EditProjectForm
-      project={construction}
+      project={data?.project}
       clients={clients?.data}
       managers={managers?.data}
-      isNewProject={data?.id === 'new'}
+      isNewProject={id === 'new'}
     />
+  )
+}
+
+export default function Page({ params }: { params: Promise<{ id: string }> }) {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <Content params={params} />
+    </Suspense>
   )
 }

@@ -7,7 +7,8 @@ export default async function Details({
 }: {
   params: Promise<{ id: string }>
 }) {
-  const data = await getProjectById(params)
+  const id = (await params).id
+  const data = await getProjectById(id)
 
   if (data?.project === null) {
     notFound()

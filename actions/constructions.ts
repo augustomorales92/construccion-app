@@ -230,9 +230,8 @@ export async function getProjectsByQuery(
 }
 
 export const getProjectById = unstable_cache(
-  async (params: Promise<{ id: string }>) => {
+  async (id: string) => {
     try {
-      const { id } = await params
       if (id === 'new') {
         return { project: undefined, id }
       }

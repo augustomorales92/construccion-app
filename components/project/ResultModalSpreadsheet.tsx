@@ -1,26 +1,38 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { X, CheckCircle, AlertCircle } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import SpreadsheetDialog from "../Spreadsheet"
+import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import useUser from '@/hooks/use-user'
+import { AlertCircle, CheckCircle, X } from 'lucide-react'
+import { useState } from 'react'
+import Table from '../Spreadsheet/Table'
+import { importColumns } from '../Spreadsheet/utils'
 
 interface ResultModalProps {
-  data: string[][] 
+  data: string[][]
   isOpen: boolean
   onClose: (isValidated: boolean | null) => void
 }
 
-export default function ResultModalSpreadsheet({ data, isOpen, onClose }: ResultModalProps) {
+export default function ResultModalSpreadsheet({
+  data,
+  isOpen,
+  onClose,
+}: ResultModalProps) {
   const [isValid, setIsValid] = useState<boolean | null>(null)
- 
+  const { isAdmin } = useUser()
 
   const handleValidation = (valid: boolean) => {
     setIsValid(valid)
     // Aquí podrías enviar la validación a un servidor si es necesario
     setTimeout(() => {
-        onClose(valid)
+      onClose(valid)
     }, 1500)
   }
 
@@ -44,24 +56,39 @@ export default function ResultModalSpreadsheet({ data, isOpen, onClose }: Result
           {isValid === false && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center">
               <AlertCircle className="h-5 w-5 text-red-500 mr-2" />
-              <p className="text-red-700">Se ha marcado que los datos no son correctos.</p>
+              <p className="text-red-700">
+                Se ha marcado que los datos no son correctos.
+              </p>
             </div>
           )}
 
           {/* Usamos el componente SpreadsheetDialog con los datos procesados */}
-          <div className="border border-border bg-background overflow-x-auto">
-            <SpreadsheetDialog title="Ver hoja de materiales" initialData={data} isAdmin={false} isCreation={true} />
+          <div className=" overflow-x-auto">
+            <Table
+              initialData={data}
+              isAdmin={isAdmin}
+              isEditing
+              cols={importColumns}
+            />
           </div>
         </div>
 
         <DialogFooter className="border-t p-4 flex justify-end space-x-4">
           {isValid === null && (
             <>
-              <Button variant="destructive" onClick={() => handleValidation(false)} className="flex items-center">
+              <Button
+                variant="destructive"
+                onClick={() => handleValidation(false)}
+                className="flex items-center"
+              >
                 <X className="h-4 w-4 mr-2" />
                 No es correcto
               </Button>
-              <Button variant="default" onClick={() => handleValidation(true)} className="flex items-center">
+              <Button
+                variant="default"
+                onClick={() => handleValidation(true)}
+                className="flex items-center"
+              >
                 <CheckCircle className="h-4 w-4 mr-2" />
                 Validar datos
               </Button>
@@ -77,4 +104,3 @@ export default function ResultModalSpreadsheet({ data, isOpen, onClose }: Result
     </Dialog>
   )
 }
-
