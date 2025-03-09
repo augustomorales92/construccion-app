@@ -1,3 +1,4 @@
+import { handleSSRQueries } from '@/actions/auth'
 import { getProjectById } from '@/actions/constructions'
 import { getCustomers, getManagers } from '@/actions/people'
 import { notFound } from 'next/navigation'
@@ -11,8 +12,8 @@ export default async function EditConstruction({
   let construction = null
   const [data, clients, managers] = await Promise.all([
     getProjectById(params),
-    getCustomers(),
-    getManagers(),
+    handleSSRQueries(getCustomers),
+    handleSSRQueries(getManagers),
   ])
 
   if (data?.project === null) {

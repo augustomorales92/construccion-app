@@ -10,10 +10,8 @@ import { v4 as uuidv4 } from 'uuid'
 import getUser from './auth'
 
 export const getMyConstructions = unstable_cache(
-  async () => {
-    const userAuth = await getUser()
-
-    if (!userAuth) {
+  async (userId: string) => {
+    if (!userId) {
       return null
     }
 
@@ -22,7 +20,7 @@ export const getMyConstructions = unstable_cache(
         where: {
           users: {
             some: {
-              userId: userAuth.id,
+              userId: userId,
             },
           },
         },
@@ -281,14 +279,13 @@ export async function getFavoriteProjects(favorites: string[]) {
 }
 
 export const getPendingReports = unstable_cache(
-  async () => {
+  async (userId: string) => {
     try {
-      const user = await getUser()
       const projectsIds = await prisma.project.findMany({
         where: {
           users: {
             some: {
-              userId: user?.id,
+              userId: userId,
             },
           },
         },

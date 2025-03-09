@@ -88,6 +88,7 @@ export default function Managers({ managers }: Props) {
         setIsDialogOpen(false)
         setSelectedManager(null)
       } catch (error) {
+        console.error('Error creating/updating manager:', error)
         toast.error(
           'Ocurrió un error al procesar la operación. Por favor, intente nuevamente.',
         )
@@ -107,6 +108,7 @@ export default function Managers({ managers }: Props) {
         toast.success('Encargado eliminado correctamente')
         setIsAlertDialogOpen(false)
       } catch (error) {
+        console.error('Error deleting manager:', error)
         toast.error('Error al eliminar el encarcago')
       }
     })

@@ -6,7 +6,7 @@ import {
   createServerComponentClient,
 } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
-import { cookies } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 
 export default async function getUser() {
   const supabase = await createServerComponentClient({ cookies })
@@ -16,6 +16,18 @@ export default async function getUser() {
   } = await supabase.auth.getUser()
 
   return user
+}
+
+export async function handleSSRQueries<P extends any[], T>(
+  callback: (userId: string, ...args: P) => Promise<T>,
+  ...args: P
+): Promise<T | null> {
+  const headersList = await headers()
+  const userId = headersList.get('x-user-id')
+
+  if (!userId) return null
+
+  return callback(userId, ...args)
 }
 
 export async function getLoggedInUser() {

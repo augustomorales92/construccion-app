@@ -4,7 +4,6 @@ import prisma from '@/lib/db'
 import { Customer, Manager } from '@/lib/types'
 import { revalidate, unstable_cache } from '@/lib/unstable_cache'
 import { revalidatePath } from 'next/cache'
-import getUser from './auth'
 
 export async function createCustomer(data: Omit<Customer, 'id'>) {
   try {
@@ -55,17 +54,16 @@ export async function deleteCustomer(id?: string) {
 }
 
 export const getCustomers = unstable_cache(
-  async () => {
+  async (userId: string) => {
     try {
-      const user = await getUser()
-      if (!user) {
+      if (!userId) {
         return { success: false, error: 'Unauthorized' }
       }
       const customers = await prisma.customer.findMany({
         where: {
           users: {
             some: {
-              id: user.id,
+              id: userId,
             },
           },
         },
@@ -129,17 +127,16 @@ export async function deleteManager(id?: string) {
 }
 
 export const getManagers = unstable_cache(
-  async () => {
+  async (userId: string) => {
     try {
-      const user = await getUser()
-      if (!user) {
+      if (!userId) {
         return { success: false, error: 'Unauthorized' }
       }
       const managers = await prisma.manager.findMany({
         where: {
           users: {
             some: {
-              id: user.id,
+              id: userId,
             },
           },
         },

@@ -1,9 +1,7 @@
 'use client'
 import FileUploader from '@/components/project/FileUploader'
 import SpreadsheetDialog from '@/components/Spreadsheet'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { FileSpreadsheet } from 'lucide-react'
 
 type Props = {
   excelFile: File | null
@@ -36,7 +34,7 @@ export default function UploadFile({
           isAdmin={isAdmin}
         />
       </span>
-      <FileUploader/>
+      <FileUploader />
       {/* <div className="mt-2">
         <Input
           id="excel"

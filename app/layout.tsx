@@ -47,7 +47,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Layout>{children}</Layout>
+          <Suspense fallback={null}>
+            <Layout>{children}</Layout>
+          </Suspense>
           <Toaster />
         </ThemeProvider>
       </body>

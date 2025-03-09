@@ -41,6 +41,7 @@ export function ViewDetailsDialog({
           throw new Error(result.error)
         }
       } catch (error) {
+        console.error('Error updating report status:', error)
         toast.error(
           'Ocurrió un error al actualizar el estado. Por favor, intente nuevamente.',
         )

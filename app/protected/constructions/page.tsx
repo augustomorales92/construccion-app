@@ -1,9 +1,10 @@
+import { handleSSRQueries } from '@/actions/auth'
 import { getMyConstructions } from '@/actions/constructions'
 import Grid from './grid'
 import SearchBar from './SearchBar'
 
 export default async function Constructions() {
-  const constructions = await getMyConstructions()
+  const constructions = await handleSSRQueries(getMyConstructions)
 
   return (
     <div className="min-h-custom md:h-custom w-full bg-background container">
