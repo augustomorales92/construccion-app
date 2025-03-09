@@ -12,11 +12,12 @@ export interface Certificates {
 export interface Incidents {
   id: string
   description: string
-  date: Date
+  issuedAt: Date
   projectId?: string
   userId?: string
   createdAt?: Date
   updatedAt?: Date
+  status: ProgressUpdateStatus
 }
 
 export interface Construction {

@@ -17,6 +17,8 @@ model User {
   incidents     Incident[]
   notifications Notification[]
   messages      Message[]
+  customer      Customer[]
+  manager       Manager[]
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 
@@ -63,16 +65,17 @@ model UserProject {
 }
 
 model Incident {
-  id          String   @id @default(uuid())
+  id          String               @id @default(uuid())
   description String
-  date        DateTime @default(now())
+  issuedAt    DateTime             @default(now())
   projectId   String
-  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  project     Project              @relation(fields: [projectId], references: [id], onDelete: Cascade)
   userId      String
-  user        User     @relation(fields: [userId], references: [id])
-  images      String[] @default([])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  user        User                 @relation(fields: [userId], references: [id])
+  status      ProgressUpdateStatus @default(PENDING)
+  images      String[]             @default([])
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
 
   @@map("incidents")
 }
@@ -144,13 +147,14 @@ model Notification {
 }
 
 model Manager {
-  id        String    @id @default(uuid())
-  name      String
-  email     String?
-  phone     String?
-  projects  Project[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id       String    @id @default(uuid())
+  name     String
+  email    String?
+  phone    String?
+  projects Project[]
+  users    User[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("managers")
 }
@@ -161,6 +165,7 @@ model Customer {
   email     String?
   phone     String?
   projects  Project[]
+  users     User[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 

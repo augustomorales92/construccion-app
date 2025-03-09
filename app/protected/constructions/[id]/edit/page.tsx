@@ -1,9 +1,5 @@
-import getUser from '@/actions/auth'
-import {
-  getClients,
-  getManagers,
-  getProjectById,
-} from '@/actions/constructions'
+import { getProjectById } from '@/actions/constructions'
+import { getCustomers, getManagers } from '@/actions/people'
 import { notFound } from 'next/navigation'
 import EditProjectForm from './EditProjectForm'
 
@@ -13,31 +9,22 @@ export default async function EditConstruction({
   params: Promise<{ id: string }>
 }) {
   let construction = null
-  const [param, clients, managers, user] = await Promise.all([
-    params,
-    getClients(),
+  const [data, clients, managers] = await Promise.all([
+    getProjectById(params),
+    getCustomers(),
     getManagers(),
-    getUser(),
   ])
-  const id = param.id
-  const isNewProject = id === 'new'
-  if (!isNewProject) {
-    construction = await getProjectById(id)
 
-    if (!construction) {
-      notFound()
-    }
+  if (data?.project === null) {
+    notFound()
   }
-
-  const isAdmin = user?.user_metadata.role === 'ADMIN'
 
   return (
     <EditProjectForm
       project={construction}
-      clients={clients}
-      managers={managers}
-      isAdmin={isAdmin}
-      isNewProject={isNewProject}
+      clients={clients?.data}
+      managers={managers?.data}
+      isNewProject={data?.id === 'new'}
     />
   )
 }

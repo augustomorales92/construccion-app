@@ -1,6 +1,6 @@
 'use server'
 
-import { clientsSample, managerSample } from '@/lib/constants'
+import { StatusVariant } from '@/components/reports/columns'
 import prisma from '@/lib/db'
 import { PartialConstruction } from '@/lib/types'
 import { revalidate, unstable_cache } from '@/lib/unstable_cache'
@@ -9,38 +9,42 @@ import { revalidatePath } from 'next/cache'
 import { v4 as uuidv4 } from 'uuid'
 import getUser from './auth'
 
-export async function getMyConstructions(query?: string) {
-  const userAuth = await getUser()
+export const getMyConstructions = unstable_cache(
+  async () => {
+    const userAuth = await getUser()
 
-  if (!userAuth) {
-    return null
-  }
+    if (!userAuth) {
+      return null
+    }
 
-  try {
-    const projects = await prisma.project.findMany({
-      where: {
-        users: {
-          some: {
-            userId: userAuth.id,
+    try {
+      const projects = await prisma.project.findMany({
+        where: {
+          users: {
+            some: {
+              userId: userAuth.id,
+            },
           },
         },
-      },
-      include: {
-        certificates: {
-          orderBy: { version: 'desc' },
-          include: {
-            certificateItems: true,
+        include: {
+          certificates: {
+            orderBy: { version: 'desc' },
+            include: {
+              certificateItems: true,
+            },
           },
+          items: true,
         },
-        items: true,
-      },
-    })
-    return projects
-  } catch (error) {
-    console.log(error)
-    throw new Error('Failed to get my projects')
-  }
-}
+      })
+      return projects
+    } catch (error) {
+      console.log(error)
+      throw new Error('Failed to get my projects')
+    }
+  },
+  ['projects'],
+  { revalidate: revalidate },
+)
 
 export async function verifyPassword(
   constructionId: string | undefined,
@@ -158,7 +162,7 @@ export async function getProjectsByUser() {
   }
 }
 
-export async function getUsersByWork(workId: string) {
+export async function getUsersByProject(workId: string) {
   try {
     const workWithUsers = await prisma.project.findUnique({
       where: {
@@ -184,15 +188,6 @@ export async function getUsersByWork(workId: string) {
     console.error('Error getting users by work:', error)
     throw new Error('Failed to get users by work')
   }
-}
-
-export async function getClients() {
-  // Aquí iría la lógica para obtener todos los clientes de la base de datos
-  return clientsSample
-}
-
-export async function getManagers() {
-  return managerSample
 }
 
 export async function updateProject(formData: FormData) {
@@ -240,7 +235,9 @@ export const getProjectById = unstable_cache(
   async (params: Promise<{ id: string }>) => {
     try {
       const { id } = await params
-
+      if (id === 'new') {
+        return { project: undefined, id }
+      }
       const project = await prisma.project.findUnique({
         where: {
           id,
@@ -280,5 +277,87 @@ export async function getFavoriteProjects(favorites: string[]) {
   } catch (error) {
     console.error('Error getting favorite projects:', error)
     return []
+  }
+}
+
+export const getPendingReports = unstable_cache(
+  async () => {
+    try {
+      const user = await getUser()
+      const projectsIds = await prisma.project.findMany({
+        where: {
+          users: {
+            some: {
+              userId: user?.id,
+            },
+          },
+        },
+        select: {
+          id: true,
+        },
+      })
+
+      const incidents = await prisma.incident.findMany({
+        where: {
+          projectId: {
+            in: projectsIds.map((project) => project.id),
+          },
+          status: 'PENDING',
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      })
+
+      const certificates = await prisma.certificate.findMany({
+        where: {
+          projectId: {
+            in: projectsIds.map((project) => project.id),
+          },
+          status: 'PENDING',
+        },
+        orderBy: {
+          issuedAt: 'desc',
+        },
+      })
+
+      return { incidents, certificates }
+    } catch (error) {
+      console.error('Error getting incidents:', error)
+      return null
+    }
+  },
+  ['incidents'],
+  { revalidate: revalidate },
+)
+export async function updateReportStatus(
+  id: string,
+  status: StatusVariant,
+  isCertificate?: boolean,
+) {
+  try {
+    const updatedReport = isCertificate
+      ? await prisma.certificate.update({
+          where: {
+            id,
+          },
+          data: {
+            status,
+          },
+        })
+      : await prisma.incident.update({
+          where: {
+            id,
+          },
+          data: {
+            status,
+          },
+        })
+
+    revalidatePath('/protected')
+    return { success: true, updatedReport }
+  } catch (error) {
+    console.error('Error updating report status:', error)
+    return { success: false, error: 'Failed to update report status' }
   }
 }

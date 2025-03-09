@@ -1,9 +1,20 @@
+import { getPendingReports } from '@/actions/constructions'
 import ReportsPage from '@/components/reports'
+import { Suspense } from 'react'
 
-export default async function ProtectedPage() {
+async function Content() {
+  const reports = await getPendingReports()
   return (
     <div className="flex-1 w-full flex flex-col gap-12 h-full">
-      <ReportsPage />
+      <ReportsPage reports={reports}/>
     </div>
+  )
+}
+
+export default function ProtectedPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <Content />
+    </Suspense>
   )
 }

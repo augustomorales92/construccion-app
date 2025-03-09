@@ -7,17 +7,11 @@ export default async function Details({
 }: {
   params: Promise<{ id: string }>
 }) {
-  const id = (await params).id
+  const data = await getProjectById(params)
 
-  let construction = null
-
-  if (id !== 'new') {
-    construction = await getProjectById(id)
-
-    if (!construction) {
-      notFound()
-    }
+  if (data?.project === null) {
+    notFound()
   }
 
-  return <CardDetails construction={construction} />
+  return <CardDetails construction={data?.project} />
 }

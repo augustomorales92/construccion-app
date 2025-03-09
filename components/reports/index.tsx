@@ -1,77 +1,26 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { DataTable } from "./data-table"
-import { columns } from "./columns"
-import { ViewDetailsDialog } from "./view-details-dialog"
-import { Button } from "@/components/ui/button"
-import { ClipboardList } from "lucide-react"
-import Link from "next/link"
+import { Button } from '@/components/ui/button'
+import { Certificates, Incidents } from '@/lib/types'
+import { ClipboardList } from 'lucide-react'
+import Link from 'next/link'
+import { useState } from 'react'
+import { columns } from './columns'
+import { DataTable } from './data-table'
+import { ViewDetailsDialog } from './view-details-dialog'
+import type { Report } from './columns'
 
-// Tipos de datos
-type Status = "pendiente" | "aprobado" | "rechazado"
-
-interface Report {
-  id: string
-  fecha: string
-  tipo: "diario" | "quincenal"
-  contenido: string
-  estado: Status
-  autor: string
+type Props = {
+  reports: { incidents: Incidents[]; certificates: Certificates[] } | null
 }
 
-// Datos de ejemplo
-const initialReports: Report[] = [
-  {
-    id: "1",
-    fecha: "2024-02-24",
-    tipo: "diario",
-    contenido: "Reporte de actividades diarias del equipo A",
-    estado: "pendiente",
-    autor: "Juan Pérez",
-  },
-  {
-    id: "2",
-    fecha: "2024-02-24",
-    tipo: "diario",
-    contenido: "Reporte de actividades diarias del equipo B",
-    estado: "pendiente",
-    autor: "María García",
-  },
-  {
-    id: "3",
-    fecha: "2024-02-15",
-    tipo: "quincenal",
-    contenido: "Certificado quincenal de cumplimiento",
-    estado: "pendiente",
-    autor: "Carlos López",
-  },
-  {
-    id: "4",
-    fecha: "2024-02-15",
-    tipo: "quincenal",
-    contenido: "Certificado quincenal de calidad",
-    estado: "pendiente",
-    autor: "Ana Martínez",
-  },
-]
-
-export default function ReportsPage() {
-  const [reports, setReports] = useState<Report[]>(initialReports)
+export default function ReportsPage({ reports }: Props) {
   const [selectedReport, setSelectedReport] = useState<Report | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-
-  const dailyReports = reports.filter((report) => report.tipo === "diario")
-  const biweeklyReports = reports.filter((report) => report.tipo === "quincenal")
 
   const handleViewDetails = (report: Report) => {
     setSelectedReport(report)
     setIsDialogOpen(true)
-  }
-
-  const handleUpdateStatus = (id: string, newStatus: Status) => {
-    setReports(reports.map((report) => (report.id === id ? { ...report, estado: newStatus } : report)))
-    setIsDialogOpen(false)
   }
 
   return (
@@ -87,13 +36,23 @@ export default function ReportsPage() {
       </div>
 
       <section>
-        <h2 className="text-base md:text-lg font-semibold mb-3">Reportes Diarios</h2>
-        <DataTable columns={columns({ onView: handleViewDetails })} data={dailyReports} />
+        <h2 className="text-base md:text-lg font-semibold mb-3">
+          Reportes Diarios
+        </h2>
+        <DataTable
+          columns={columns({ onView: handleViewDetails })}
+          data={reports?.incidents || []}
+        />
       </section>
 
       <section>
-        <h2 className="text-base md:text-lg font-semibold mb-3">Certificados Quincenales</h2>
-        <DataTable columns={columns({ onView: handleViewDetails })} data={biweeklyReports} />
+        <h2 className="text-base md:text-lg font-semibold mb-3">
+          Certificados Quincenales
+        </h2>
+        <DataTable
+          columns={columns({ onView: handleViewDetails })}
+          data={reports?.certificates || []}
+        />
       </section>
 
       {selectedReport && (
@@ -101,10 +60,8 @@ export default function ReportsPage() {
           report={selectedReport}
           open={isDialogOpen}
           onOpenChange={setIsDialogOpen}
-          onUpdateStatus={handleUpdateStatus}
         />
       )}
     </div>
   )
 }
-

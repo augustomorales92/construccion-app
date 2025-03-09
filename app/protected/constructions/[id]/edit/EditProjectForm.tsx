@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import useUser from '@/hooks/use-user'
 import type { Construction, Customer, Manager } from '@/lib/types'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
@@ -19,10 +20,9 @@ import FileUpload from './FileUpload'
 import ImageUpload from './ImageUpload'
 
 type Props = {
-  project: Construction | null
-  clients: Customer[] | null
-  managers: Manager[] | null
-  isAdmin?: boolean
+  project?: Construction | null
+  clients?: Customer[] | null
+  managers?: Manager[] | null
   isNewProject?: boolean
 }
 
@@ -30,7 +30,6 @@ export default function EditProjectForm({
   project,
   clients,
   managers,
-  isAdmin,
   isNewProject,
 }: Props) {
   const [projectData, setProjectData] = useState<Construction>(
@@ -55,8 +54,8 @@ export default function EditProjectForm({
   const [images, setImage] = useState<File[]>([])
   const [excelFile, setExcelFile] = useState<File | null>(null)
   const router = useRouter()
-
-  // Convert clients and managers to ComboboxOption format
+  const { isAdmin } = useUser()
+  
   const clientOptions: ComboboxOption<Customer>[] = useMemo(() => {
     if (!clients) return []
     return clients.map((client) => ({
