@@ -1,4 +1,5 @@
 'use client'
+import FileUploader from '@/components/project/FileUploader'
 import SpreadsheetDialog from '@/components/Spreadsheet'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -35,7 +36,8 @@ export default function UploadFile({
           isAdmin={isAdmin}
         />
       </span>
-      <div className="mt-2">
+      <FileUploader/>
+      {/* <div className="mt-2">
         <Input
           id="excel"
           type="file"
@@ -62,7 +64,7 @@ export default function UploadFile({
             <p>Archivo seleccionado: {excelFile.name}</p>
           </div>
         )}
-      </div>
+      </div> */}
     </div>
   )
 }
