@@ -94,6 +94,7 @@ export default function Customers({ customers }: Props) {
         setIsDialogOpen(false)
         setSelectedCustomer(null)
       } catch (error) {
+        console.error('Error creating/updating customer:', error)
         toast.error(
           'Ocurrió un error al procesar la operación. Por favor, intente nuevamente.',
         )
@@ -113,6 +114,7 @@ export default function Customers({ customers }: Props) {
         toast.success('Cliente eliminado correctamente')
         setIsAlertDialogOpen(false)
       } catch (error) {
+        console.error('Error deleting customer:', error)
         toast.error('Error al eliminar el cliente')
       }
     })

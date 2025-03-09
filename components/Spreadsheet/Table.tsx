@@ -26,7 +26,7 @@ export default function EditableTable({
   initialData = [],
   isEditing = false,
   cols = columns,
-  MIN_ROWS = 5,
+  MIN_ROWS = 25,
 }: EditableTableProps) {
   const rowCount = Math.max(initialData.length, MIN_ROWS)
   const colCount = cols.length

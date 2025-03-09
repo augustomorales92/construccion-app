@@ -7,13 +7,13 @@ import { Suspense } from 'react'
 import Content from '../content'
 
 async function ProjectPage({ params }: { params: Promise<{ id: string }> }) {
+  const id = (await params).id
   const [data, user, cookieStore] = await Promise.all([
-    getProjectById(params),
+    getProjectById(id),
     getUser(),
     cookies(),
   ])
 
-  const id = data?.id
   const project = data?.project
   const userFavorites = user?.user_metadata?.favorites || []
 
