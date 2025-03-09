@@ -7,10 +7,13 @@ import ResultModalSpreadsheet from './ResultModalSpreadsheet'
 import { Item, SpreadsheetData } from './types'
 import { convertDataToSpreadsheetFormat, processData } from './utils'
 
-export default function FileUploader() {
-  const [file, setFile] = useState<File | null>(null)
+type FileUploaderProps = {
+  file: File | null
+  setFile: (file: File | null) => void
+}
+
+export default function FileUploader({ file, setFile }: FileUploaderProps) {
   const [loading, setLoading] = useState(false)
-  // const [processedData, setProcessedData] = useState<ProcessedData | null>(null)
   const [spreadsheetData, setSpreadsheetData] =
     useState<SpreadsheetData | null>(null)
   const [error, setError] = useState<string | null>(null)

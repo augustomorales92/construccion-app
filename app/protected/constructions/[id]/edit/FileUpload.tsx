@@ -10,7 +10,12 @@ type Props = {
   isAdmin?: boolean
 }
 
-export default function UploadFile({ isNewProject, isAdmin }: Props) {
+export default function UploadFile({
+  isNewProject,
+  isAdmin,
+  excelFile,
+  setExcelFile,
+}: Props) {
   return (
     <div className="py-2 flex flex-col gap-2 mt-2">
       <span className="w-full flex items-center justify-between">
@@ -23,7 +28,7 @@ export default function UploadFile({ isNewProject, isAdmin }: Props) {
           isAdmin={isAdmin}
         />
       </span>
-      <FileUploader />
+      <FileUploader file={excelFile} setFile={setExcelFile} />
     </div>
   )
 }
