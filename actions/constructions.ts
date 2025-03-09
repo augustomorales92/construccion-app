@@ -3,6 +3,7 @@
 import { clientsSample, managerSample } from '@/lib/constants'
 import prisma from '@/lib/db'
 import { PartialConstruction } from '@/lib/types'
+import { revalidate, unstable_cache } from '@/lib/unstable_cache'
 import { projectSchema } from '@/schemas'
 import { revalidatePath } from 'next/cache'
 import { v4 as uuidv4 } from 'uuid'
@@ -235,30 +236,36 @@ export async function getProjectsByQuery(
   }
 }
 
-export async function getProjectById(id: string) {
-  try {
-    const project = await prisma.project.findUnique({
-      where: {
-        id,
-      },
-      include: {
-        certificates: true,
-        incidents: {
-          orderBy: {
-            createdAt: 'desc',
-          },
+export const getProjectById = unstable_cache(
+  async (params: Promise<{ id: string }>) => {
+    try {
+      const { id } = await params
+
+      const project = await prisma.project.findUnique({
+        where: {
+          id,
         },
-        items: true,
-        customer: true,
-        manager: true,
-      },
-    })
-    return project
-  } catch (error) {
-    console.error('Error getting project by id:', error)
-    return null
-  }
-}
+        include: {
+          certificates: true,
+          incidents: {
+            orderBy: {
+              createdAt: 'desc',
+            },
+          },
+          items: true,
+          customer: true,
+          manager: true,
+        },
+      })
+      return { project, id }
+    } catch (error) {
+      console.error('Error getting project by id:', error)
+      return null
+    }
+  },
+  ['project'],
+  { revalidate: revalidate },
+)
 
 export async function getFavoriteProjects(favorites: string[]) {
   try {
