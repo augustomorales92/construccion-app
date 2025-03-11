@@ -75,7 +75,6 @@ export async function POST(req: NextRequest) {
         description: description,
         projectId: projectId,
         userId: userAuth.id,
-        issuedAt: date,
       },
     })
     return NextResponse.json(newIncident, { status: 201 })
