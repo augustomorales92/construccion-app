@@ -26,6 +26,7 @@ async function ProjectPage({ params }: { params: Promise<{ id: string }> }) {
   const isCorrectPassword = password === project.accessCode
   const isFavorite = userFavorites.includes(id)
   let showPasswordModal = false
+  console.log(project)
 
   const hasAccess = isCorrectPassword || isFavorite || !project.accessCode
 

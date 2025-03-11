@@ -53,7 +53,6 @@ export async function POST(req: NextRequest) {
   }
 
   const { description, projectId, date } = parsedData.data
-  console.log('datos que llegan,',date)
 
   if (!projectId) {
     return NextResponse.json(
@@ -75,7 +74,7 @@ export async function POST(req: NextRequest) {
         description: description,
         projectId: projectId,
         userId: userAuth.id,
-        issuedAt: date,
+        issuedAt:date,
       },
     })
     return NextResponse.json(newIncident, { status: 201 })
@@ -96,7 +95,8 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const { description, projectId } = await req.json()
+  const body = await req.json()
+  const parsedData = incidentSchema.safeParse(body)
 
   if (!incidentId) {
     return NextResponse.json(
@@ -105,12 +105,14 @@ export async function PUT(req: NextRequest) {
     )
   }
 
-  if (!description || !projectId) {
+  if (!parsedData.success) {
     return NextResponse.json(
-      { error: 'Descripción y projectId son requeridos' },
+      { error: 'Datos inválidos', details: parsedData.error.format() },
       { status: 400 },
     )
   }
+
+  const { description, status } = parsedData.data
 
   try {
     const updatedIncident = await prisma.incident.update({
@@ -119,6 +121,7 @@ export async function PUT(req: NextRequest) {
       },
       data: {
         description: description,
+        status: status,
       },
     })
     return NextResponse.json(updatedIncident)

@@ -280,6 +280,7 @@ export async function getFavoriteProjects(favorites: string[]) {
 export const getPendingReports = unstable_cache(
   async (userId: string) => {
     try {
+      console.log(userId)
       const projectsIds = await prisma.project.findMany({
         where: {
           users: {
@@ -298,7 +299,7 @@ export const getPendingReports = unstable_cache(
           projectId: {
             in: projectsIds.map((project) => project.id),
           },
-          status: 'PENDING',
+
         },
         orderBy: {
           createdAt: 'desc',
@@ -316,6 +317,7 @@ export const getPendingReports = unstable_cache(
           issuedAt: 'desc',
         },
       })
+      console.log(certificates)
 
       return { incidents, certificates }
     } catch (error) {

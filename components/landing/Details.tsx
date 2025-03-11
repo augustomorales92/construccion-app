@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import useUser from '@/hooks/use-user'
 import { Certificates, Construction } from '@/lib/types'
 import Cookies from 'js-cookie'
-import { ArrowLeft, ChevronLeft, ChevronRight, Edit, Heart } from 'lucide-react'
+import { ArrowLeft, ChevronLeft, ChevronRight, Download, Edit, Heart } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
@@ -15,6 +15,7 @@ import CertificateModal from './CertificateModal'
 import { ConstructionIncidentsTimeline } from './IncidentsTimeline'
 import PasswordModal from './PasswordModal'
 import { WhatsAppShareLinkPopover } from './ShareComponent'
+import { downloadPdf } from '@/app/api/pdf-generate/utils'
 
 interface CardProps {
   construction?: Construction | null
@@ -64,6 +65,10 @@ export default function CardComponent({
       Cookies.set('favorite', String(construction?.id))
       router.push('/sign-in')
     }
+  }
+
+  const handleDownloadCertificate = (certificateId: string) => {
+    downloadPdf(certificateId)
   }
 
   return (
@@ -238,6 +243,19 @@ export default function CardComponent({
                         onClick={() => setSelectedCertificate(certificate)}
                       >
                         Certificado #{certificate.version}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          handleDownloadCertificate(
+                            certificate.id,
+                          )
+                        }
+                        className="flex items-center gap-2"
+                      >
+                        <Download className="h-4 w-4" />
+                        Descargar PDF
                       </Button>
                     </li>
                   ))}

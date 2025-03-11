@@ -77,10 +77,11 @@ export default function FileUploader({ file, setFile }: FileUploaderProps) {
   const handleModalClose = (isValidated: boolean | null) => {
     setShowModal(false)
 
-    if (isValidated !== null) {
-      console.log('Datos validados:', isValidated ? 'Correctos' : 'Incorrectos')
+    if (isValidated) {
+      console.log(isValidated)
+      console.log('Datos validados:Correctos')
       console.log('Items originales guardados:', originalItems)
-
+    } else {
       setFile(null)
       // setProcessedData(null)
       setSpreadsheetData(null)

@@ -4,6 +4,7 @@ export const incidentSchema = z.object({
   description: z.string(),
   projectId: z.string(),
   date: z.coerce.date(),
+  status: z.enum(['PENDING', 'APPROVED', 'REJECTED']).optional(),
 })
 
 export const managerSchema = z.object({
@@ -47,6 +48,10 @@ export const editProjectSchema = z.object({
     budget: z.number().positive('El presupuesto debe ser mayor a 0').optional(),
     description: z.string().optional(),
     address: z.string().optional(),
+    estimatedTime: z.string().optional(),
+    projectNumber: z.string().optional(),
+    images: z.array(z.string()).optional(),
+    files: z.array(z.string()).optional(),
   }),
 
   newItems: z.array(itemSchema).optional(),
