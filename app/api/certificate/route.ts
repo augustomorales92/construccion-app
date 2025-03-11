@@ -2,6 +2,7 @@ import getUser from '@/actions/auth'
 import prisma from '@/lib/db'
 import { NextResponse } from 'next/server'
 
+// Trae certificados aprobados - podria eliminarla pero la dejo por las dudas
 export async function GET(req: Request) {
   try {
     const url = new URL(req.url)

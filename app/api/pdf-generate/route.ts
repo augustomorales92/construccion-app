@@ -50,8 +50,7 @@ export async function POST(req: Request) {
       )
     }
 
-    // const pythonServiceUrl = `${process.env.PYTHON_ENDPOINT_URL}/generate_certificate_pdf`
-    const pythonServiceUrl = 'http://localhost:8000/generate_certificate_pdf'
+    const pythonServiceUrl = `${process.env.PYTHON_ENDPOINT_URL}/generate_certificate_pdf`
 
     const response = await axios.post(pythonServiceUrl, certificate, {
       responseType: 'arraybuffer', 

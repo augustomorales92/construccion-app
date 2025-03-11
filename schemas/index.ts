@@ -4,6 +4,7 @@ export const incidentSchema = z.object({
   description: z.string(),
   projectId: z.string(),
   date: z.coerce.date(),
+  status: z.enum(['PENDING', 'APPROVED', 'REJECTED']).optional(),
 })
 
 export const managerSchema = z.object({

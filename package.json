@@ -1,7 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --turbo",
     "build": "npx prisma generate && next build",
     "build:local": "next build",
     "start": "next start",
