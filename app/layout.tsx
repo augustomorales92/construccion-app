@@ -5,9 +5,8 @@ import { NextSSRPlugin } from '@uploadthing/react/next-ssr-plugin'
 import { ThemeProvider } from 'next-themes'
 import { Geist } from 'next/font/google'
 import { connection } from 'next/server'
-import { Suspense } from 'react'
+import { Suspense, unstable_ViewTransition as ViewTransitions } from 'react'
 import { extractRouterConfig } from 'uploadthing/server'
-
 import './globals.css'
 
 async function UTSSR() {
@@ -48,7 +47,9 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <Suspense fallback={null}>
-            <Layout>{children}</Layout>
+            <ViewTransitions>
+              <Layout>{children}</Layout>
+            </ViewTransitions>
           </Suspense>
           <Toaster />
         </ThemeProvider>
