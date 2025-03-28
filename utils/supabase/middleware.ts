@@ -39,17 +39,17 @@ export const updateSession = async (request: NextRequest) => {
     // https://supabase.com/docs/guides/auth/server-side/nextjs
     const user = await supabase.auth.getUser()
 
-    const requestHeaders = new Headers(request.headers)
+    // const requestHeaders = new Headers(request.headers)
     const userId = user?.data.user?.id
     if (userId) {
-      requestHeaders.set('x-user-id', userId)
+      // pongo esto directo por que con la otra no funcionaba 
+      response.headers.set('x-user-id', userId)
     }
-
     // protected routes
     if (request.nextUrl.pathname.startsWith('/protected') && user.error) {
       return NextResponse.redirect(new URL('/sign-in', request.url))
     }
-
+    
     /*
     if (request.nextUrl.pathname === "/" && !user.error) {
       return NextResponse.redirect(new URL("/protected", request.url));
